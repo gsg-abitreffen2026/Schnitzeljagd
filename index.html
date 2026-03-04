@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f4c5c" />
+    <title>Schnitzeljagd</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="bg-shape bg-shape-a" aria-hidden="true"></div>
+    <div class="bg-shape bg-shape-b" aria-hidden="true"></div>
+
+    <div class="app-shell">
+      <header class="hero card">
+        <p class="brand">Schnitzeljagd</p>
+        <h1 id="modeTitle">Schnitzeljagd</h1>
+        <p id="modeSubtitle" class="muted"></p>
+
+        <div id="countdownCard" class="countdown">
+          <p class="countdown-label">Countdown bis Start</p>
+          <p id="countdownValue" class="countdown-value">--:--:--</p>
+          <p id="startAtText" class="small"></p>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <section class="card">
+          <h2>Koordinaten-Playlist</h2>
+          <p class="muted">Diese Songs haben Bedeutung. Noch nichts eingeben, nur anschauen.</p>
+
+          <div class="playlist-grid">
+            <div>
+              <h3>Gruppe A (Nord)</h3>
+              <ul id="playlistA" class="song-list"></ul>
+            </div>
+            <div>
+              <h3>Gruppe B (Ost)</h3>
+              <ul id="playlistB" class="song-list"></ul>
+            </div>
+          </div>
+
+          <h3>Hinweise</h3>
+          <ul id="hintList" class="hint-list"></ul>
+        </section>
+
+        <section id="startCard" class="card">
+          <h2>Spielstatus</h2>
+          <p id="lockText"></p>
+          <p id="nextTargetText" class="muted"></p>
+
+          <div id="gpsStatus" class="status-pill status-idle">Status: noch nicht geprüft</div>
+          <p id="distanceText" class="distance-text">Du bist -- Meter entfernt</p>
+          <p id="gpsFallback" class="small"></p>
+
+          <div id="permissionHelp" class="alert hidden" role="status"></div>
+        </section>
+
+        <section id="challengeCard" class="card hidden">
+          <h2 id="challengeTitle">Station</h2>
+          <p id="challengeStory"></p>
+          <p id="challengePrompt" class="prompt"></p>
+
+          <label for="answerInput" class="label">Lösungswort</label>
+          <input
+            id="answerInput"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            placeholder="Lösungswort eingeben"
+          />
+
+          <div class="btn-row">
+            <button id="checkAnswerBtn" class="btn">Prüfen</button>
+            <button id="showHintBtn" class="btn btn-alt hidden">Tipp anzeigen</button>
+          </div>
+
+          <p id="tipText" class="tip hidden"></p>
+          <p id="feedbackText" class="feedback"></p>
+
+          <button id="unlockHintBtn" class="btn btn-alt hidden">Hinweis freischalten</button>
+          <button id="nextStageBtn" class="btn hidden">Weiter zur nächsten Etappe</button>
+
+          <button id="emergencyBtn" class="btn btn-danger hidden">Notfallmodus</button>
+          <div id="emergencyBox" class="alert hidden"></div>
+        </section>
+
+        <section id="finalCard" class="card hidden">
+          <h2>Finale</h2>
+          <p>Setzt eure Reihe als Koordinaten in Google Maps ein.</p>
+          <p class="muted">Die Koordinaten werden absichtlich nicht automatisch angezeigt.</p>
+        </section>
+      </main>
+
+      <footer id="stickyBar" class="sticky-cta">
+        <button id="startChallengeBtn" class="btn">Challenge starten</button>
+        <p id="ctaHint" class="small"></p>
+      </footer>
+    </div>
+
+    <script src="./script.js" defer></script>
+  </body>
+</html>
