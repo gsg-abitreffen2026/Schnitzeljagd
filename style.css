@@ -228,6 +228,11 @@ p {
 .prompt {
   margin-top: 0.6rem;
   font-weight: 600;
+  white-space: pre-line;
+}
+
+#challengeStory {
+  white-space: pre-line;
 }
 
 input[type="text"] {
@@ -294,6 +299,7 @@ input[type="text"]:focus {
 .feedback {
   margin-top: 0.65rem;
   font-weight: 700;
+  white-space: pre-line;
 }
 
 .tip {
@@ -340,6 +346,49 @@ input[type="text"]:focus {
 
 .hidden {
   display: none !important;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgba(12, 22, 30, 0.62);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.modal-card {
+  width: min(680px, 100%);
+  max-height: 86vh;
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0.9rem;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.modal-close {
+  width: auto;
+  min-height: 42px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.92rem;
+}
+
+.notes-image {
+  margin-top: 0.7rem;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #d2dbe0;
+  background: #fff;
 }
 
 @keyframes rise {

@@ -61,8 +61,9 @@
           <h2 id="challengeTitle">Station</h2>
           <p id="challengeStory"></p>
           <p id="challengePrompt" class="prompt"></p>
+          <button id="notesBtn" class="btn btn-alt hidden" type="button">Noten anzeigen</button>
 
-          <label for="answerInput" class="label">Lösungswort</label>
+          <label id="answerLabel" for="answerInput" class="label">Lösungswort</label>
           <input
             id="answerInput"
             type="text"
@@ -87,6 +88,22 @@
           <button id="emergencyBtn" class="btn btn-danger hidden">Notfallmodus</button>
           <div id="emergencyBox" class="alert hidden"></div>
         </section>
+
+        <div id="notesModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="notesTitle">
+          <div class="modal-card">
+            <div class="modal-head">
+              <h3 id="notesTitle">Blockfloeten-Noten</h3>
+              <button id="closeNotesBtn" type="button" class="btn btn-alt modal-close">Schliessen</button>
+            </div>
+            <img
+              src="./assets/blockfloete-griffe.png"
+              alt="Griffuebersicht fuer Blockfloete"
+              class="notes-image"
+            />
+            <p><strong>Noten:</strong> E - G - A - E - G - A - B - A</p>
+            <p class="muted">Die Griffuebersicht hilft euch beim Spielen der Noten.</p>
+          </div>
+        </div>
 
         <section id="finalCard" class="card hidden">
           <h2>Finale</h2>

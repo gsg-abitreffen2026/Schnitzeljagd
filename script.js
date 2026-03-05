@@ -103,6 +103,31 @@ const HINTS = Object.freeze([
   "Und? Wohin geht's?",
 ]);
 
+const STATION_ONE_ID = "clara-zetkin";
+const STATION_ONE_STEPS = Object.freeze([
+  {
+    question: "Wie heisst der Song?",
+    answers: ["numb"],
+    wrongMessage: "Falsch.\n\nAlle trinken einen Schluck 🍺",
+    successMessage: "Richtig!\n\nDer Song ist \"Numb\" von Linkin Park.",
+  },
+  {
+    question:
+      "2004 entstand ein beruehmter Remix dieses Songs\nzusammen mit einem bekannten Rapper.\n\nWie heisst der urspruengliche Song dieses Rappers?",
+    answers: ["encore"],
+    wrongMessage: "Falsch.\n\nAlle trinken einen Schluck 🍷",
+    successMessage:
+      "Richtig!\n\nDer Remix heisst \"Numb / Encore\"\nvon Linkin Park und Jay-Z.",
+  },
+  {
+    question: "Was bedeutet \"Encore\" auf Deutsch?",
+    answers: ["noch einmal", "nochmal", "noch mal", "nocheinmal"],
+    wrongMessage: "Falsch.\n\nAlle trinken einen Schluck 🍺",
+    successMessage:
+      "Ihr habt das erste Loesungswort gefunden.\nLoesungswort:\nNoch einmal",
+  },
+]);
+
 const STATIONS = Object.freeze([
   {
     id: "clara-zetkin",
@@ -111,13 +136,12 @@ const STATIONS = Object.freeze([
     address: "48 44'44.3\"N 9 12'17.7\"E",
     routeHint: "Startpunkt um 10:00. Dort startet euer Blockfloeten-Spiel.",
     target: { lat: 48.745639, lng: 9.204917 },
-    radius: 120,
+    radius: 100,
     fallback: "Wenn GPS spinnt: Geht zum Haupteingang.",
-    story:
-      "Linkin Park trifft Jay-Z, daraus wird Encore. Ihr kennt den Gedanken dahinter.",
-    prompt: "Was ist das passende Loesungswort zu 'Encore'?",
-    answers: ["noch einmal", "nochmal", "noch ein mal"],
-    tip: "Uebersetzt den Kernbegriff ins Deutsche.",
+    story: "Ihr habt eine Blockfloete.\n\nSpielt die folgenden Noten.\nErkennt ihr den Song?",
+    prompt: "Wie heisst der Song?",
+    answers: ["numb"],
+    tip: "Noten anzeigen hilft beim Einstieg.",
     nextStageText: "Naechstes Ziel: Kemnater Hof.",
   },
   {
@@ -195,6 +219,7 @@ const DEFAULT_PROGRESS = Object.freeze({
   currentStationIndex: 0,
   hintsUnlocked: 0,
   attemptsByStation: {},
+  stepByStation: {},
   stageStatus: "locked",
   finalLegUnlocked: false,
   finished: false,
@@ -214,6 +239,7 @@ let transient = {
   permissionMessage: "",
   tipVisible: false,
   emergencyByStation: {},
+  stationFeedbackById: {},
 };
 
 const el = {
@@ -237,8 +263,12 @@ const el = {
   challengeTitle: byId("challengeTitle"),
   challengeStory: byId("challengeStory"),
   challengePrompt: byId("challengePrompt"),
+  answerLabel: byId("answerLabel"),
   answerInput: byId("answerInput"),
   checkAnswerBtn: byId("checkAnswerBtn"),
+  notesBtn: byId("notesBtn"),
+  notesModal: byId("notesModal"),
+  closeNotesBtn: byId("closeNotesBtn"),
   showHintBtn: byId("showHintBtn"),
   tipText: byId("tipText"),
   feedbackText: byId("feedbackText"),
@@ -269,6 +299,15 @@ function init() {
 function bindEvents() {
   el.startChallengeBtn.addEventListener("click", onStartChallenge);
   el.checkAnswerBtn.addEventListener("click", onCheckAnswer);
+  if (el.notesBtn) {
+    el.notesBtn.addEventListener("click", openNotesModal);
+  }
+  if (el.closeNotesBtn) {
+    el.closeNotesBtn.addEventListener("click", closeNotesModal);
+  }
+  if (el.notesModal) {
+    el.notesModal.addEventListener("click", onNotesModalBackdropClick);
+  }
   el.showHintBtn.addEventListener("click", onToggleTip);
   el.unlockHintBtn.addEventListener("click", onUnlockHint);
   el.nextStageBtn.addEventListener("click", onNextStage);
@@ -407,7 +446,14 @@ function onCheckAnswer() {
 
   const rawInput = el.answerInput.value.trim();
   if (!rawInput) {
-    el.feedbackText.textContent = "Bitte erst ein Loesungswort eingeben.";
+    el.feedbackText.textContent = station.id === STATION_ONE_ID
+      ? "Bitte erst eine Antwort eingeben."
+      : "Bitte erst ein Loesungswort eingeben.";
+    return;
+  }
+
+  if (station.id === STATION_ONE_ID) {
+    onCheckAnswerStationOne(rawInput);
     return;
   }
 
@@ -429,9 +475,68 @@ function onCheckAnswer() {
   updateUI();
 }
 
+function onCheckAnswerStationOne(rawInput) {
+  const step = getStationOneStep();
+  const stepConfig = STATION_ONE_STEPS[step];
+  if (!stepConfig) {
+    return;
+  }
+
+  const candidate = normalizeText(rawInput);
+  const correct = stepConfig.answers.map(normalizeText).includes(candidate);
+
+  if (!correct) {
+    incrementAttempts(STATION_ONE_ID);
+    transient.stationFeedbackById[STATION_ONE_ID] = stepConfig.wrongMessage;
+    saveProgress();
+    updateUI();
+    return;
+  }
+
+  if (step < STATION_ONE_STEPS.length - 1) {
+    progress.stepByStation[STATION_ONE_ID] = step + 1;
+    transient.stationFeedbackById[STATION_ONE_ID] = stepConfig.successMessage;
+    el.answerInput.value = "";
+    saveProgress();
+    updateUI();
+    return;
+  }
+
+  progress.stepByStation[STATION_ONE_ID] = STATION_ONE_STEPS.length;
+  progress.stageStatus = "solved_ready_next";
+  if (progress.hintsUnlocked < 2) {
+    progress.hintsUnlocked = 2;
+  }
+  transient.tipVisible = false;
+  transient.stationFeedbackById[STATION_ONE_ID] = stepConfig.successMessage;
+  saveProgress();
+  renderHints();
+  updateUI();
+}
+
 function onToggleTip() {
   transient.tipVisible = !transient.tipVisible;
   updateUI();
+}
+
+function openNotesModal() {
+  if (!el.notesModal) {
+    return;
+  }
+  el.notesModal.classList.remove("hidden");
+}
+
+function closeNotesModal() {
+  if (!el.notesModal) {
+    return;
+  }
+  el.notesModal.classList.add("hidden");
+}
+
+function onNotesModalBackdropClick(event) {
+  if (el.notesModal && event.target === el.notesModal) {
+    closeNotesModal();
+  }
 }
 
 function onUnlockHint() {
@@ -458,6 +563,8 @@ function onNextStage() {
   transient.distanceMeters = null;
   transient.gpsStatus = "idle";
   transient.permissionMessage = "";
+  closeNotesModal();
+  el.answerInput.value = "";
 
   if (progress.currentStationIndex >= STATIONS.length - 1) {
     progress.currentStationIndex = STATIONS.length;
@@ -603,27 +710,50 @@ function renderFinalLegMode() {
 
 function renderChallenge(station) {
   if (progress.stageStatus === "locked" || !station) {
+    closeNotesModal();
     el.challengeCard.classList.add("hidden");
     el.feedbackText.textContent = "";
+    if (el.notesBtn) {
+      el.notesBtn.classList.add("hidden");
+    }
+    if (el.answerLabel) {
+      el.answerLabel.textContent = "Loesungswort";
+    }
     return;
   }
 
+  const isStationOne = station.id === STATION_ONE_ID;
+  if (!isStationOne) {
+    closeNotesModal();
+  }
   el.challengeCard.classList.remove("hidden");
   el.challengeTitle.textContent = station.title;
   el.challengeStory.textContent = station.story;
-  el.challengePrompt.textContent = station.prompt;
+  el.challengePrompt.textContent = isStationOne
+    ? STATION_ONE_STEPS[Math.min(getStationOneStep(), STATION_ONE_STEPS.length - 1)].question
+    : station.prompt;
   el.tipText.textContent = station.tip || "";
+  if (el.answerLabel) {
+    el.answerLabel.textContent = isStationOne ? "Antwort" : "Loesungswort";
+  }
+  el.answerInput.placeholder = isStationOne ? "Antwort eingeben" : "Loesungswort eingeben";
+  if (el.notesBtn) {
+    el.notesBtn.classList.toggle("hidden", !isStationOne);
+  }
 
   const tries = progress.attemptsByStation[station.id] || 0;
   const isSolvedNeedsHint = progress.stageStatus === "solved_needs_hint";
   const isSolvedReadyNext = progress.stageStatus === "solved_ready_next";
 
   const active = progress.stageStatus === "active";
+  if (isStationOne && !active) {
+    el.challengePrompt.textContent = "Station abgeschlossen.";
+  }
   el.answerInput.disabled = !active;
   el.checkAnswerBtn.disabled = !active;
   el.checkAnswerBtn.classList.toggle("hidden", !active);
 
-  const hasTip = Boolean(station.tip);
+  const hasTip = !isStationOne && Boolean(station.tip);
   el.showHintBtn.classList.toggle("hidden", !(active && hasTip));
   el.showHintBtn.textContent = transient.tipVisible ? "Tipp ausblenden" : "Tipp anzeigen";
 
@@ -633,14 +763,18 @@ function renderChallenge(station) {
     el.tipText.classList.add("hidden");
   }
 
-  el.unlockHintBtn.classList.toggle("hidden", !isSolvedNeedsHint);
+  el.unlockHintBtn.classList.toggle("hidden", isStationOne || !isSolvedNeedsHint);
   el.nextStageBtn.classList.toggle("hidden", !isSolvedReadyNext);
   el.nextStageBtn.textContent =
-    progress.currentStationIndex === STATIONS.length - 1
+    isStationOne
+      ? "Weiter"
+      : progress.currentStationIndex === STATIONS.length - 1
       ? "Finalziel freischalten"
       : "Weiter zur naechsten Etappe";
 
-  if (isSolvedNeedsHint) {
+  if (isStationOne && transient.stationFeedbackById[STATION_ONE_ID]) {
+    el.feedbackText.textContent = transient.stationFeedbackById[STATION_ONE_ID];
+  } else if (isSolvedNeedsHint) {
     el.feedbackText.textContent =
       "Erfolg! Schalte jetzt den naechsten Hinweis frei, dann geht es weiter.";
   }
@@ -648,9 +782,13 @@ function renderChallenge(station) {
   if (isSolvedReadyNext) {
     const nextText =
       progress.currentStationIndex < STATIONS.length - 1
-        ? STATIONS[progress.currentStationIndex].nextStageText
+        ? isStationOne
+          ? "Geht zum naechsten Ort:\n\nKemnater Hof"
+          : STATIONS[progress.currentStationIndex].nextStageText
         : "Finalziel freigeschaltet: Huette.";
-    el.feedbackText.textContent = `Hinweis freigeschaltet. ${nextText}`;
+    el.feedbackText.textContent = isStationOne
+      ? `${transient.stationFeedbackById[STATION_ONE_ID] || ""}\n\n${nextText}`.trim()
+      : `Hinweis freigeschaltet. ${nextText}`;
   }
 
   const showEmergency = active && tries >= 3;
@@ -788,6 +926,17 @@ function getCurrentStation() {
   return STATIONS[progress.currentStationIndex] || null;
 }
 
+function getStationOneStep() {
+  const raw = progress.stepByStation[STATION_ONE_ID];
+  if (!Number.isInteger(raw) || raw < 0) {
+    return 0;
+  }
+  if (raw > STATION_ONE_STEPS.length) {
+    return STATION_ONE_STEPS.length;
+  }
+  return raw;
+}
+
 function isPreStart() {
   if (TEST_MODE) {
     return false;
@@ -833,6 +982,30 @@ function normalizeProgress() {
     progress.attemptsByStation = {};
   }
 
+  if (typeof progress.stepByStation !== "object" || progress.stepByStation === null) {
+    progress.stepByStation = {};
+  }
+
+  const stationOneStep = progress.stepByStation[STATION_ONE_ID];
+  if (!Number.isInteger(stationOneStep) || stationOneStep < 0) {
+    progress.stepByStation[STATION_ONE_ID] = 0;
+  } else if (stationOneStep > STATION_ONE_STEPS.length) {
+    progress.stepByStation[STATION_ONE_ID] = STATION_ONE_STEPS.length;
+  }
+  if (
+    progress.currentStationIndex === 0 &&
+    progress.stageStatus === "active" &&
+    progress.stepByStation[STATION_ONE_ID] >= STATION_ONE_STEPS.length
+  ) {
+    progress.stepByStation[STATION_ONE_ID] = STATION_ONE_STEPS.length - 1;
+  }
+  if (progress.currentStationIndex === 0 && progress.stageStatus === "solved_needs_hint") {
+    progress.stageStatus = "solved_ready_next";
+    if (progress.hintsUnlocked < 2) {
+      progress.hintsUnlocked = 2;
+    }
+  }
+
   if (typeof progress.finalLegUnlocked !== "boolean") {
     progress.finalLegUnlocked = false;
   }
@@ -857,6 +1030,7 @@ function loadProgress() {
     currentStationIndex: DEFAULT_PROGRESS.currentStationIndex,
     hintsUnlocked: DEFAULT_PROGRESS.hintsUnlocked,
     attemptsByStation: {},
+    stepByStation: {},
     stageStatus: DEFAULT_PROGRESS.stageStatus,
     finalLegUnlocked: DEFAULT_PROGRESS.finalLegUnlocked,
     finished: DEFAULT_PROGRESS.finished,
@@ -876,6 +1050,10 @@ function loadProgress() {
         ...initial.attemptsByStation,
         ...(parsed.attemptsByStation || {}),
       },
+      stepByStation: {
+        ...initial.stepByStation,
+        ...(parsed.stepByStation || {}),
+      },
     };
   } catch (error) {
     return initial;
@@ -887,6 +1065,7 @@ function saveProgress() {
     currentStationIndex: progress.currentStationIndex,
     hintsUnlocked: progress.hintsUnlocked,
     attemptsByStation: progress.attemptsByStation,
+    stepByStation: progress.stepByStation,
     stageStatus: progress.stageStatus,
     finalLegUnlocked: progress.finalLegUnlocked,
     finished: progress.finished,
