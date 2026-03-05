@@ -99,6 +99,51 @@
               <button id="hitsterWrongBtn" class="btn btn-alt" type="button">Song falsch</button>
             </div>
           </div>
+
+          <div id="stationFivePanel" class="station-five-panel hidden">
+            <div class="coord-grid">
+              <label for="coordLatInput" class="label">Koordinate 1</label>
+              <input
+                id="coordLatInput"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder="48.746512"
+              />
+
+              <label for="coordLngInput" class="label">Koordinate 2</label>
+              <input
+                id="coordLngInput"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder="9.243954"
+              />
+            </div>
+            <button id="checkCoordsBtn" class="btn btn-alt" type="button">Koordinaten prüfen</button>
+            <p id="coordsFeedback" class="small muted"></p>
+
+            <div id="stationFiveQuestion" class="hidden">
+              <p class="prompt">
+                Geht zu diesen Koordinaten.
+
+                Was steht dort?
+              </p>
+            </div>
+
+            <div id="sentenceBuilder" class="sentence-builder hidden">
+              <p class="label">Wortbank</p>
+              <div id="wordBank" class="word-bank"></div>
+
+              <p class="label">Satzlinie</p>
+              <div id="sentenceLine" class="sentence-line"></div>
+              <p id="sentenceHint" class="small muted"></p>
+            </div>
+          </div>
           <p id="feedbackText" class="feedback"></p>
 
           <button id="unlockHintBtn" class="btn btn-alt hidden">Hinweis freischalten</button>

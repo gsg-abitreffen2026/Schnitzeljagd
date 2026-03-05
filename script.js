@@ -157,6 +157,26 @@ const STATION_FOUR_TIPS = Object.freeze([
   "\"Superstition\"\n\nDies ist ein Song des gesuchten Interpreten.",
   "Gesucht ist ein Song der Band Pink Floyd.",
 ]);
+const STATION_FIVE_ID = "riederstrasse";
+const STATION_FIVE_COORD_TARGET = Object.freeze({
+  lat: 48.746512,
+  lng: 9.243954,
+});
+const STATION_FIVE_HUTTE_ANSWERS = Object.freeze([
+  "hütte",
+  "huette",
+  "hutte",
+  "die hütte",
+  "die huette",
+  "huette im garten",
+]);
+const STATION_FIVE_SENTENCE_ORDER = Object.freeze([
+  "Noch einmal",
+  "Wonderwall",
+  "wie früher",
+  "in der",
+  "Hütte",
+]);
 
 const STATIONS = Object.freeze([
   {
@@ -222,18 +242,19 @@ const STATIONS = Object.freeze([
     nextStageText: "Geht zum naechsten Ort:\n\nRiederstrasse",
   },
   {
-    id: "riederstrasse",
-    title: "Station 5 - Meta-Raetsel",
+    id: STATION_FIVE_ID,
+    title: "Station 5 - Finale",
     locationName: "Riederstrasse",
     address: "48 45'11.6\"N 9 14'39.3\"E",
     routeHint: "Geht zur markanten Stelle an der Strasse.",
     target: { lat: 48.753222, lng: 9.24425 },
-    radius: 120,
+    radius: 100,
     fallback: "Wenn GPS spinnt: Geht zum markantesten Punkt vor Ort.",
-    story: "Koordinaten -> Gitarre -> finaler Schritt. Jetzt wird es konkret.",
-    prompt: "Welches finale Loesungswort ergibt sich?",
-    answers: ["hutte", "huette"],
-    tip: "Denkt an einen Ort im Freien mit Dach und Holzcharakter.",
+    story:
+      "Finale\n\nSchaut euch die Playlist genau an.\n\nSonglaenge -> Sekunden -> letzte Ziffer\nBildet daraus eine Reihe.\nDa fehlt noch ein Punkt.\nUnd? Wohin geht's?",
+    prompt: "",
+    answers: STATION_FIVE_HUTTE_ANSWERS,
+    tip: "",
     nextStageText: "Finalziel freigeschaltet: Huette.",
   },
 ]);
@@ -242,7 +263,7 @@ const FINAL_DESTINATION = Object.freeze({
   locationName: "Huette",
   address: "48 44'47.4\"N 9 14'38.2\"E",
   routeHint: "Nach der Aufloesung in der Riederstrasse geht es zur Huette.",
-  target: { lat: 48.7465, lng: 9.243944 },
+  target: { lat: 48.746512, lng: 9.243954 },
   radius: 150,
   fallback: "Wenn GPS spinnt: Geht zum markantesten Punkt an der Huette.",
 });
@@ -273,6 +294,14 @@ let transient = {
   tipVisible: false,
   emergencyByStation: {},
   stationFeedbackById: {},
+  stationFiveCoordsFeedback: "",
+  stationFiveBoard: {
+    bankWords: [],
+    lineWords: [],
+    locked: false,
+    dragWord: "",
+    dragFrom: "",
+  },
 };
 
 const el = {
@@ -299,6 +328,16 @@ const el = {
   challengePrompt: byId("challengePrompt"),
   hitsterPanel: byId("hitsterPanel"),
   hitsterProgress: byId("hitsterProgress"),
+  stationFivePanel: byId("stationFivePanel"),
+  coordLatInput: byId("coordLatInput"),
+  coordLngInput: byId("coordLngInput"),
+  checkCoordsBtn: byId("checkCoordsBtn"),
+  coordsFeedback: byId("coordsFeedback"),
+  stationFiveQuestion: byId("stationFiveQuestion"),
+  sentenceBuilder: byId("sentenceBuilder"),
+  wordBank: byId("wordBank"),
+  sentenceLine: byId("sentenceLine"),
+  sentenceHint: byId("sentenceHint"),
   answerLabel: byId("answerLabel"),
   answerInput: byId("answerInput"),
   checkAnswerBtn: byId("checkAnswerBtn"),
@@ -337,6 +376,9 @@ function init() {
 function bindEvents() {
   el.startChallengeBtn.addEventListener("click", onStartChallenge);
   el.checkAnswerBtn.addEventListener("click", onCheckAnswer);
+  if (el.checkCoordsBtn) {
+    el.checkCoordsBtn.addEventListener("click", onCheckStationFiveCoordinates);
+  }
   if (el.hitsterCorrectBtn) {
     el.hitsterCorrectBtn.addEventListener("click", onHitsterCorrect);
   }
@@ -356,6 +398,12 @@ function bindEvents() {
   el.unlockHintBtn.addEventListener("click", onUnlockHint);
   el.nextStageBtn.addEventListener("click", onNextStage);
   el.emergencyBtn.addEventListener("click", onEmergency);
+  if (el.coordLatInput) {
+    el.coordLatInput.addEventListener("keydown", onStationFiveCoordKeyDown);
+  }
+  if (el.coordLngInput) {
+    el.coordLngInput.addEventListener("keydown", onStationFiveCoordKeyDown);
+  }
 
   el.answerInput.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
@@ -491,7 +539,10 @@ function onCheckAnswer() {
   const rawInput = el.answerInput.value.trim();
   if (!rawInput) {
     el.feedbackText.textContent =
-      station.id === STATION_ONE_ID || station.id === STATION_TWO_ID || station.id === STATION_FOUR_ID
+      station.id === STATION_ONE_ID ||
+      station.id === STATION_TWO_ID ||
+      station.id === STATION_FOUR_ID ||
+      station.id === STATION_FIVE_ID
         ? "Bitte erst eine Antwort eingeben."
         : "Bitte erst ein Loesungswort eingeben.";
     return;
@@ -513,6 +564,11 @@ function onCheckAnswer() {
 
   if (station.id === STATION_FOUR_ID) {
     onCheckAnswerStationFour(rawInput);
+    return;
+  }
+
+  if (station.id === STATION_FIVE_ID) {
+    onCheckAnswerStationFive(rawInput);
     return;
   }
 
@@ -673,6 +729,300 @@ function onShowStationFourTip() {
   updateUI();
 }
 
+function onStationFiveCoordKeyDown(event) {
+  if (event.key !== "Enter") {
+    return;
+  }
+  event.preventDefault();
+  onCheckStationFiveCoordinates();
+}
+
+function onCheckStationFiveCoordinates() {
+  const station = getCurrentStation();
+  if (!station || station.id !== STATION_FIVE_ID || progress.stageStatus !== "active") {
+    return;
+  }
+
+  const lat = parseCoordinateValue(el.coordLatInput ? el.coordLatInput.value : "");
+  const lng = parseCoordinateValue(el.coordLngInput ? el.coordLngInput.value : "");
+
+  if (lat === null || lng === null) {
+    transient.stationFiveCoordsFeedback =
+      "Bitte beide Koordinaten im Dezimalformat eingeben (z.B. 48.746512 und 9.243954).";
+    updateUI();
+    return;
+  }
+
+  const matchesLat = isCloseCoordinate(lat, STATION_FIVE_COORD_TARGET.lat);
+  const matchesLng = isCloseCoordinate(lng, STATION_FIVE_COORD_TARGET.lng);
+
+  if (!matchesLat || !matchesLng) {
+    transient.stationFiveCoordsFeedback =
+      "Noch nicht korrekt. Achtet auf Songlaenge, Sekunden und letzte Ziffer.";
+    updateUI();
+    return;
+  }
+
+  const step = getStationFiveStep();
+  progress.stepByStation[STATION_FIVE_ID] = Math.max(step, 1);
+  transient.stationFiveCoordsFeedback =
+    "Koordinaten korrekt. Geht zu diesen Koordinaten und beantwortet die Frage.";
+  saveProgress();
+  updateUI();
+}
+
+function onCheckAnswerStationFive(rawInput) {
+  const step = getStationFiveStep();
+  if (step < 1) {
+    transient.stationFeedbackById[STATION_FIVE_ID] = "Prueft zuerst die Koordinaten.";
+    updateUI();
+    return;
+  }
+
+  if (step >= 2) {
+    transient.stationFeedbackById[STATION_FIVE_ID] = "Baut jetzt den Satz aus allen Loesungswoertern.";
+    updateUI();
+    return;
+  }
+
+  const candidate = normalizeText(rawInput);
+  const correct = STATION_FIVE_HUTTE_ANSWERS.map(normalizeText).includes(candidate);
+
+  if (!correct) {
+    incrementAttempts(STATION_FIVE_ID);
+    transient.stationFeedbackById[STATION_FIVE_ID] = "Falsch.\n\nAlle trinken einen Schluck 🍺";
+    saveProgress();
+    updateUI();
+    return;
+  }
+
+  progress.stepByStation[STATION_FIVE_ID] = 2;
+  transient.stationFeedbackById[STATION_FIVE_ID] = "Richtig! Letztes Lösungswort: Hütte";
+  transient.stationFiveBoard = {
+    bankWords: shuffleWords(STATION_FIVE_SENTENCE_ORDER),
+    lineWords: [],
+    locked: false,
+    dragWord: "",
+    dragFrom: "",
+  };
+  el.answerInput.value = "";
+  saveProgress();
+  updateUI();
+}
+
+function parseCoordinateValue(value) {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const cleaned = value.trim().replace(",", ".").replace(/\s+/g, "");
+  if (!/^[-+]?\d+(\.\d+)?$/.test(cleaned)) {
+    return null;
+  }
+  const parsed = Number(cleaned);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function isCloseCoordinate(a, b) {
+  return Math.abs(a - b) <= 0.00001;
+}
+
+function shuffleWords(words) {
+  const arr = [...words];
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function ensureStationFiveBoard() {
+  const step = getStationFiveStep();
+
+  if (step >= 3) {
+    transient.stationFiveBoard = {
+      bankWords: [],
+      lineWords: [...STATION_FIVE_SENTENCE_ORDER],
+      locked: true,
+      dragWord: "",
+      dragFrom: "",
+    };
+    return;
+  }
+
+  if (step < 2) {
+    transient.stationFiveBoard = {
+      bankWords: [],
+      lineWords: [],
+      locked: false,
+      dragWord: "",
+      dragFrom: "",
+    };
+    return;
+  }
+
+  const board = transient.stationFiveBoard;
+  if (
+    !Array.isArray(board.bankWords) ||
+    !Array.isArray(board.lineWords) ||
+    board.bankWords.length + board.lineWords.length !== STATION_FIVE_SENTENCE_ORDER.length
+  ) {
+    transient.stationFiveBoard = {
+      bankWords: shuffleWords(STATION_FIVE_SENTENCE_ORDER),
+      lineWords: [],
+      locked: false,
+      dragWord: "",
+      dragFrom: "",
+    };
+  }
+}
+
+function onStationFiveDragOver(event) {
+  event.preventDefault();
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = "move";
+  }
+}
+
+function onStationFiveDragStart(event) {
+  const board = transient.stationFiveBoard;
+  if (board.locked) {
+    event.preventDefault();
+    return;
+  }
+  const word = event.currentTarget.dataset.word || "";
+  const origin = event.currentTarget.dataset.origin || "";
+  board.dragWord = word;
+  board.dragFrom = origin;
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", word);
+  }
+}
+
+function onStationFiveDragEnd() {
+  transient.stationFiveBoard.dragWord = "";
+  transient.stationFiveBoard.dragFrom = "";
+}
+
+function onStationFiveDropZone(event, targetZone) {
+  event.preventDefault();
+  const board = transient.stationFiveBoard;
+  if (board.locked) {
+    return;
+  }
+  const word = board.dragWord;
+  const from = board.dragFrom;
+  if (!word || !from) {
+    return;
+  }
+  if (!moveStationFiveWord(word, from, targetZone)) {
+    return;
+  }
+  finalizeStationFiveMove();
+}
+
+function onStationFiveDropOnChip(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  const board = transient.stationFiveBoard;
+  if (board.locked) {
+    return;
+  }
+  const word = board.dragWord;
+  const from = board.dragFrom;
+  const targetWord = event.currentTarget.dataset.word || "";
+  const targetZone = event.currentTarget.dataset.origin || "";
+
+  if (!word || !from || !targetWord || !targetZone) {
+    return;
+  }
+  if (!moveStationFiveWord(word, from, targetZone, targetWord)) {
+    return;
+  }
+  finalizeStationFiveMove();
+}
+
+function onStationFiveChipClick(event) {
+  const board = transient.stationFiveBoard;
+  if (board.locked) {
+    return;
+  }
+  const word = event.currentTarget.dataset.word || "";
+  const origin = event.currentTarget.dataset.origin || "";
+  if (!word || !origin) {
+    return;
+  }
+  const targetZone = origin === "bank" ? "line" : "bank";
+  if (!moveStationFiveWord(word, origin, targetZone)) {
+    return;
+  }
+  finalizeStationFiveMove();
+}
+
+function moveStationFiveWord(word, fromZone, toZone, beforeWord = "") {
+  const board = transient.stationFiveBoard;
+  if (fromZone === toZone && beforeWord && beforeWord === word) {
+    return false;
+  }
+  const fromList = fromZone === "line" ? board.lineWords : board.bankWords;
+  const toList = toZone === "line" ? board.lineWords : board.bankWords;
+
+  const fromIndex = fromList.indexOf(word);
+  if (fromIndex < 0) {
+    return false;
+  }
+
+  fromList.splice(fromIndex, 1);
+
+  let insertIndex = toList.length;
+  if (beforeWord) {
+    const targetIndex = toList.indexOf(beforeWord);
+    if (targetIndex >= 0) {
+      insertIndex = targetIndex;
+    }
+  }
+  if (fromList === toList && insertIndex > fromIndex) {
+    insertIndex -= 1;
+  }
+
+  toList.splice(insertIndex, 0, word);
+  return true;
+}
+
+function finalizeStationFiveMove() {
+  transient.stationFiveBoard.dragWord = "";
+  transient.stationFiveBoard.dragFrom = "";
+  const solved = checkStationFiveSentence();
+  if (solved) {
+    return;
+  }
+  saveProgress();
+  updateUI();
+}
+
+function checkStationFiveSentence() {
+  const board = transient.stationFiveBoard;
+  if (board.lineWords.length !== STATION_FIVE_SENTENCE_ORDER.length) {
+    return false;
+  }
+
+  const correct = board.lineWords.every(
+    (word, index) => normalizeText(word) === normalizeText(STATION_FIVE_SENTENCE_ORDER[index]),
+  );
+  if (!correct) {
+    return false;
+  }
+
+  board.locked = true;
+  progress.stepByStation[STATION_FIVE_ID] = 3;
+  progress.stageStatus = "solved_ready_next";
+  transient.stationFeedbackById[STATION_FIVE_ID] =
+    "Bingo. Satz gelöst.\nNoch einmal Wonderwall wie früher in der Hütte\n\nNehmt die Gitarre. Es ist Zeit für Wonderwall.";
+  saveProgress();
+  updateUI();
+  return true;
+}
+
 function onHitsterCorrect() {
   const station = getCurrentStation();
   if (!station || station.id !== STATION_THREE_ID || progress.stageStatus !== "active") {
@@ -759,6 +1109,7 @@ function onNextStage() {
   transient.distanceMeters = null;
   transient.gpsStatus = "idle";
   transient.permissionMessage = "";
+  transient.stationFiveCoordsFeedback = "";
   closeNotesModal();
   el.answerInput.value = "";
 
@@ -912,6 +1263,9 @@ function renderChallenge(station) {
     if (el.hitsterPanel) {
       el.hitsterPanel.classList.add("hidden");
     }
+    if (el.stationFivePanel) {
+      el.stationFivePanel.classList.add("hidden");
+    }
     el.challengePrompt.classList.remove("hidden");
     el.answerInput.classList.remove("hidden");
     if (el.notesBtn) {
@@ -931,6 +1285,8 @@ function renderChallenge(station) {
   const isStationTwo = station.id === STATION_TWO_ID;
   const isStationThree = station.id === STATION_THREE_ID;
   const isStationFour = station.id === STATION_FOUR_ID;
+  const isStationFive = station.id === STATION_FIVE_ID;
+  const stationFiveStep = getStationFiveStep();
   if (!isStationOne) {
     closeNotesModal();
   }
@@ -948,7 +1304,7 @@ function renderChallenge(station) {
   } else {
     el.challengePrompt.textContent = station.prompt;
   }
-  el.challengePrompt.classList.toggle("hidden", isStationThree);
+  el.challengePrompt.classList.toggle("hidden", isStationThree || isStationFive);
   el.tipText.textContent = station.tip || "";
   if (el.emojiHint) {
     if (isStationTwo) {
@@ -958,15 +1314,17 @@ function renderChallenge(station) {
       el.emojiHint.classList.add("hidden");
     }
   }
-  const usesTextAnswer = !isStationThree;
+  const usesTextAnswer = !isStationThree && (!isStationFive || stationFiveStep === 1);
   if (el.answerLabel) {
     el.answerLabel.classList.toggle("hidden", !usesTextAnswer);
     el.answerLabel.textContent =
-      isStationOne || isStationTwo || isStationFour ? "Antwort" : "Loesungswort";
+      isStationOne || isStationTwo || isStationFour || isStationFive ? "Antwort" : "Loesungswort";
   }
   el.answerInput.classList.toggle("hidden", !usesTextAnswer);
   el.answerInput.placeholder =
-    isStationOne || isStationTwo || isStationFour ? "Antwort eingeben" : "Loesungswort eingeben";
+    isStationOne || isStationTwo || isStationFour || isStationFive
+      ? "Antwort eingeben"
+      : "Loesungswort eingeben";
   if (el.notesBtn) {
     el.notesBtn.classList.toggle("hidden", !isStationOne);
   }
@@ -978,12 +1336,15 @@ function renderChallenge(station) {
   const customFeedback = transient.stationFeedbackById[station.id] || "";
 
   const active = progress.stageStatus === "active";
-  if ((isStationOne || isStationTwo || isStationFour) && !active) {
+  if ((isStationOne || isStationTwo || isStationFour || isStationFive) && !active) {
     el.challengePrompt.textContent = "Station abgeschlossen.";
   }
-  el.answerInput.disabled = !active || isStationThree;
-  el.checkAnswerBtn.disabled = !active;
-  el.checkAnswerBtn.classList.toggle("hidden", !active || isStationThree);
+  el.answerInput.disabled = !active || isStationThree || (isStationFive && stationFiveStep !== 1);
+  el.checkAnswerBtn.disabled = !active || (isStationFive && stationFiveStep !== 1);
+  el.checkAnswerBtn.classList.toggle(
+    "hidden",
+    !active || isStationThree || (isStationFive && stationFiveStep !== 1),
+  );
 
   if (el.hitsterPanel) {
     el.hitsterPanel.classList.toggle("hidden", !isStationThree);
@@ -998,6 +1359,13 @@ function renderChallenge(station) {
     if (el.hitsterWrongBtn) {
       el.hitsterWrongBtn.disabled = !active;
     }
+  }
+
+  if (el.stationFivePanel) {
+    el.stationFivePanel.classList.toggle("hidden", !isStationFive);
+  }
+  if (isStationFive) {
+    renderStationFivePanel(active, stationFiveStep, isSolvedReadyNext);
   }
 
   if (isStationTwo) {
@@ -1042,7 +1410,12 @@ function renderChallenge(station) {
 
   el.unlockHintBtn.classList.toggle(
     "hidden",
-    isStationOne || isStationTwo || isStationThree || isStationFour || !isSolvedNeedsHint,
+    isStationOne ||
+      isStationTwo ||
+      isStationThree ||
+      isStationFour ||
+      isStationFive ||
+      !isSolvedNeedsHint,
   );
   el.nextStageBtn.classList.toggle("hidden", !isSolvedReadyNext);
   el.nextStageBtn.textContent =
@@ -1052,7 +1425,10 @@ function renderChallenge(station) {
       ? "Finalziel freischalten"
       : "Weiter zur naechsten Etappe";
 
-  if ((isStationOne || isStationTwo || isStationThree || isStationFour) && customFeedback) {
+  if (
+    (isStationOne || isStationTwo || isStationThree || isStationFour || isStationFive) &&
+    customFeedback
+  ) {
     el.feedbackText.textContent = customFeedback;
   } else if (isSolvedNeedsHint) {
     el.feedbackText.textContent =
@@ -1071,14 +1447,16 @@ function renderChallenge(station) {
           : STATIONS[progress.currentStationIndex].nextStageText
         : "Finalziel freigeschaltet: Huette.";
 
-    if (isStationOne || isStationTwo || isStationThree || isStationFour) {
+    if (isStationOne || isStationTwo || isStationThree || isStationFour || isStationFive) {
       const fallbackSolvedText = isStationOne
         ? STATION_ONE_STEPS[STATION_ONE_STEPS.length - 1].successMessage
         : isStationTwo
         ? STATION_TWO_STEPS[STATION_TWO_STEPS.length - 1].successMessage
         : isStationThree
         ? "Challenge geschafft!\n\nDas naechste Loesungswort lautet:\nin der"
-        : "Richtig!\n\nWonder + Wall = Wonderwall\n\nLoesungswort:\nWonderwall";
+        : isStationFour
+        ? "Richtig!\n\nWonder + Wall = Wonderwall\n\nLoesungswort:\nWonderwall"
+        : "Bingo. Satz gelöst.\nNoch einmal Wonderwall wie früher in der Hütte\n\nNehmt die Gitarre. Es ist Zeit für Wonderwall.";
       const baseText = customFeedback || fallbackSolvedText;
       el.feedbackText.textContent = `${baseText}\n\n${nextText}`.trim();
     } else {
@@ -1096,6 +1474,105 @@ function renderChallenge(station) {
     el.emergencyBox.classList.add("hidden");
     el.emergencyBox.textContent = "";
   }
+}
+
+function renderStationFivePanel(active, step, isSolvedReadyNext) {
+  ensureStationFiveBoard();
+
+  if (el.coordsFeedback) {
+    el.coordsFeedback.textContent = transient.stationFiveCoordsFeedback || "";
+  }
+
+  if (el.coordLatInput) {
+    el.coordLatInput.disabled = !active || step >= 1;
+  }
+  if (el.coordLngInput) {
+    el.coordLngInput.disabled = !active || step >= 1;
+  }
+  if (el.checkCoordsBtn) {
+    el.checkCoordsBtn.disabled = !active || step >= 1;
+  }
+
+  if (el.stationFiveQuestion) {
+    el.stationFiveQuestion.classList.toggle("hidden", step < 1);
+  }
+  if (el.sentenceBuilder) {
+    el.sentenceBuilder.classList.toggle("hidden", step < 2);
+  }
+
+  renderStationFiveBoard();
+
+  if (!el.sentenceHint) {
+    return;
+  }
+  if (isSolvedReadyNext || step >= 3) {
+    el.sentenceHint.textContent = "Satzlinie gesperrt. Bingo.";
+    return;
+  }
+  const lineCount = transient.stationFiveBoard.lineWords.length;
+  if (step >= 2 && lineCount === STATION_FIVE_SENTENCE_ORDER.length) {
+    el.sentenceHint.textContent = "Noch nicht... probiert weiter.";
+    return;
+  }
+  if (step >= 2) {
+    el.sentenceHint.textContent = "Zieht die Woerter in die richtige Reihenfolge.";
+    return;
+  }
+  el.sentenceHint.textContent = "";
+}
+
+function renderStationFiveBoard() {
+  if (!el.wordBank || !el.sentenceLine) {
+    return;
+  }
+  const board = transient.stationFiveBoard;
+  const isLocked = board.locked;
+
+  el.wordBank.innerHTML = "";
+  el.sentenceLine.innerHTML = "";
+  el.sentenceLine.classList.toggle("sentence-line-solved", isLocked);
+
+  board.bankWords.forEach((word) => {
+    el.wordBank.appendChild(createStationFiveChip(word, "bank", isLocked));
+  });
+  board.lineWords.forEach((word) => {
+    el.sentenceLine.appendChild(createStationFiveChip(word, "line", isLocked));
+  });
+
+  if (!isLocked && board.lineWords.length === 0) {
+    const placeholder = document.createElement("p");
+    placeholder.className = "sentence-placeholder";
+    placeholder.textContent = "Hier ablegen";
+    el.sentenceLine.appendChild(placeholder);
+  }
+
+  el.wordBank.ondragover = onStationFiveDragOver;
+  el.wordBank.ondrop = (event) => onStationFiveDropZone(event, "bank");
+  el.sentenceLine.ondragover = onStationFiveDragOver;
+  el.sentenceLine.ondrop = (event) => onStationFiveDropZone(event, "line");
+}
+
+function createStationFiveChip(word, origin, isLocked) {
+  const chip = document.createElement("button");
+  chip.type = "button";
+  chip.className = "word-chip";
+  chip.textContent = word;
+  chip.dataset.word = word;
+  chip.dataset.origin = origin;
+  chip.draggable = !isLocked;
+  chip.disabled = isLocked;
+
+  if (isLocked) {
+    chip.classList.add("word-chip-locked");
+    return chip;
+  }
+
+  chip.addEventListener("click", onStationFiveChipClick);
+  chip.addEventListener("dragstart", onStationFiveDragStart);
+  chip.addEventListener("dragend", onStationFiveDragEnd);
+  chip.addEventListener("dragover", onStationFiveDragOver);
+  chip.addEventListener("drop", onStationFiveDropOnChip);
+  return chip;
 }
 
 function renderFinishedUI() {
@@ -1265,6 +1742,17 @@ function getStationFourTipCount() {
   return raw;
 }
 
+function getStationFiveStep() {
+  const raw = progress.stepByStation[STATION_FIVE_ID];
+  if (!Number.isInteger(raw) || raw < 0) {
+    return 0;
+  }
+  if (raw > 3) {
+    return 3;
+  }
+  return raw;
+}
+
 function getStationThreeCorrectCount() {
   const raw = progress.stepByStation[STATION_THREE_ID];
   if (!Number.isInteger(raw) || raw < 0) {
@@ -1429,6 +1917,31 @@ function normalizeProgress() {
     progress.stepByStation[STATION_FOUR_ID] < 1
   ) {
     progress.stepByStation[STATION_FOUR_ID] = 1;
+  }
+
+  const stationFiveStep = progress.stepByStation[STATION_FIVE_ID];
+  if (!Number.isInteger(stationFiveStep) || stationFiveStep < 0) {
+    progress.stepByStation[STATION_FIVE_ID] = 0;
+  } else if (stationFiveStep > 3) {
+    progress.stepByStation[STATION_FIVE_ID] = 3;
+  }
+  if (
+    progress.currentStationIndex === 4 &&
+    progress.stageStatus === "active" &&
+    progress.stepByStation[STATION_FIVE_ID] >= 3
+  ) {
+    progress.stepByStation[STATION_FIVE_ID] = 2;
+  }
+  if (progress.currentStationIndex === 4 && progress.stageStatus === "solved_needs_hint") {
+    progress.stageStatus = "solved_ready_next";
+    progress.stepByStation[STATION_FIVE_ID] = 3;
+  }
+  if (
+    progress.currentStationIndex === 4 &&
+    progress.stageStatus === "solved_ready_next" &&
+    progress.stepByStation[STATION_FIVE_ID] < 3
+  ) {
+    progress.stepByStation[STATION_FIVE_ID] = 3;
   }
 
   if (typeof progress.finalLegUnlocked !== "boolean") {

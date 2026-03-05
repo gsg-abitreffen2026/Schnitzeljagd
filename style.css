@@ -330,6 +330,78 @@ input[type="text"]:focus {
   font-weight: 800;
 }
 
+.station-five-panel {
+  margin-top: 0.72rem;
+  border: 1px solid #cfe3e5;
+  background: #f7fbfb;
+  border-radius: 12px;
+  padding: 0.7rem;
+}
+
+.coord-grid {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.sentence-builder {
+  margin-top: 0.8rem;
+}
+
+.word-bank,
+.sentence-line {
+  margin-top: 0.5rem;
+  min-height: 58px;
+  border: 2px dashed #bdd1d8;
+  border-radius: 14px;
+  padding: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.sentence-line {
+  background: #fbf4ea;
+}
+
+.sentence-line-solved {
+  border-color: #2a9d8f;
+  box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.18);
+  animation: sentenceGlow 700ms ease;
+}
+
+.sentence-placeholder {
+  margin: 0;
+  color: #6d8189;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.word-chip {
+  border: 0;
+  background: linear-gradient(145deg, #0f4c5c, #1f6376);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.52rem 0.72rem;
+  font-size: 0.92rem;
+  font-weight: 800;
+  cursor: grab;
+}
+
+.word-chip:active {
+  cursor: grabbing;
+}
+
+.word-chip:disabled {
+  cursor: default;
+  opacity: 0.95;
+}
+
+.word-chip-locked {
+  opacity: 0.95;
+  cursor: default;
+}
+
 .alert {
   margin-top: 0.75rem;
   background: #fff0df;
@@ -419,6 +491,23 @@ input[type="text"]:focus {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes sentenceGlow {
+  0% {
+    transform: translateX(0);
+    box-shadow: 0 0 0 0 rgba(42, 157, 143, 0.05);
+  }
+  20% {
+    transform: translateX(-2px);
+  }
+  40% {
+    transform: translateX(2px);
+  }
+  100% {
+    transform: translateX(0);
+    box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.18);
   }
 }
 
