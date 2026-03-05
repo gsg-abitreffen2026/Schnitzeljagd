@@ -235,6 +235,13 @@ p {
   white-space: pre-line;
 }
 
+.emoji-hint {
+  margin-top: 0.55rem;
+  font-size: 1.5rem;
+  line-height: 1.35;
+  white-space: pre-line;
+}
+
 input[type="text"] {
   width: 100%;
   margin-top: 0.38rem;

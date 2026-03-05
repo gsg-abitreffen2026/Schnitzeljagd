@@ -128,6 +128,27 @@ const STATION_ONE_STEPS = Object.freeze([
   },
 ]);
 
+const STATION_TWO_ID = "kemnater-hof";
+const STATION_TWO_STEPS = Object.freeze([
+  {
+    question: "Wie heisst der Song?",
+    answers: ["hurra"],
+    wrongMessage: "Falsch.\n\nAlle trinken einen Schluck 🍺",
+    successMessage: "Richtig!\n\nDer Song ist \"Hurra\" von Die Ärzte.",
+  },
+  {
+    question: "Wann war laut dem Song alles besser?",
+    answers: ["fruher", "frueher"],
+    wrongMessage: "Falsch.\n\nAlle trinken einen Schluck 🍺",
+    successMessage: "Richtig!\nLösungswort\nFrüher",
+  },
+]);
+
+const STATION_TWO_TIPS = Object.freeze([
+  "Es geht um einen deutschen Punk-Song.",
+  "Der Song ist von der Band \"Die Ärzte\".",
+]);
+
 const STATIONS = Object.freeze([
   {
     id: "clara-zetkin",
@@ -151,13 +172,14 @@ const STATIONS = Object.freeze([
     address: "48 43'52.5\"N 9 13'34.7\"E",
     routeHint: "Bleibt auf dem Weg, bis ihr den Hofbereich seht.",
     target: { lat: 48.73125, lng: 9.226306 },
-    radius: 120,
+    radius: 100,
     fallback: "Wenn GPS spinnt: Geht zum markanten Hofschild.",
-    story: "Die Aerzte sagen Hurra. Das Gefuehl kennt ihr aus alten Zeiten.",
-    prompt: "Welches Loesungswort ergibt sich daraus?",
-    answers: ["wie fruher", "wie frueher"],
-    tip: "Denkt an Nostalgie und Vergangenes.",
-    nextStageText: "Naechstes Ziel: Rossert.",
+    story:
+      "Station 2\n\nErkennt ihr den Song?\n\nDie Emojis stellen den Songtitel dar.",
+    prompt: "Wie heisst der Song?",
+    answers: ["hurra"],
+    tip: "Emoji-Raetsel mit Punkband.",
+    nextStageText: "Geht zum naechsten Ort:\n\nGrillplatz Rossert",
   },
   {
     id: "rossert",
@@ -220,6 +242,7 @@ const DEFAULT_PROGRESS = Object.freeze({
   hintsUnlocked: 0,
   attemptsByStation: {},
   stepByStation: {},
+  tipCountByStation: {},
   stageStatus: "locked",
   finalLegUnlocked: false,
   finished: false,
@@ -262,6 +285,7 @@ const el = {
   challengeCard: byId("challengeCard"),
   challengeTitle: byId("challengeTitle"),
   challengeStory: byId("challengeStory"),
+  emojiHint: byId("emojiHint"),
   challengePrompt: byId("challengePrompt"),
   answerLabel: byId("answerLabel"),
   answerInput: byId("answerInput"),
@@ -446,7 +470,7 @@ function onCheckAnswer() {
 
   const rawInput = el.answerInput.value.trim();
   if (!rawInput) {
-    el.feedbackText.textContent = station.id === STATION_ONE_ID
+    el.feedbackText.textContent = station.id === STATION_ONE_ID || station.id === STATION_TWO_ID
       ? "Bitte erst eine Antwort eingeben."
       : "Bitte erst ein Loesungswort eingeben.";
     return;
@@ -454,6 +478,11 @@ function onCheckAnswer() {
 
   if (station.id === STATION_ONE_ID) {
     onCheckAnswerStationOne(rawInput);
+    return;
+  }
+
+  if (station.id === STATION_TWO_ID) {
+    onCheckAnswerStationTwo(rawInput);
     return;
   }
 
@@ -514,8 +543,63 @@ function onCheckAnswerStationOne(rawInput) {
   updateUI();
 }
 
+function onCheckAnswerStationTwo(rawInput) {
+  const step = getStationTwoStep();
+  const stepConfig = STATION_TWO_STEPS[step];
+  if (!stepConfig) {
+    return;
+  }
+
+  const candidate = normalizeText(rawInput);
+  const correct = stepConfig.answers.map(normalizeText).includes(candidate);
+
+  if (!correct) {
+    incrementAttempts(STATION_TWO_ID);
+    transient.stationFeedbackById[STATION_TWO_ID] = stepConfig.wrongMessage;
+    saveProgress();
+    updateUI();
+    return;
+  }
+
+  if (step < STATION_TWO_STEPS.length - 1) {
+    progress.stepByStation[STATION_TWO_ID] = step + 1;
+    transient.stationFeedbackById[STATION_TWO_ID] = stepConfig.successMessage;
+    el.answerInput.value = "";
+    saveProgress();
+    updateUI();
+    return;
+  }
+
+  progress.stepByStation[STATION_TWO_ID] = STATION_TWO_STEPS.length;
+  progress.stageStatus = "solved_ready_next";
+  if (progress.hintsUnlocked < 3) {
+    progress.hintsUnlocked = 3;
+  }
+  transient.tipVisible = false;
+  transient.stationFeedbackById[STATION_TWO_ID] = stepConfig.successMessage;
+  saveProgress();
+  renderHints();
+  updateUI();
+}
+
 function onToggleTip() {
+  const station = getCurrentStation();
+  if (station && station.id === STATION_TWO_ID && progress.stageStatus === "active") {
+    onShowStationTwoTip();
+    return;
+  }
   transient.tipVisible = !transient.tipVisible;
+  updateUI();
+}
+
+function onShowStationTwoTip() {
+  const current = getStationTwoTipCount();
+  if (current >= STATION_TWO_TIPS.length) {
+    return;
+  }
+  progress.tipCountByStation[STATION_TWO_ID] = current + 1;
+  transient.stationFeedbackById[STATION_TWO_ID] = "Alle trinken einen Schluck 🍺";
+  saveProgress();
   updateUI();
 }
 
@@ -716,6 +800,10 @@ function renderChallenge(station) {
     if (el.notesBtn) {
       el.notesBtn.classList.add("hidden");
     }
+    if (el.emojiHint) {
+      el.emojiHint.classList.add("hidden");
+    }
+    el.tipText.classList.add("hidden");
     if (el.answerLabel) {
       el.answerLabel.textContent = "Loesungswort";
     }
@@ -723,20 +811,36 @@ function renderChallenge(station) {
   }
 
   const isStationOne = station.id === STATION_ONE_ID;
+  const isStationTwo = station.id === STATION_TWO_ID;
   if (!isStationOne) {
     closeNotesModal();
   }
   el.challengeCard.classList.remove("hidden");
   el.challengeTitle.textContent = station.title;
   el.challengeStory.textContent = station.story;
-  el.challengePrompt.textContent = isStationOne
-    ? STATION_ONE_STEPS[Math.min(getStationOneStep(), STATION_ONE_STEPS.length - 1)].question
-    : station.prompt;
-  el.tipText.textContent = station.tip || "";
-  if (el.answerLabel) {
-    el.answerLabel.textContent = isStationOne ? "Antwort" : "Loesungswort";
+  if (isStationOne) {
+    el.challengePrompt.textContent =
+      STATION_ONE_STEPS[Math.min(getStationOneStep(), STATION_ONE_STEPS.length - 1)].question;
+  } else if (isStationTwo) {
+    el.challengePrompt.textContent =
+      STATION_TWO_STEPS[Math.min(getStationTwoStep(), STATION_TWO_STEPS.length - 1)].question;
+  } else {
+    el.challengePrompt.textContent = station.prompt;
   }
-  el.answerInput.placeholder = isStationOne ? "Antwort eingeben" : "Loesungswort eingeben";
+  el.tipText.textContent = station.tip || "";
+  if (el.emojiHint) {
+    if (isStationTwo) {
+      el.emojiHint.textContent = "🙌 🙌\n🎉 🙌";
+      el.emojiHint.classList.remove("hidden");
+    } else {
+      el.emojiHint.classList.add("hidden");
+    }
+  }
+  if (el.answerLabel) {
+    el.answerLabel.textContent = isStationOne || isStationTwo ? "Antwort" : "Loesungswort";
+  }
+  el.answerInput.placeholder =
+    isStationOne || isStationTwo ? "Antwort eingeben" : "Loesungswort eingeben";
   if (el.notesBtn) {
     el.notesBtn.classList.toggle("hidden", !isStationOne);
   }
@@ -744,36 +848,53 @@ function renderChallenge(station) {
   const tries = progress.attemptsByStation[station.id] || 0;
   const isSolvedNeedsHint = progress.stageStatus === "solved_needs_hint";
   const isSolvedReadyNext = progress.stageStatus === "solved_ready_next";
+  const customFeedback = transient.stationFeedbackById[station.id] || "";
 
   const active = progress.stageStatus === "active";
-  if (isStationOne && !active) {
+  if ((isStationOne || isStationTwo) && !active) {
     el.challengePrompt.textContent = "Station abgeschlossen.";
   }
   el.answerInput.disabled = !active;
   el.checkAnswerBtn.disabled = !active;
   el.checkAnswerBtn.classList.toggle("hidden", !active);
 
-  const hasTip = !isStationOne && Boolean(station.tip);
-  el.showHintBtn.classList.toggle("hidden", !(active && hasTip));
-  el.showHintBtn.textContent = transient.tipVisible ? "Tipp ausblenden" : "Tipp anzeigen";
+  if (isStationTwo) {
+    const shownTips = getStationTwoTipCount();
+    const canShowMoreTips = active && shownTips < STATION_TWO_TIPS.length;
+    el.showHintBtn.classList.toggle("hidden", !canShowMoreTips);
+    el.showHintBtn.textContent = shownTips === 0 ? "Tipp anzeigen" : "Naechsten Tipp anzeigen";
 
-  if (active && hasTip && transient.tipVisible) {
-    el.tipText.classList.remove("hidden");
+    if (shownTips > 0) {
+      el.tipText.textContent = STATION_TWO_TIPS.slice(0, shownTips)
+        .map((tip, index) => `Tipp ${index + 1}: ${tip}`)
+        .join("\n");
+      el.tipText.classList.remove("hidden");
+    } else {
+      el.tipText.classList.add("hidden");
+    }
   } else {
-    el.tipText.classList.add("hidden");
+    const hasTip = !isStationOne && Boolean(station.tip);
+    el.showHintBtn.classList.toggle("hidden", !(active && hasTip));
+    el.showHintBtn.textContent = transient.tipVisible ? "Tipp ausblenden" : "Tipp anzeigen";
+
+    if (active && hasTip && transient.tipVisible) {
+      el.tipText.classList.remove("hidden");
+    } else {
+      el.tipText.classList.add("hidden");
+    }
   }
 
-  el.unlockHintBtn.classList.toggle("hidden", isStationOne || !isSolvedNeedsHint);
+  el.unlockHintBtn.classList.toggle("hidden", isStationOne || isStationTwo || !isSolvedNeedsHint);
   el.nextStageBtn.classList.toggle("hidden", !isSolvedReadyNext);
   el.nextStageBtn.textContent =
-    isStationOne
+    isStationOne || isStationTwo
       ? "Weiter"
       : progress.currentStationIndex === STATIONS.length - 1
       ? "Finalziel freischalten"
       : "Weiter zur naechsten Etappe";
 
-  if (isStationOne && transient.stationFeedbackById[STATION_ONE_ID]) {
-    el.feedbackText.textContent = transient.stationFeedbackById[STATION_ONE_ID];
+  if ((isStationOne || isStationTwo) && customFeedback) {
+    el.feedbackText.textContent = customFeedback;
   } else if (isSolvedNeedsHint) {
     el.feedbackText.textContent =
       "Erfolg! Schalte jetzt den naechsten Hinweis frei, dann geht es weiter.";
@@ -784,11 +905,20 @@ function renderChallenge(station) {
       progress.currentStationIndex < STATIONS.length - 1
         ? isStationOne
           ? "Geht zum naechsten Ort:\n\nKemnater Hof"
+          : isStationTwo
+          ? "Geht zum naechsten Ort:\n\nGrillplatz Rossert"
           : STATIONS[progress.currentStationIndex].nextStageText
         : "Finalziel freigeschaltet: Huette.";
-    el.feedbackText.textContent = isStationOne
-      ? `${transient.stationFeedbackById[STATION_ONE_ID] || ""}\n\n${nextText}`.trim()
-      : `Hinweis freigeschaltet. ${nextText}`;
+
+    if (isStationOne || isStationTwo) {
+      const fallbackSolvedText = isStationOne
+        ? STATION_ONE_STEPS[STATION_ONE_STEPS.length - 1].successMessage
+        : STATION_TWO_STEPS[STATION_TWO_STEPS.length - 1].successMessage;
+      const baseText = customFeedback || fallbackSolvedText;
+      el.feedbackText.textContent = `${baseText}\n\n${nextText}`.trim();
+    } else {
+      el.feedbackText.textContent = `Hinweis freigeschaltet. ${nextText}`;
+    }
   }
 
   const showEmergency = active && tries >= 3;
@@ -937,6 +1067,28 @@ function getStationOneStep() {
   return raw;
 }
 
+function getStationTwoStep() {
+  const raw = progress.stepByStation[STATION_TWO_ID];
+  if (!Number.isInteger(raw) || raw < 0) {
+    return 0;
+  }
+  if (raw > STATION_TWO_STEPS.length) {
+    return STATION_TWO_STEPS.length;
+  }
+  return raw;
+}
+
+function getStationTwoTipCount() {
+  const raw = progress.tipCountByStation[STATION_TWO_ID];
+  if (!Number.isInteger(raw) || raw < 0) {
+    return 0;
+  }
+  if (raw > STATION_TWO_TIPS.length) {
+    return STATION_TWO_TIPS.length;
+  }
+  return raw;
+}
+
 function isPreStart() {
   if (TEST_MODE) {
     return false;
@@ -986,6 +1138,10 @@ function normalizeProgress() {
     progress.stepByStation = {};
   }
 
+  if (typeof progress.tipCountByStation !== "object" || progress.tipCountByStation === null) {
+    progress.tipCountByStation = {};
+  }
+
   const stationOneStep = progress.stepByStation[STATION_ONE_ID];
   if (!Number.isInteger(stationOneStep) || stationOneStep < 0) {
     progress.stepByStation[STATION_ONE_ID] = 0;
@@ -1003,6 +1159,27 @@ function normalizeProgress() {
     progress.stageStatus = "solved_ready_next";
     if (progress.hintsUnlocked < 2) {
       progress.hintsUnlocked = 2;
+    }
+  }
+
+  const stationTwoStep = progress.stepByStation[STATION_TWO_ID];
+  if (!Number.isInteger(stationTwoStep) || stationTwoStep < 0) {
+    progress.stepByStation[STATION_TWO_ID] = 0;
+  } else if (stationTwoStep > STATION_TWO_STEPS.length) {
+    progress.stepByStation[STATION_TWO_ID] = STATION_TWO_STEPS.length;
+  }
+
+  const stationTwoTips = progress.tipCountByStation[STATION_TWO_ID];
+  if (!Number.isInteger(stationTwoTips) || stationTwoTips < 0) {
+    progress.tipCountByStation[STATION_TWO_ID] = 0;
+  } else if (stationTwoTips > STATION_TWO_TIPS.length) {
+    progress.tipCountByStation[STATION_TWO_ID] = STATION_TWO_TIPS.length;
+  }
+
+  if (progress.currentStationIndex === 1 && progress.stageStatus === "solved_needs_hint") {
+    progress.stageStatus = "solved_ready_next";
+    if (progress.hintsUnlocked < 3) {
+      progress.hintsUnlocked = 3;
     }
   }
 
@@ -1031,6 +1208,7 @@ function loadProgress() {
     hintsUnlocked: DEFAULT_PROGRESS.hintsUnlocked,
     attemptsByStation: {},
     stepByStation: {},
+    tipCountByStation: {},
     stageStatus: DEFAULT_PROGRESS.stageStatus,
     finalLegUnlocked: DEFAULT_PROGRESS.finalLegUnlocked,
     finished: DEFAULT_PROGRESS.finished,
@@ -1054,6 +1232,10 @@ function loadProgress() {
         ...initial.stepByStation,
         ...(parsed.stepByStation || {}),
       },
+      tipCountByStation: {
+        ...initial.tipCountByStation,
+        ...(parsed.tipCountByStation || {}),
+      },
     };
   } catch (error) {
     return initial;
@@ -1066,6 +1248,7 @@ function saveProgress() {
     hintsUnlocked: progress.hintsUnlocked,
     attemptsByStation: progress.attemptsByStation,
     stepByStation: progress.stepByStation,
+    tipCountByStation: progress.tipCountByStation,
     stageStatus: progress.stageStatus,
     finalLegUnlocked: progress.finalLegUnlocked,
     finished: progress.finished,
