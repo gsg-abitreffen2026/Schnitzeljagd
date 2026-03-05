@@ -317,6 +317,19 @@ input[type="text"]:focus {
   padding: 0.65rem;
 }
 
+.hitster-panel {
+  margin-top: 0.72rem;
+  border: 1px solid #cfe3e5;
+  background: #f4f9f9;
+  border-radius: 12px;
+  padding: 0.7rem;
+}
+
+.hitster-progress {
+  margin-top: 0.7rem;
+  font-weight: 800;
+}
+
 .alert {
   margin-top: 0.75rem;
   background: #fff0df;

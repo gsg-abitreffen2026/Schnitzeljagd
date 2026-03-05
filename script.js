@@ -138,15 +138,24 @@ const STATION_TWO_STEPS = Object.freeze([
   },
   {
     question: "Wann war laut dem Song alles besser?",
-    answers: ["fruher", "frueher"],
+    answers: ["fruher", "frueher", "wie fruher", "wie frueher"],
     wrongMessage: "Falsch.\n\nAlle trinken einen Schluck 🍺",
-    successMessage: "Richtig!\nLösungswort\nFrüher",
+    successMessage: "Richtig!\nLösungswort\nWie früher",
   },
 ]);
 
 const STATION_TWO_TIPS = Object.freeze([
   "Es geht um einen deutschen Punk-Song.",
   "Der Song ist von der Band \"Die Ärzte\".",
+]);
+
+const STATION_THREE_ID = "rossert";
+const STATION_THREE_TARGET_COUNT = 10;
+const STATION_FOUR_ID = "ruiter-krankenhaus";
+const STATION_FOUR_ANSWERS = Object.freeze(["wonderwall", "wonder wall", "wonder-wall"]);
+const STATION_FOUR_TIPS = Object.freeze([
+  "\"Superstition\"\n\nDies ist ein Song des gesuchten Interpreten.",
+  "Gesucht ist ein Song der Band Pink Floyd.",
 ]);
 
 const STATIONS = Object.freeze([
@@ -183,33 +192,34 @@ const STATIONS = Object.freeze([
   },
   {
     id: "rossert",
-    title: "Station 3 - Hitster & Vesper",
-    locationName: "Rossert",
+    title: "Station 3 - Hitster Challenge",
+    locationName: "Grillplatz Rossert",
     address: "48 43'20.3\"N 9 14'25.7\"E",
     routeHint: "Richtung Waldkante halten, dort findet ihr den Punkt.",
     target: { lat: 48.722306, lng: 9.240472 },
-    radius: 150,
+    radius: 100,
     fallback: "Wenn GPS spinnt: Geht zu den Baenken am markanten Punkt.",
-    story: "Hitster + Vesper: Ihr braucht X richtige und die richtige Fortsetzung.",
-    prompt: "Welches Loesungswort passt zu 'X richtige'?",
+    story: "Station 3\n\nZeit fuer ein kleines Spiel.",
+    prompt: "Regeln:\n\nSpielt Hitster.\n\nIhr muesst 10 Songs korrekt auf der Timeline einordnen.",
     answers: ["in der"],
-    tip: "Es ist eine kurze, zweigeteilte Wortgruppe.",
-    nextStageText: "Naechstes Ziel: Ruiter Krankenhaus.",
+    tip: "",
+    nextStageText: "Geht zum naechsten Ort:\n\nKrankenhaus Ruit",
   },
   {
-    id: "ruiter-krankenhaus",
+    id: STATION_FOUR_ID,
     title: "Station 4 - Wort-Raetsel",
-    locationName: "Ruiter Krankenhaus",
+    locationName: "Krankenhaus Ruit",
     address: "48 44'23.3\"N 9 15'09.8\"E",
     routeHint: "Geht zum Eingangsbereich des Krankenhauses.",
     target: { lat: 48.739806, lng: 9.252722 },
-    radius: 120,
+    radius: 100,
     fallback: "Wenn GPS spinnt: Geht direkt zum Eingang mit Schild.",
-    story: "Hier wartet euer Wort-Raetsel als naechste Etappe.",
-    prompt: "Wie lautet das Loesungswort?",
-    answers: ["wonderwall"],
-    tip: "Es ist ein sehr bekannter Songtitel.",
-    nextStageText: "Naechstes Ziel: Riederstrasse.",
+    story:
+      "Station 4\n\nGesucht wird ein Songtitel,\nder sich aus zwei Woertern zusammensetzt:\n\nEin blinder Musiker\n+\nrebellierende Schueler",
+    prompt: "Welcher Songtitel entsteht aus den beiden Hinweisen?",
+    answers: STATION_FOUR_ANSWERS,
+    tip: "",
+    nextStageText: "Geht zum naechsten Ort:\n\nRiederstrasse",
   },
   {
     id: "riederstrasse",
@@ -287,9 +297,13 @@ const el = {
   challengeStory: byId("challengeStory"),
   emojiHint: byId("emojiHint"),
   challengePrompt: byId("challengePrompt"),
+  hitsterPanel: byId("hitsterPanel"),
+  hitsterProgress: byId("hitsterProgress"),
   answerLabel: byId("answerLabel"),
   answerInput: byId("answerInput"),
   checkAnswerBtn: byId("checkAnswerBtn"),
+  hitsterCorrectBtn: byId("hitsterCorrectBtn"),
+  hitsterWrongBtn: byId("hitsterWrongBtn"),
   notesBtn: byId("notesBtn"),
   notesModal: byId("notesModal"),
   closeNotesBtn: byId("closeNotesBtn"),
@@ -323,6 +337,12 @@ function init() {
 function bindEvents() {
   el.startChallengeBtn.addEventListener("click", onStartChallenge);
   el.checkAnswerBtn.addEventListener("click", onCheckAnswer);
+  if (el.hitsterCorrectBtn) {
+    el.hitsterCorrectBtn.addEventListener("click", onHitsterCorrect);
+  }
+  if (el.hitsterWrongBtn) {
+    el.hitsterWrongBtn.addEventListener("click", onHitsterWrong);
+  }
   if (el.notesBtn) {
     el.notesBtn.addEventListener("click", openNotesModal);
   }
@@ -470,9 +490,10 @@ function onCheckAnswer() {
 
   const rawInput = el.answerInput.value.trim();
   if (!rawInput) {
-    el.feedbackText.textContent = station.id === STATION_ONE_ID || station.id === STATION_TWO_ID
-      ? "Bitte erst eine Antwort eingeben."
-      : "Bitte erst ein Loesungswort eingeben.";
+    el.feedbackText.textContent =
+      station.id === STATION_ONE_ID || station.id === STATION_TWO_ID || station.id === STATION_FOUR_ID
+        ? "Bitte erst eine Antwort eingeben."
+        : "Bitte erst ein Loesungswort eingeben.";
     return;
   }
 
@@ -483,6 +504,15 @@ function onCheckAnswer() {
 
   if (station.id === STATION_TWO_ID) {
     onCheckAnswerStationTwo(rawInput);
+    return;
+  }
+
+  if (station.id === STATION_THREE_ID) {
+    return;
+  }
+
+  if (station.id === STATION_FOUR_ID) {
+    onCheckAnswerStationFour(rawInput);
     return;
   }
 
@@ -588,6 +618,10 @@ function onToggleTip() {
     onShowStationTwoTip();
     return;
   }
+  if (station && station.id === STATION_FOUR_ID && progress.stageStatus === "active") {
+    onShowStationFourTip();
+    return;
+  }
   transient.tipVisible = !transient.tipVisible;
   updateUI();
 }
@@ -599,6 +633,84 @@ function onShowStationTwoTip() {
   }
   progress.tipCountByStation[STATION_TWO_ID] = current + 1;
   transient.stationFeedbackById[STATION_TWO_ID] = "Alle trinken einen Schluck 🍺";
+  saveProgress();
+  updateUI();
+}
+
+function onCheckAnswerStationFour(rawInput) {
+  const candidate = normalizeText(rawInput);
+  const correct = STATION_FOUR_ANSWERS.map(normalizeText).includes(candidate);
+
+  if (!correct) {
+    incrementAttempts(STATION_FOUR_ID);
+    transient.stationFeedbackById[STATION_FOUR_ID] = "Falsch.\n\nAlle trinken einen Schluck 🍺";
+    saveProgress();
+    updateUI();
+    return;
+  }
+
+  progress.stepByStation[STATION_FOUR_ID] = 1;
+  progress.stageStatus = "solved_ready_next";
+  if (progress.hintsUnlocked < 5) {
+    progress.hintsUnlocked = 5;
+  }
+  transient.tipVisible = false;
+  transient.stationFeedbackById[STATION_FOUR_ID] =
+    "Richtig!\n\nWonder + Wall = Wonderwall\n\nLoesungswort:\nWonderwall";
+  saveProgress();
+  renderHints();
+  updateUI();
+}
+
+function onShowStationFourTip() {
+  const current = getStationFourTipCount();
+  if (current >= STATION_FOUR_TIPS.length) {
+    return;
+  }
+  progress.tipCountByStation[STATION_FOUR_ID] = current + 1;
+  transient.stationFeedbackById[STATION_FOUR_ID] = "Alle trinken einen Schluck 🍺";
+  saveProgress();
+  updateUI();
+}
+
+function onHitsterCorrect() {
+  const station = getCurrentStation();
+  if (!station || station.id !== STATION_THREE_ID || progress.stageStatus !== "active") {
+    return;
+  }
+
+  const current = getStationThreeCorrectCount();
+  if (current >= STATION_THREE_TARGET_COUNT) {
+    return;
+  }
+
+  const next = current + 1;
+  progress.stepByStation[STATION_THREE_ID] = next;
+
+  if (next >= STATION_THREE_TARGET_COUNT) {
+    progress.stageStatus = "solved_ready_next";
+    if (progress.hintsUnlocked < 4) {
+      progress.hintsUnlocked = 4;
+    }
+    transient.stationFeedbackById[STATION_THREE_ID] =
+      "Challenge geschafft!\n\nDas naechste Loesungswort lautet:\nin der";
+    renderHints();
+  } else {
+    transient.stationFeedbackById[STATION_THREE_ID] = "";
+  }
+
+  saveProgress();
+  updateUI();
+}
+
+function onHitsterWrong() {
+  const station = getCurrentStation();
+  if (!station || station.id !== STATION_THREE_ID || progress.stageStatus !== "active") {
+    return;
+  }
+
+  incrementAttempts(STATION_THREE_ID);
+  transient.stationFeedbackById[STATION_THREE_ID] = "Falsch.\n\nAlle trinken einen Schluck 🍺";
   saveProgress();
   updateUI();
 }
@@ -797,6 +909,11 @@ function renderChallenge(station) {
     closeNotesModal();
     el.challengeCard.classList.add("hidden");
     el.feedbackText.textContent = "";
+    if (el.hitsterPanel) {
+      el.hitsterPanel.classList.add("hidden");
+    }
+    el.challengePrompt.classList.remove("hidden");
+    el.answerInput.classList.remove("hidden");
     if (el.notesBtn) {
       el.notesBtn.classList.add("hidden");
     }
@@ -812,6 +929,8 @@ function renderChallenge(station) {
 
   const isStationOne = station.id === STATION_ONE_ID;
   const isStationTwo = station.id === STATION_TWO_ID;
+  const isStationThree = station.id === STATION_THREE_ID;
+  const isStationFour = station.id === STATION_FOUR_ID;
   if (!isStationOne) {
     closeNotesModal();
   }
@@ -824,9 +943,12 @@ function renderChallenge(station) {
   } else if (isStationTwo) {
     el.challengePrompt.textContent =
       STATION_TWO_STEPS[Math.min(getStationTwoStep(), STATION_TWO_STEPS.length - 1)].question;
+  } else if (isStationThree) {
+    el.challengePrompt.textContent = "";
   } else {
     el.challengePrompt.textContent = station.prompt;
   }
+  el.challengePrompt.classList.toggle("hidden", isStationThree);
   el.tipText.textContent = station.tip || "";
   if (el.emojiHint) {
     if (isStationTwo) {
@@ -836,27 +958,47 @@ function renderChallenge(station) {
       el.emojiHint.classList.add("hidden");
     }
   }
+  const usesTextAnswer = !isStationThree;
   if (el.answerLabel) {
-    el.answerLabel.textContent = isStationOne || isStationTwo ? "Antwort" : "Loesungswort";
+    el.answerLabel.classList.toggle("hidden", !usesTextAnswer);
+    el.answerLabel.textContent =
+      isStationOne || isStationTwo || isStationFour ? "Antwort" : "Loesungswort";
   }
+  el.answerInput.classList.toggle("hidden", !usesTextAnswer);
   el.answerInput.placeholder =
-    isStationOne || isStationTwo ? "Antwort eingeben" : "Loesungswort eingeben";
+    isStationOne || isStationTwo || isStationFour ? "Antwort eingeben" : "Loesungswort eingeben";
   if (el.notesBtn) {
     el.notesBtn.classList.toggle("hidden", !isStationOne);
   }
 
   const tries = progress.attemptsByStation[station.id] || 0;
+  const stationThreeCount = getStationThreeCorrectCount();
   const isSolvedNeedsHint = progress.stageStatus === "solved_needs_hint";
   const isSolvedReadyNext = progress.stageStatus === "solved_ready_next";
   const customFeedback = transient.stationFeedbackById[station.id] || "";
 
   const active = progress.stageStatus === "active";
-  if ((isStationOne || isStationTwo) && !active) {
+  if ((isStationOne || isStationTwo || isStationFour) && !active) {
     el.challengePrompt.textContent = "Station abgeschlossen.";
   }
-  el.answerInput.disabled = !active;
+  el.answerInput.disabled = !active || isStationThree;
   el.checkAnswerBtn.disabled = !active;
-  el.checkAnswerBtn.classList.toggle("hidden", !active);
+  el.checkAnswerBtn.classList.toggle("hidden", !active || isStationThree);
+
+  if (el.hitsterPanel) {
+    el.hitsterPanel.classList.toggle("hidden", !isStationThree);
+  }
+  if (el.hitsterProgress && isStationThree) {
+    el.hitsterProgress.textContent = `Richtige Songs: ${stationThreeCount} / ${STATION_THREE_TARGET_COUNT}`;
+  }
+  if (isStationThree) {
+    if (el.hitsterCorrectBtn) {
+      el.hitsterCorrectBtn.disabled = !active;
+    }
+    if (el.hitsterWrongBtn) {
+      el.hitsterWrongBtn.disabled = !active;
+    }
+  }
 
   if (isStationTwo) {
     const shownTips = getStationTwoTipCount();
@@ -866,6 +1008,20 @@ function renderChallenge(station) {
 
     if (shownTips > 0) {
       el.tipText.textContent = STATION_TWO_TIPS.slice(0, shownTips)
+        .map((tip, index) => `Tipp ${index + 1}: ${tip}`)
+        .join("\n");
+      el.tipText.classList.remove("hidden");
+    } else {
+      el.tipText.classList.add("hidden");
+    }
+  } else if (isStationFour) {
+    const shownTips = getStationFourTipCount();
+    const canShowMoreTips = active && shownTips < STATION_FOUR_TIPS.length;
+    el.showHintBtn.classList.toggle("hidden", !canShowMoreTips);
+    el.showHintBtn.textContent = shownTips === 0 ? "Tipp anzeigen" : "Naechsten Tipp anzeigen";
+
+    if (shownTips > 0) {
+      el.tipText.textContent = STATION_FOUR_TIPS.slice(0, shownTips)
         .map((tip, index) => `Tipp ${index + 1}: ${tip}`)
         .join("\n");
       el.tipText.classList.remove("hidden");
@@ -884,20 +1040,25 @@ function renderChallenge(station) {
     }
   }
 
-  el.unlockHintBtn.classList.toggle("hidden", isStationOne || isStationTwo || !isSolvedNeedsHint);
+  el.unlockHintBtn.classList.toggle(
+    "hidden",
+    isStationOne || isStationTwo || isStationThree || isStationFour || !isSolvedNeedsHint,
+  );
   el.nextStageBtn.classList.toggle("hidden", !isSolvedReadyNext);
   el.nextStageBtn.textContent =
-    isStationOne || isStationTwo
+    isStationOne || isStationTwo || isStationThree || isStationFour
       ? "Weiter"
       : progress.currentStationIndex === STATIONS.length - 1
       ? "Finalziel freischalten"
       : "Weiter zur naechsten Etappe";
 
-  if ((isStationOne || isStationTwo) && customFeedback) {
+  if ((isStationOne || isStationTwo || isStationThree || isStationFour) && customFeedback) {
     el.feedbackText.textContent = customFeedback;
   } else if (isSolvedNeedsHint) {
     el.feedbackText.textContent =
       "Erfolg! Schalte jetzt den naechsten Hinweis frei, dann geht es weiter.";
+  } else {
+    el.feedbackText.textContent = "";
   }
 
   if (isSolvedReadyNext) {
@@ -910,10 +1071,14 @@ function renderChallenge(station) {
           : STATIONS[progress.currentStationIndex].nextStageText
         : "Finalziel freigeschaltet: Huette.";
 
-    if (isStationOne || isStationTwo) {
+    if (isStationOne || isStationTwo || isStationThree || isStationFour) {
       const fallbackSolvedText = isStationOne
         ? STATION_ONE_STEPS[STATION_ONE_STEPS.length - 1].successMessage
-        : STATION_TWO_STEPS[STATION_TWO_STEPS.length - 1].successMessage;
+        : isStationTwo
+        ? STATION_TWO_STEPS[STATION_TWO_STEPS.length - 1].successMessage
+        : isStationThree
+        ? "Challenge geschafft!\n\nDas naechste Loesungswort lautet:\nin der"
+        : "Richtig!\n\nWonder + Wall = Wonderwall\n\nLoesungswort:\nWonderwall";
       const baseText = customFeedback || fallbackSolvedText;
       el.feedbackText.textContent = `${baseText}\n\n${nextText}`.trim();
     } else {
@@ -1089,6 +1254,28 @@ function getStationTwoTipCount() {
   return raw;
 }
 
+function getStationFourTipCount() {
+  const raw = progress.tipCountByStation[STATION_FOUR_ID];
+  if (!Number.isInteger(raw) || raw < 0) {
+    return 0;
+  }
+  if (raw > STATION_FOUR_TIPS.length) {
+    return STATION_FOUR_TIPS.length;
+  }
+  return raw;
+}
+
+function getStationThreeCorrectCount() {
+  const raw = progress.stepByStation[STATION_THREE_ID];
+  if (!Number.isInteger(raw) || raw < 0) {
+    return 0;
+  }
+  if (raw > STATION_THREE_TARGET_COUNT) {
+    return STATION_THREE_TARGET_COUNT;
+  }
+  return raw;
+}
+
 function isPreStart() {
   if (TEST_MODE) {
     return false;
@@ -1181,6 +1368,67 @@ function normalizeProgress() {
     if (progress.hintsUnlocked < 3) {
       progress.hintsUnlocked = 3;
     }
+  }
+
+  const stationFourTips = progress.tipCountByStation[STATION_FOUR_ID];
+  if (!Number.isInteger(stationFourTips) || stationFourTips < 0) {
+    progress.tipCountByStation[STATION_FOUR_ID] = 0;
+  } else if (stationFourTips > STATION_FOUR_TIPS.length) {
+    progress.tipCountByStation[STATION_FOUR_ID] = STATION_FOUR_TIPS.length;
+  }
+
+  const stationThreeStep = progress.stepByStation[STATION_THREE_ID];
+  if (!Number.isInteger(stationThreeStep) || stationThreeStep < 0) {
+    progress.stepByStation[STATION_THREE_ID] = 0;
+  } else if (stationThreeStep > STATION_THREE_TARGET_COUNT) {
+    progress.stepByStation[STATION_THREE_ID] = STATION_THREE_TARGET_COUNT;
+  }
+  if (
+    progress.currentStationIndex === 2 &&
+    progress.stageStatus === "active" &&
+    progress.stepByStation[STATION_THREE_ID] >= STATION_THREE_TARGET_COUNT
+  ) {
+    progress.stepByStation[STATION_THREE_ID] = STATION_THREE_TARGET_COUNT - 1;
+  }
+  if (progress.currentStationIndex === 2 && progress.stageStatus === "solved_needs_hint") {
+    progress.stageStatus = "solved_ready_next";
+    if (progress.hintsUnlocked < 4) {
+      progress.hintsUnlocked = 4;
+    }
+  }
+  if (
+    progress.currentStationIndex === 2 &&
+    progress.stageStatus === "solved_ready_next" &&
+    progress.stepByStation[STATION_THREE_ID] < STATION_THREE_TARGET_COUNT
+  ) {
+    progress.stepByStation[STATION_THREE_ID] = STATION_THREE_TARGET_COUNT;
+  }
+
+  const stationFourStep = progress.stepByStation[STATION_FOUR_ID];
+  if (!Number.isInteger(stationFourStep) || stationFourStep < 0) {
+    progress.stepByStation[STATION_FOUR_ID] = 0;
+  } else if (stationFourStep > 1) {
+    progress.stepByStation[STATION_FOUR_ID] = 1;
+  }
+  if (
+    progress.currentStationIndex === 3 &&
+    progress.stageStatus === "active" &&
+    progress.stepByStation[STATION_FOUR_ID] >= 1
+  ) {
+    progress.stepByStation[STATION_FOUR_ID] = 0;
+  }
+  if (progress.currentStationIndex === 3 && progress.stageStatus === "solved_needs_hint") {
+    progress.stageStatus = "solved_ready_next";
+    if (progress.hintsUnlocked < 5) {
+      progress.hintsUnlocked = 5;
+    }
+  }
+  if (
+    progress.currentStationIndex === 3 &&
+    progress.stageStatus === "solved_ready_next" &&
+    progress.stepByStation[STATION_FOUR_ID] < 1
+  ) {
+    progress.stepByStation[STATION_FOUR_ID] = 1;
   }
 
   if (typeof progress.finalLegUnlocked !== "boolean") {
