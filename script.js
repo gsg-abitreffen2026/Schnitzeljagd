@@ -1440,6 +1440,9 @@ function renderSolutionsList() {
 function renderPreStartUI() {
   const nextStation = getCurrentStation() || STATIONS[0];
   setHeroCompact(false);
+  if (el.startCard) {
+    el.startCard.classList.remove("hidden");
+  }
   if (el.startCardTitle) {
     el.startCardTitle.textContent = "Next";
   }
@@ -1481,6 +1484,9 @@ function renderStartMode(station) {
   }
 
   const active = progress.stageStatus === "active";
+  if (el.startCard) {
+    el.startCard.classList.toggle("hidden", active);
+  }
   el.lockText.textContent = active
     ? `Aktuelle Station: ${station.title}`
     : `Nächstes Ziel: ${station.locationName}`;
@@ -1512,6 +1518,9 @@ function renderStartMode(station) {
 
 function renderFinalLegMode() {
   setHeroCompact(true);
+  if (el.startCard) {
+    el.startCard.classList.remove("hidden");
+  }
   if (el.startCardTitle) {
     el.startCardTitle.textContent = "Next";
   }
@@ -1839,6 +1848,9 @@ function createStationFiveChip(word, origin, isLocked) {
 
 function renderFinishedUI() {
   setHeroCompact(true);
+  if (el.startCard) {
+    el.startCard.classList.remove("hidden");
+  }
   if (el.startCardTitle) {
     el.startCardTitle.textContent = "Abschluss";
   }

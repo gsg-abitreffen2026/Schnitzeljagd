@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Blockfloete Griffhilfe</title>
+  <desc id="desc">Einfache Griffhilfe mit den Toenen E, G, A und B sowie Notenfolge fuer Station 1.</desc>
+  <defs>
+    <style>
+      .bg { fill: #ffffff; }
+      .title { font: 700 42px 'Avenir Next', 'Montserrat', sans-serif; fill: #0b4858; }
+      .subtitle { font: 600 24px 'Avenir Next', 'Montserrat', sans-serif; fill: #25424a; }
+      .note-seq { font: 800 28px 'Avenir Next', 'Montserrat', sans-serif; fill: #0b4858; }
+      .label { font: 700 32px 'Avenir Next', 'Montserrat', sans-serif; fill: #173843; text-anchor: middle; }
+      .open-hole { fill: #fff; stroke: #9ab4bf; stroke-width: 2; }
+      .closed-hole { fill: #d6424e; stroke: #9f2c35; stroke-width: 1.5; }
+      .recorder { fill: #e6b36d; stroke: #ca934f; stroke-width: 2; }
+      .head { fill: #d79a55; stroke: #ca934f; stroke-width: 2; }
+      .smalltext { font: 500 20px 'Avenir Next', 'Montserrat', sans-serif; fill: #3a5d68; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1200" height="760" rx="20" />
+
+  <text class="title" x="60" y="80">Sopran Blockfloete - Griffhilfe</text>
+  <text class="subtitle" x="60" y="120">Station 1: Nutzt die Toene E, G, A, B</text>
+  <text class="note-seq" x="60" y="170">Notenfolge: E - G - A - E - G - A - B - A</text>
+
+  <!-- E -->
+  <g transform="translate(120,220)">
+    <rect class="head" x="34" y="0" width="52" height="38" rx="10"/>
+    <rect class="recorder" x="40" y="36" width="40" height="310" rx="18"/>
+    <circle class="closed-hole" cx="60" cy="70" r="9"/>
+    <circle class="closed-hole" cx="60" cy="106" r="9"/>
+    <circle class="closed-hole" cx="60" cy="142" r="9"/>
+    <circle class="closed-hole" cx="60" cy="178" r="9"/>
+    <circle class="closed-hole" cx="60" cy="214" r="9"/>
+    <circle class="closed-hole" cx="60" cy="250" r="9"/>
+    <circle class="open-hole" cx="60" cy="286" r="9"/>
+    <text class="label" x="60" y="390">E</text>
+  </g>
+
+  <!-- G -->
+  <g transform="translate(345,220)">
+    <rect class="head" x="34" y="0" width="52" height="38" rx="10"/>
+    <rect class="recorder" x="40" y="36" width="40" height="310" rx="18"/>
+    <circle class="closed-hole" cx="60" cy="70" r="9"/>
+    <circle class="closed-hole" cx="60" cy="106" r="9"/>
+    <circle class="closed-hole" cx="60" cy="142" r="9"/>
+    <circle class="open-hole" cx="60" cy="178" r="9"/>
+    <circle class="open-hole" cx="60" cy="214" r="9"/>
+    <circle class="open-hole" cx="60" cy="250" r="9"/>
+    <circle class="open-hole" cx="60" cy="286" r="9"/>
+    <text class="label" x="60" y="390">G</text>
+  </g>
+
+  <!-- A -->
+  <g transform="translate(570,220)">
+    <rect class="head" x="34" y="0" width="52" height="38" rx="10"/>
+    <rect class="recorder" x="40" y="36" width="40" height="310" rx="18"/>
+    <circle class="closed-hole" cx="60" cy="70" r="9"/>
+    <circle class="closed-hole" cx="60" cy="106" r="9"/>
+    <circle class="open-hole" cx="60" cy="142" r="9"/>
+    <circle class="open-hole" cx="60" cy="178" r="9"/>
+    <circle class="open-hole" cx="60" cy="214" r="9"/>
+    <circle class="open-hole" cx="60" cy="250" r="9"/>
+    <circle class="open-hole" cx="60" cy="286" r="9"/>
+    <text class="label" x="60" y="390">A</text>
+  </g>
+
+  <!-- B -->
+  <g transform="translate(795,220)">
+    <rect class="head" x="34" y="0" width="52" height="38" rx="10"/>
+    <rect class="recorder" x="40" y="36" width="40" height="310" rx="18"/>
+    <circle class="closed-hole" cx="60" cy="70" r="9"/>
+    <circle class="open-hole" cx="60" cy="106" r="9"/>
+    <circle class="open-hole" cx="60" cy="142" r="9"/>
+    <circle class="open-hole" cx="60" cy="178" r="9"/>
+    <circle class="open-hole" cx="60" cy="214" r="9"/>
+    <circle class="open-hole" cx="60" cy="250" r="9"/>
+    <circle class="open-hole" cx="60" cy="286" r="9"/>
+    <text class="label" x="60" y="390">B</text>
+  </g>
+
+  <text class="smalltext" x="60" y="690">Hinweis: Diese Grafik ist eine einfache Hilfe fuer das Spiel vor Ort.</text>
+  <text class="smalltext" x="60" y="722">Wenn ihr unsicher seid, nutzt die Notenfolge und testet die Tonsauberkeit in Ruhe.</text>
+</svg>

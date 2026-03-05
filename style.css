@@ -273,6 +273,14 @@ p {
   white-space: pre-line;
 }
 
+.question-highlight {
+  background: #fff3dc;
+  border: 1px solid #f2cf93;
+  border-radius: 12px;
+  padding: 0.68rem 0.72rem;
+  color: #3f2a00;
+}
+
 #challengeStory {
   white-space: pre-line;
 }
