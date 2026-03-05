@@ -14,36 +14,81 @@ const GAME_CONFIG = Object.freeze({
 const PLAYLIST = Object.freeze({
   A: [
     {
-      song: "Numb / Encore",
-      artist: "Linkin Park & Jay-Z",
-      url: "https://open.spotify.com/search/Numb%20Encore",
+      song: "All The Small Things",
+      artist: "blink-182",
+      url: "https://open.spotify.com/search/blink-182%20All%20The%20Small%20Things",
     },
     {
-      song: "Hurra",
-      artist: "Die Aerzte",
-      url: "https://open.spotify.com/search/Die%20Aerzte%20Hurra",
+      song: "Bohemian Rhapsody",
+      artist: "Queen",
+      url: "https://open.spotify.com/search/Queen%20Bohemian%20Rhapsody",
     },
     {
-      song: "Superstition",
-      artist: "Stevie Wonder",
-      url: "https://open.spotify.com/search/Stevie%20Wonder%20Superstition",
+      song: "Everybody",
+      artist: "Backstreet Boys",
+      url: "https://open.spotify.com/search/Backstreet%20Boys%20Everybody",
+    },
+    {
+      song: "Are You Gonna Be My Girl",
+      artist: "Jet",
+      url: "https://open.spotify.com/search/Jet%20Are%20You%20Gonna%20Be%20My%20Girl",
+    },
+    {
+      song: "Californication",
+      artist: "Red Hot Chili Peppers",
+      url: "https://open.spotify.com/search/Red%20Hot%20Chili%20Peppers%20Californication",
+    },
+    {
+      song: "Fallen Leaves",
+      artist: "Billy Talent",
+      url: "https://open.spotify.com/search/Billy%20Talent%20Fallen%20Leaves",
+    },
+    {
+      song: "Basket Case",
+      artist: "Green Day",
+      url: "https://open.spotify.com/search/Green%20Day%20Basket%20Case",
+    },
+    {
+      song: "Smells Like Teen Spirit",
+      artist: "Nirvana",
+      url: "https://open.spotify.com/search/Nirvana%20Smells%20Like%20Teen%20Spirit",
     },
   ],
   B: [
     {
-      song: "Another Brick in the Wall",
-      artist: "Pink Floyd",
-      url: "https://open.spotify.com/search/Another%20Brick%20in%20the%20Wall",
+      song: "Don't Stop Me Now",
+      artist: "Queen",
+      url: "https://open.spotify.com/search/Queen%20Don%27t%20Stop%20Me%20Now",
     },
     {
-      song: "Wonderwall",
-      artist: "Oasis",
-      url: "https://open.spotify.com/search/Oasis%20Wonderwall",
+      song: "Mr Brightside",
+      artist: "The Killers",
+      url: "https://open.spotify.com/search/The%20Killers%20Mr%20Brightside",
     },
     {
-      song: "Playlist-Platzhalter",
-      artist: "Spaeter ergaenzen",
-      url: "https://open.spotify.com/",
+      song: "You Give Love A Bad Name",
+      artist: "Bon Jovi",
+      url: "https://open.spotify.com/search/Bon%20Jovi%20You%20Give%20Love%20A%20Bad%20Name",
+    },
+    {
+      song: "Teenage Dirtbag",
+      artist: "Wheatus",
+      url: "https://open.spotify.com/search/Wheatus%20Teenage%20Dirtbag",
+    },
+    {
+      song: "Pretty Fly (For A White Guy)",
+      artist: "The Offspring",
+      url: "https://open.spotify.com/search/The%20Offspring%20Pretty%20Fly%20For%20A%20White%20Guy",
+    },
+    {
+      song: "Hey Ya!",
+      artist: "Outkast",
+      url: "https://open.spotify.com/search/Outkast%20Hey%20Ya",
+    },
+    {
+      song: "Thunderstruck",
+      artist: "AC/DC",
+      url: "https://open.spotify.com/search/ACDC%20Thunderstruck",
     },
   ],
 });
@@ -53,7 +98,7 @@ const HINTS = Object.freeze([
   "Achtet auf die letzte Ziffer",
   "Bildet eine Reihe",
   "Da fehlt noch ein Punkt",
-  "Und? Wohin gehts?",
+  "Und? Wohin geht's?",
 ]);
 
 const STATIONS = Object.freeze([
@@ -586,7 +631,8 @@ function renderSongList(container, songs) {
     link.href = item.url;
     link.target = "_blank";
     link.rel = "noopener noreferrer";
-    link.textContent = `${item.song} - ${item.artist}`;
+    link.title = `${item.song} - ${item.artist}`;
+    link.textContent = item.song;
     li.appendChild(link);
     container.appendChild(li);
   });
