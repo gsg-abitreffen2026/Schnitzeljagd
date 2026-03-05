@@ -11,6 +11,8 @@ const GAME_CONFIG = Object.freeze({
   },
 });
 
+const TEST_MODE = new URLSearchParams(window.location.search).get("test") === "1";
+
 const PLAYLIST = Object.freeze({
   A: [
     {
@@ -217,6 +219,7 @@ let transient = {
 const el = {
   modeTitle: byId("modeTitle"),
   modeSubtitle: byId("modeSubtitle"),
+  testModeBadge: byId("testModeBadge"),
   countdownCard: byId("countdownCard"),
   countdownValue: byId("countdownValue"),
   startAtText: byId("startAtText"),
@@ -252,6 +255,7 @@ const el = {
 init();
 
 function init() {
+  renderTestModeBadge();
   renderPlaylist();
   bindEvents();
   normalizeProgress();
@@ -302,6 +306,27 @@ function onStartChallenge() {
   }
 
   transient.permissionMessage = "";
+
+  if (TEST_MODE) {
+    transient.gpsStatus = "ok";
+    transient.distanceMeters = 0;
+
+    if (finalLeg) {
+      progress.finished = true;
+      progress.finalLegUnlocked = false;
+      progress.stageStatus = "locked";
+      transient.permissionMessage = "Testmodus: Finalziel ohne GPS-Pruefung abgeschlossen.";
+    } else {
+      if (progress.stageStatus === "locked") {
+        progress.stageStatus = "active";
+      }
+      transient.permissionMessage = "Testmodus: GPS-Pruefung uebersprungen. Challenge ist aktiv.";
+    }
+
+    saveProgress();
+    updateUI();
+    return;
+  }
 
   if (!navigator.geolocation) {
     transient.gpsStatus = "far";
@@ -536,7 +561,9 @@ function renderStartMode(station) {
 
   el.startChallengeBtn.disabled = false;
   el.startChallengeBtn.textContent = "Challenge starten";
-  el.ctaHint.textContent = "GPS wird nur bei Klick abgefragt und nicht gespeichert.";
+  el.ctaHint.textContent = TEST_MODE
+    ? "Testmodus aktiv: Zeit- und GPS-Pruefung sind deaktiviert."
+    : "GPS wird nur bei Klick abgefragt und nicht gespeichert.";
   el.stickyBar.classList.remove("hidden");
   el.finalCard.classList.add("hidden");
 }
@@ -568,7 +595,9 @@ function renderFinalLegMode() {
 
   el.startChallengeBtn.disabled = false;
   el.startChallengeBtn.textContent = "Finalziel pruefen";
-  el.ctaHint.textContent = "GPS wird nur bei Klick abgefragt und nicht gespeichert.";
+  el.ctaHint.textContent = TEST_MODE
+    ? "Testmodus aktiv: Finalziel-Pruefung laeuft ohne GPS."
+    : "GPS wird nur bei Klick abgefragt und nicht gespeichert.";
   el.stickyBar.classList.remove("hidden");
 }
 
@@ -658,6 +687,13 @@ function renderFinishedUI() {
 }
 
 function updateCountdown() {
+  if (TEST_MODE) {
+    el.countdownCard.classList.remove("hidden");
+    el.countdownValue.textContent = "TESTMODUS";
+    el.startAtText.textContent = "Zeitpruefung deaktiviert (?test=1).";
+    return;
+  }
+
   const now = Date.now();
   const startAt = new Date(GAME_CONFIG.startAtISO).getTime();
   const diff = startAt - now;
@@ -686,6 +722,13 @@ function updateCountdown() {
 function renderPlaylist() {
   renderSongList(el.playlistA, PLAYLIST.A);
   renderSongList(el.playlistB, PLAYLIST.B);
+}
+
+function renderTestModeBadge() {
+  if (!el.testModeBadge) {
+    return;
+  }
+  el.testModeBadge.classList.toggle("hidden", !TEST_MODE);
 }
 
 function renderSongList(container, songs) {
@@ -746,6 +789,9 @@ function getCurrentStation() {
 }
 
 function isPreStart() {
+  if (TEST_MODE) {
+    return false;
+  }
   return Date.now() < new Date(GAME_CONFIG.startAtISO).getTime();
 }
 
