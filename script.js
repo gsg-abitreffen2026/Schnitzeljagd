@@ -177,6 +177,10 @@ const STATION_FIVE_SENTENCE_ORDER = Object.freeze([
   "in der",
   "Hütte",
 ]);
+const STATION_ONE_HISTORY_LABELS = Object.freeze(["Numb", "Encore", "Noch einmal"]);
+const STATION_TWO_HISTORY_LABELS = Object.freeze(["Hurra", "Früher"]);
+const STATION_FOUR_HISTORY_LABEL = "Wonderwall";
+const STATION_FIVE_HISTORY_LABEL = "Hütte";
 
 const STATIONS = Object.freeze([
   {
@@ -292,9 +296,15 @@ let transient = {
   distanceMeters: null,
   permissionMessage: "",
   tipVisible: false,
+  playlistCollapsed: false,
   emergencyByStation: {},
   stationFeedbackById: {},
+  answerHistoryByStation: {},
   stationFiveCoordsFeedback: "",
+  popupOpen: false,
+  popupTitle: "",
+  popupMessage: "",
+  popupOnClose: null,
   stationFiveBoard: {
     bankWords: [],
     lineWords: [],
@@ -305,15 +315,20 @@ let transient = {
 };
 
 const el = {
+  heroCard: byId("heroCard"),
+  heroStripText: byId("heroStripText"),
   modeTitle: byId("modeTitle"),
   modeSubtitle: byId("modeSubtitle"),
   testModeBadge: byId("testModeBadge"),
   countdownCard: byId("countdownCard"),
   countdownValue: byId("countdownValue"),
   startAtText: byId("startAtText"),
+  playlistToggleBtn: byId("playlistToggleBtn"),
+  playlistBody: byId("playlistBody"),
   playlistA: byId("playlistA"),
   playlistB: byId("playlistB"),
   hintList: byId("hintList"),
+  startCardTitle: byId("startCardTitle"),
   startCard: byId("startCard"),
   lockText: byId("lockText"),
   nextTargetText: byId("nextTargetText"),
@@ -324,6 +339,7 @@ const el = {
   challengeCard: byId("challengeCard"),
   challengeTitle: byId("challengeTitle"),
   challengeStory: byId("challengeStory"),
+  answerHistory: byId("answerHistory"),
   emojiHint: byId("emojiHint"),
   challengePrompt: byId("challengePrompt"),
   hitsterPanel: byId("hitsterPanel"),
@@ -346,6 +362,10 @@ const el = {
   notesBtn: byId("notesBtn"),
   notesModal: byId("notesModal"),
   closeNotesBtn: byId("closeNotesBtn"),
+  feedbackModal: byId("feedbackModal"),
+  feedbackTitle: byId("feedbackTitle"),
+  feedbackMessage: byId("feedbackMessage"),
+  feedbackContinueBtn: byId("feedbackContinueBtn"),
   showHintBtn: byId("showHintBtn"),
   tipText: byId("tipText"),
   feedbackText: byId("feedbackText"),
@@ -362,8 +382,10 @@ const el = {
 init();
 
 function init() {
+  transient.playlistCollapsed = !isPreStart();
   renderTestModeBadge();
   renderPlaylist();
+  renderPlaylistCollapse();
   bindEvents();
   normalizeProgress();
   renderHints();
@@ -375,6 +397,9 @@ function init() {
 
 function bindEvents() {
   el.startChallengeBtn.addEventListener("click", onStartChallenge);
+  if (el.playlistToggleBtn) {
+    el.playlistToggleBtn.addEventListener("click", onTogglePlaylist);
+  }
   el.checkAnswerBtn.addEventListener("click", onCheckAnswer);
   if (el.checkCoordsBtn) {
     el.checkCoordsBtn.addEventListener("click", onCheckStationFiveCoordinates);
@@ -393,6 +418,12 @@ function bindEvents() {
   }
   if (el.notesModal) {
     el.notesModal.addEventListener("click", onNotesModalBackdropClick);
+  }
+  if (el.feedbackContinueBtn) {
+    el.feedbackContinueBtn.addEventListener("click", closeFeedbackPopup);
+  }
+  if (el.feedbackModal) {
+    el.feedbackModal.addEventListener("click", onFeedbackModalBackdropClick);
   }
   el.showHintBtn.addEventListener("click", onToggleTip);
   el.unlockHintBtn.addEventListener("click", onUnlockHint);
@@ -413,6 +444,125 @@ function bindEvents() {
   });
 }
 
+function onTogglePlaylist() {
+  transient.playlistCollapsed = !transient.playlistCollapsed;
+  renderPlaylistCollapse();
+}
+
+function renderPlaylistCollapse() {
+  if (!el.playlistBody || !el.playlistToggleBtn) {
+    return;
+  }
+  el.playlistBody.classList.toggle("hidden", transient.playlistCollapsed);
+  el.playlistToggleBtn.textContent = transient.playlistCollapsed
+    ? "Playlist anzeigen"
+    : "Playlist ausblenden";
+}
+
+function openFeedbackPopup(title, message, onClose = null) {
+  if (!el.feedbackModal || !el.feedbackTitle || !el.feedbackMessage) {
+    if (typeof onClose === "function") {
+      onClose();
+    }
+    return;
+  }
+  transient.popupTitle = title;
+  transient.popupMessage = message;
+  transient.popupOnClose = typeof onClose === "function" ? onClose : null;
+  transient.popupOpen = true;
+  el.feedbackTitle.textContent = title;
+  el.feedbackMessage.textContent = message;
+  el.feedbackModal.classList.remove("hidden");
+}
+
+function closeFeedbackPopup() {
+  if (!transient.popupOpen) {
+    return;
+  }
+  transient.popupOpen = false;
+  if (el.feedbackModal) {
+    el.feedbackModal.classList.add("hidden");
+  }
+  const cb = transient.popupOnClose;
+  transient.popupOnClose = null;
+  if (typeof cb === "function") {
+    cb();
+  } else {
+    updateUI();
+  }
+}
+
+function onFeedbackModalBackdropClick(event) {
+  if (event.target === el.feedbackModal) {
+    closeFeedbackPopup();
+  }
+}
+
+function setHeroCompact(compact) {
+  if (!el.heroCard || !el.heroStripText || !el.modeTitle || !el.modeSubtitle || !el.countdownCard) {
+    return;
+  }
+  el.heroCard.classList.toggle("hero-compact", compact);
+  el.heroStripText.classList.toggle("hidden", !compact);
+  el.modeTitle.classList.toggle("hidden", compact);
+  el.modeSubtitle.classList.toggle("hidden", compact);
+  el.countdownCard.classList.toggle("hidden", compact);
+}
+
+function addAnswerHistory(stationId, answerLabel) {
+  if (!transient.answerHistoryByStation[stationId]) {
+    transient.answerHistoryByStation[stationId] = [];
+  }
+  const list = transient.answerHistoryByStation[stationId];
+  list.push(answerLabel);
+}
+
+function renderAnswerHistory(stationId) {
+  if (!el.answerHistory) {
+    return;
+  }
+  const entries = transient.answerHistoryByStation[stationId] || [];
+  if (entries.length === 0) {
+    el.answerHistory.classList.add("hidden");
+    el.answerHistory.textContent = "";
+    return;
+  }
+  el.answerHistory.classList.remove("hidden");
+  el.answerHistory.textContent = entries
+    .map((answer, index) => `Antwort ${index + 1}: ${answer}`)
+    .join("\n");
+}
+
+function completeCurrentStationAndAdvance() {
+  const station = getCurrentStation();
+  transient.tipVisible = false;
+  transient.distanceMeters = null;
+  transient.gpsStatus = "idle";
+  transient.permissionMessage = "";
+  transient.stationFiveCoordsFeedback = "";
+  if (station) {
+    delete transient.stationFeedbackById[station.id];
+  }
+  if (el.coordLatInput) {
+    el.coordLatInput.value = "";
+  }
+  if (el.coordLngInput) {
+    el.coordLngInput.value = "";
+  }
+
+  if (progress.currentStationIndex >= STATIONS.length - 1) {
+    progress.currentStationIndex = STATIONS.length;
+    progress.stageStatus = "locked";
+    progress.finalLegUnlocked = true;
+    progress.finished = false;
+  } else {
+    progress.currentStationIndex += 1;
+    progress.stageStatus = "locked";
+  }
+  saveProgress();
+  updateUI();
+}
+
 function onStartChallenge() {
   if (isPreStart() || progress.finished) {
     return;
@@ -424,9 +574,7 @@ function onStartChallenge() {
     !finalLeg &&
     (progress.stageStatus === "solved_needs_hint" || progress.stageStatus === "solved_ready_next")
   ) {
-    transient.permissionMessage =
-      "Diese Station ist bereits geloest. Nutzt jetzt 'Hinweis freischalten' oder 'Weiter zur naechsten Etappe'.";
-    updateUI();
+    completeCurrentStationAndAdvance();
     return;
   }
 
@@ -452,6 +600,8 @@ function onStartChallenge() {
         progress.stageStatus = "active";
       }
       transient.permissionMessage = "Testmodus: GPS-Pruefung uebersprungen. Challenge ist aktiv.";
+      transient.playlistCollapsed = true;
+      renderPlaylistCollapse();
     }
 
     saveProgress();
@@ -498,6 +648,8 @@ function onStartChallenge() {
           }
           saveProgress();
           transient.permissionMessage = "Im Radius. Challenge ist freigeschaltet.";
+          transient.playlistCollapsed = true;
+          renderPlaylistCollapse();
         }
       } else {
         if (!finalLeg) {
@@ -602,31 +754,30 @@ function onCheckAnswerStationOne(rawInput) {
 
   if (!correct) {
     incrementAttempts(STATION_ONE_ID);
-    transient.stationFeedbackById[STATION_ONE_ID] = stepConfig.wrongMessage;
     saveProgress();
-    updateUI();
+    const wrongText = stepConfig.wrongMessage.replace(/^Falsch\.\n\n/, "");
+    openFeedbackPopup("Falsch", wrongText);
     return;
   }
 
+  addAnswerHistory(STATION_ONE_ID, STATION_ONE_HISTORY_LABELS[Math.min(step, STATION_ONE_HISTORY_LABELS.length - 1)]);
+  el.answerInput.value = "";
+
   if (step < STATION_ONE_STEPS.length - 1) {
     progress.stepByStation[STATION_ONE_ID] = step + 1;
-    transient.stationFeedbackById[STATION_ONE_ID] = stepConfig.successMessage;
-    el.answerInput.value = "";
     saveProgress();
-    updateUI();
+    openFeedbackPopup("Richtig!", stepConfig.successMessage);
     return;
   }
 
   progress.stepByStation[STATION_ONE_ID] = STATION_ONE_STEPS.length;
-  progress.stageStatus = "solved_ready_next";
   if (progress.hintsUnlocked < 2) {
     progress.hintsUnlocked = 2;
   }
   transient.tipVisible = false;
-  transient.stationFeedbackById[STATION_ONE_ID] = stepConfig.successMessage;
   saveProgress();
   renderHints();
-  updateUI();
+  openFeedbackPopup("Richtig!", stepConfig.successMessage, completeCurrentStationAndAdvance);
 }
 
 function onCheckAnswerStationTwo(rawInput) {
@@ -641,31 +792,29 @@ function onCheckAnswerStationTwo(rawInput) {
 
   if (!correct) {
     incrementAttempts(STATION_TWO_ID);
-    transient.stationFeedbackById[STATION_TWO_ID] = stepConfig.wrongMessage;
     saveProgress();
-    updateUI();
+    openFeedbackPopup("Falsch", "Alle trinken einen Schluck 🍺");
     return;
   }
 
+  addAnswerHistory(STATION_TWO_ID, STATION_TWO_HISTORY_LABELS[Math.min(step, STATION_TWO_HISTORY_LABELS.length - 1)]);
+  el.answerInput.value = "";
+
   if (step < STATION_TWO_STEPS.length - 1) {
     progress.stepByStation[STATION_TWO_ID] = step + 1;
-    transient.stationFeedbackById[STATION_TWO_ID] = stepConfig.successMessage;
-    el.answerInput.value = "";
     saveProgress();
-    updateUI();
+    openFeedbackPopup("Richtig!", stepConfig.successMessage);
     return;
   }
 
   progress.stepByStation[STATION_TWO_ID] = STATION_TWO_STEPS.length;
-  progress.stageStatus = "solved_ready_next";
   if (progress.hintsUnlocked < 3) {
     progress.hintsUnlocked = 3;
   }
   transient.tipVisible = false;
-  transient.stationFeedbackById[STATION_TWO_ID] = stepConfig.successMessage;
   saveProgress();
   renderHints();
-  updateUI();
+  openFeedbackPopup("Richtig!", stepConfig.successMessage, completeCurrentStationAndAdvance);
 }
 
 function onToggleTip() {
@@ -688,9 +837,9 @@ function onShowStationTwoTip() {
     return;
   }
   progress.tipCountByStation[STATION_TWO_ID] = current + 1;
-  transient.stationFeedbackById[STATION_TWO_ID] = "Alle trinken einen Schluck 🍺";
   saveProgress();
-  updateUI();
+  const tipText = STATION_TWO_TIPS[current];
+  openFeedbackPopup("Alle trinken einen Schluck", `Tipp ${current + 1}: ${tipText}`);
 }
 
 function onCheckAnswerStationFour(rawInput) {
@@ -699,23 +848,25 @@ function onCheckAnswerStationFour(rawInput) {
 
   if (!correct) {
     incrementAttempts(STATION_FOUR_ID);
-    transient.stationFeedbackById[STATION_FOUR_ID] = "Falsch.\n\nAlle trinken einen Schluck 🍺";
     saveProgress();
-    updateUI();
+    openFeedbackPopup("Falsch", "Alle trinken einen Schluck 🍺");
     return;
   }
 
+  addAnswerHistory(STATION_FOUR_ID, STATION_FOUR_HISTORY_LABEL);
   progress.stepByStation[STATION_FOUR_ID] = 1;
-  progress.stageStatus = "solved_ready_next";
   if (progress.hintsUnlocked < 5) {
     progress.hintsUnlocked = 5;
   }
   transient.tipVisible = false;
-  transient.stationFeedbackById[STATION_FOUR_ID] =
-    "Richtig!\n\nWonder + Wall = Wonderwall\n\nLoesungswort:\nWonderwall";
+  el.answerInput.value = "";
   saveProgress();
   renderHints();
-  updateUI();
+  openFeedbackPopup(
+    "Richtig!",
+    "Wonder + Wall = Wonderwall\n\nLoesungswort:\nWonderwall",
+    completeCurrentStationAndAdvance,
+  );
 }
 
 function onShowStationFourTip() {
@@ -724,9 +875,9 @@ function onShowStationFourTip() {
     return;
   }
   progress.tipCountByStation[STATION_FOUR_ID] = current + 1;
-  transient.stationFeedbackById[STATION_FOUR_ID] = "Alle trinken einen Schluck 🍺";
   saveProgress();
-  updateUI();
+  const tipText = STATION_FOUR_TIPS[current];
+  openFeedbackPopup("Alle trinken einen Schluck", `Tipp ${current + 1}: ${tipText}`);
 }
 
 function onStationFiveCoordKeyDown(event) {
@@ -774,14 +925,12 @@ function onCheckStationFiveCoordinates() {
 function onCheckAnswerStationFive(rawInput) {
   const step = getStationFiveStep();
   if (step < 1) {
-    transient.stationFeedbackById[STATION_FIVE_ID] = "Prueft zuerst die Koordinaten.";
-    updateUI();
+    openFeedbackPopup("Hinweis", "Prueft zuerst die Koordinaten.");
     return;
   }
 
   if (step >= 2) {
-    transient.stationFeedbackById[STATION_FIVE_ID] = "Baut jetzt den Satz aus allen Loesungswoertern.";
-    updateUI();
+    openFeedbackPopup("Hinweis", "Baut jetzt den Satz aus allen Loesungswoertern.");
     return;
   }
 
@@ -790,14 +939,13 @@ function onCheckAnswerStationFive(rawInput) {
 
   if (!correct) {
     incrementAttempts(STATION_FIVE_ID);
-    transient.stationFeedbackById[STATION_FIVE_ID] = "Falsch.\n\nAlle trinken einen Schluck 🍺";
     saveProgress();
-    updateUI();
+    openFeedbackPopup("Falsch", "Alle trinken einen Schluck 🍺");
     return;
   }
 
   progress.stepByStation[STATION_FIVE_ID] = 2;
-  transient.stationFeedbackById[STATION_FIVE_ID] = "Richtig! Letztes Lösungswort: Hütte";
+  addAnswerHistory(STATION_FIVE_ID, STATION_FIVE_HISTORY_LABEL);
   transient.stationFiveBoard = {
     bankWords: shuffleWords(STATION_FIVE_SENTENCE_ORDER),
     lineWords: [],
@@ -807,7 +955,7 @@ function onCheckAnswerStationFive(rawInput) {
   };
   el.answerInput.value = "";
   saveProgress();
-  updateUI();
+  openFeedbackPopup("Richtig!", "Richtig! Letztes Lösungswort: Hütte");
 }
 
 function parseCoordinateValue(value) {
@@ -1015,11 +1163,12 @@ function checkStationFiveSentence() {
 
   board.locked = true;
   progress.stepByStation[STATION_FIVE_ID] = 3;
-  progress.stageStatus = "solved_ready_next";
-  transient.stationFeedbackById[STATION_FIVE_ID] =
-    "Bingo. Satz gelöst.\nNoch einmal Wonderwall wie früher in der Hütte\n\nNehmt die Gitarre. Es ist Zeit für Wonderwall.";
   saveProgress();
-  updateUI();
+  openFeedbackPopup(
+    "Bingo",
+    "Satz gelöst.\nNoch einmal Wonderwall wie früher in der Hütte\n\nNehmt die Gitarre. Es ist Zeit für Wonderwall.",
+    completeCurrentStationAndAdvance,
+  );
   return true;
 }
 
@@ -1038,19 +1187,22 @@ function onHitsterCorrect() {
   progress.stepByStation[STATION_THREE_ID] = next;
 
   if (next >= STATION_THREE_TARGET_COUNT) {
-    progress.stageStatus = "solved_ready_next";
     if (progress.hintsUnlocked < 4) {
       progress.hintsUnlocked = 4;
     }
-    transient.stationFeedbackById[STATION_THREE_ID] =
-      "Challenge geschafft!\n\nDas naechste Loesungswort lautet:\nin der";
+    addAnswerHistory(STATION_THREE_ID, "in der");
     renderHints();
+    saveProgress();
+    openFeedbackPopup(
+      "Challenge geschafft!",
+      "Das naechste Loesungswort lautet:\nin der",
+      completeCurrentStationAndAdvance,
+    );
+    return;
   } else {
-    transient.stationFeedbackById[STATION_THREE_ID] = "";
+    saveProgress();
+    updateUI();
   }
-
-  saveProgress();
-  updateUI();
 }
 
 function onHitsterWrong() {
@@ -1060,9 +1212,8 @@ function onHitsterWrong() {
   }
 
   incrementAttempts(STATION_THREE_ID);
-  transient.stationFeedbackById[STATION_THREE_ID] = "Falsch.\n\nAlle trinken einen Schluck 🍺";
   saveProgress();
-  updateUI();
+  openFeedbackPopup("Falsch", "Alle trinken einen Schluck 🍺");
 }
 
 function openNotesModal() {
@@ -1163,17 +1314,22 @@ function updateUI() {
 }
 
 function renderPreStartUI() {
+  setHeroCompact(false);
+  if (el.startCardTitle) {
+    el.startCardTitle.textContent = "Naechstes Ziel";
+  }
   el.modeTitle.textContent = "Schnitzeljagd - Pre-Start";
   el.modeSubtitle.textContent =
     "Diese Songs haben Bedeutung. Noch nichts eingeben, nur anschauen.";
   el.lockText.textContent =
-    "Inhalte der Stationen sind noch gesperrt. Start ist erst um 10:00 Uhr.";
+    "Start ist erst um 10:00 Uhr.";
   el.nextTargetText.textContent =
-    "Ab Start wird Hinweis 1 freigeschaltet und Station 1 am Clara Zetkin Haus aktiv.";
+    "Station 1 - Clara Zetkin Haus";
 
   setGpsStatus("idle", "Status: gesperrt bis Start");
-  el.distanceText.textContent = "Du bist -- Meter entfernt";
-  el.gpsFallback.textContent = "";
+  el.gpsStatus.classList.add("hidden");
+  el.distanceText.classList.add("hidden");
+  el.gpsFallback.classList.add("hidden");
 
   el.permissionHelp.classList.add("hidden");
   el.permissionHelp.textContent = "";
@@ -1181,10 +1337,13 @@ function renderPreStartUI() {
   el.challengeCard.classList.add("hidden");
   el.finalCard.classList.add("hidden");
 
+  el.startChallengeBtn.classList.remove("hidden");
   el.startChallengeBtn.disabled = true;
   el.startChallengeBtn.textContent = "Challenge startet um 10:00";
   el.ctaHint.textContent = formatStartDateHint();
-  el.stickyBar.classList.remove("hidden");
+  if (el.stickyBar) {
+    el.stickyBar.classList.add("hidden");
+  }
 }
 
 function renderStartMode(station) {
@@ -1192,18 +1351,23 @@ function renderStartMode(station) {
     return;
   }
 
-  el.modeTitle.textContent = "Jetzt gehts los.";
-  el.modeSubtitle.textContent = "Songs der Playlist haben Bedeutung.";
+  setHeroCompact(true);
+  if (el.startCardTitle) {
+    el.startCardTitle.textContent = "Naechstes Ziel";
+  }
 
-  el.lockText.textContent = `Ziel: ${station.locationName} (${station.address})`;
-  el.nextTargetText.textContent = station.routeHint;
-  el.gpsFallback.textContent = `Fallback: ${station.fallback}`;
+  el.lockText.textContent = station.title;
+  el.nextTargetText.textContent = `Naechstes Ziel: ${station.locationName}`;
+  el.gpsFallback.textContent = "";
 
   const distance =
     typeof transient.distanceMeters === "number" ? transient.distanceMeters : "--";
   el.distanceText.textContent = `Du bist ${distance} Meter entfernt`;
 
   setGpsStatus(transient.gpsStatus, formatGpsStatusText(transient.gpsStatus));
+  el.gpsStatus.classList.add("hidden");
+  el.distanceText.classList.add("hidden");
+  el.gpsFallback.classList.add("hidden");
 
   if (transient.permissionMessage) {
     el.permissionHelp.classList.remove("hidden");
@@ -1213,28 +1377,35 @@ function renderStartMode(station) {
     el.permissionHelp.textContent = "";
   }
 
+  const active = progress.stageStatus === "active";
+  el.startChallengeBtn.classList.toggle("hidden", active);
   el.startChallengeBtn.disabled = false;
   el.startChallengeBtn.textContent = "Challenge starten";
-  el.ctaHint.textContent = TEST_MODE
-    ? "Testmodus aktiv: Zeit- und GPS-Pruefung sind deaktiviert."
-    : "GPS wird nur bei Klick abgefragt und nicht gespeichert.";
-  el.stickyBar.classList.remove("hidden");
+  el.ctaHint.textContent = "";
+  if (el.stickyBar) {
+    el.stickyBar.classList.add("hidden");
+  }
   el.finalCard.classList.add("hidden");
 }
 
 function renderFinalLegMode() {
-  el.modeTitle.textContent = "Finale Etappe";
-  el.modeSubtitle.textContent = "Aufloesung geholt? Dann ab zur Huette.";
+  setHeroCompact(true);
+  if (el.startCardTitle) {
+    el.startCardTitle.textContent = "Naechstes Ziel";
+  }
 
-  el.lockText.textContent = `Finalziel: ${FINAL_DESTINATION.locationName} (${FINAL_DESTINATION.address})`;
-  el.nextTargetText.textContent = FINAL_DESTINATION.routeHint;
-  el.gpsFallback.textContent = `Fallback: ${FINAL_DESTINATION.fallback}`;
+  el.lockText.textContent = "Finale Etappe";
+  el.nextTargetText.textContent = `Finalziel: ${FINAL_DESTINATION.locationName}`;
+  el.gpsFallback.textContent = "";
 
   const distance =
     typeof transient.distanceMeters === "number" ? transient.distanceMeters : "--";
   el.distanceText.textContent = `Du bist ${distance} Meter entfernt`;
 
   setGpsStatus(transient.gpsStatus, formatGpsStatusText(transient.gpsStatus));
+  el.gpsStatus.classList.add("hidden");
+  el.distanceText.classList.add("hidden");
+  el.gpsFallback.classList.add("hidden");
 
   if (transient.permissionMessage) {
     el.permissionHelp.classList.remove("hidden");
@@ -1247,12 +1418,13 @@ function renderFinalLegMode() {
   el.challengeCard.classList.add("hidden");
   el.finalCard.classList.add("hidden");
 
+  el.startChallengeBtn.classList.remove("hidden");
   el.startChallengeBtn.disabled = false;
   el.startChallengeBtn.textContent = "Finalziel pruefen";
-  el.ctaHint.textContent = TEST_MODE
-    ? "Testmodus aktiv: Finalziel-Pruefung laeuft ohne GPS."
-    : "GPS wird nur bei Klick abgefragt und nicht gespeichert.";
-  el.stickyBar.classList.remove("hidden");
+  el.ctaHint.textContent = "";
+  if (el.stickyBar) {
+    el.stickyBar.classList.add("hidden");
+  }
 }
 
 function renderChallenge(station) {
@@ -1274,6 +1446,10 @@ function renderChallenge(station) {
     if (el.emojiHint) {
       el.emojiHint.classList.add("hidden");
     }
+    if (el.answerHistory) {
+      el.answerHistory.classList.add("hidden");
+      el.answerHistory.textContent = "";
+    }
     el.tipText.classList.add("hidden");
     if (el.answerLabel) {
       el.answerLabel.textContent = "Loesungswort";
@@ -1293,6 +1469,7 @@ function renderChallenge(station) {
   el.challengeCard.classList.remove("hidden");
   el.challengeTitle.textContent = station.title;
   el.challengeStory.textContent = station.story;
+  renderAnswerHistory(station.id);
   if (isStationOne) {
     el.challengePrompt.textContent =
       STATION_ONE_STEPS[Math.min(getStationOneStep(), STATION_ONE_STEPS.length - 1)].question;
@@ -1417,13 +1594,7 @@ function renderChallenge(station) {
       isStationFive ||
       !isSolvedNeedsHint,
   );
-  el.nextStageBtn.classList.toggle("hidden", !isSolvedReadyNext);
-  el.nextStageBtn.textContent =
-    isStationOne || isStationTwo || isStationThree || isStationFour
-      ? "Weiter"
-      : progress.currentStationIndex === STATIONS.length - 1
-      ? "Finalziel freischalten"
-      : "Weiter zur naechsten Etappe";
+  el.nextStageBtn.classList.add("hidden");
 
   if (
     (isStationOne || isStationTwo || isStationThree || isStationFour || isStationFive) &&
@@ -1435,33 +1606,6 @@ function renderChallenge(station) {
       "Erfolg! Schalte jetzt den naechsten Hinweis frei, dann geht es weiter.";
   } else {
     el.feedbackText.textContent = "";
-  }
-
-  if (isSolvedReadyNext) {
-    const nextText =
-      progress.currentStationIndex < STATIONS.length - 1
-        ? isStationOne
-          ? "Geht zum naechsten Ort:\n\nKemnater Hof"
-          : isStationTwo
-          ? "Geht zum naechsten Ort:\n\nGrillplatz Rossert"
-          : STATIONS[progress.currentStationIndex].nextStageText
-        : "Finalziel freigeschaltet: Huette.";
-
-    if (isStationOne || isStationTwo || isStationThree || isStationFour || isStationFive) {
-      const fallbackSolvedText = isStationOne
-        ? STATION_ONE_STEPS[STATION_ONE_STEPS.length - 1].successMessage
-        : isStationTwo
-        ? STATION_TWO_STEPS[STATION_TWO_STEPS.length - 1].successMessage
-        : isStationThree
-        ? "Challenge geschafft!\n\nDas naechste Loesungswort lautet:\nin der"
-        : isStationFour
-        ? "Richtig!\n\nWonder + Wall = Wonderwall\n\nLoesungswort:\nWonderwall"
-        : "Bingo. Satz gelöst.\nNoch einmal Wonderwall wie früher in der Hütte\n\nNehmt die Gitarre. Es ist Zeit für Wonderwall.";
-      const baseText = customFeedback || fallbackSolvedText;
-      el.feedbackText.textContent = `${baseText}\n\n${nextText}`.trim();
-    } else {
-      el.feedbackText.textContent = `Hinweis freigeschaltet. ${nextText}`;
-    }
   }
 
   const showEmergency = active && tries >= 3;
@@ -1576,6 +1720,10 @@ function createStationFiveChip(word, origin, isLocked) {
 }
 
 function renderFinishedUI() {
+  setHeroCompact(true);
+  if (el.startCardTitle) {
+    el.startCardTitle.textContent = "Abschluss";
+  }
   el.modeTitle.textContent = "Geschafft.";
   el.modeSubtitle.textContent = "Finalziel Huette erreicht.";
   el.lockText.textContent = "Alle Stationen und das Finalziel wurden erreicht.";
@@ -1591,12 +1739,18 @@ function renderFinishedUI() {
   el.permissionHelp.classList.add("hidden");
   el.permissionHelp.textContent = "";
 
+  el.startChallengeBtn.classList.add("hidden");
   el.startChallengeBtn.disabled = true;
   el.startChallengeBtn.textContent = "Alle Challenges abgeschlossen";
   el.ctaHint.textContent = "";
 }
 
 function updateCountdown() {
+  if (!isPreStart()) {
+    el.countdownCard.classList.add("hidden");
+    return;
+  }
+
   if (TEST_MODE) {
     el.countdownCard.classList.remove("hidden");
     el.countdownValue.textContent = "TESTMODUS";
@@ -1942,6 +2096,16 @@ function normalizeProgress() {
     progress.stepByStation[STATION_FIVE_ID] < 3
   ) {
     progress.stepByStation[STATION_FIVE_ID] = 3;
+  }
+
+  if (progress.currentStationIndex < STATIONS.length && progress.stageStatus === "solved_ready_next") {
+    if (progress.currentStationIndex >= STATIONS.length - 1) {
+      progress.currentStationIndex = STATIONS.length;
+      progress.finalLegUnlocked = true;
+    } else {
+      progress.currentStationIndex += 1;
+    }
+    progress.stageStatus = "locked";
   }
 
   if (typeof progress.finalLegUnlocked !== "boolean") {

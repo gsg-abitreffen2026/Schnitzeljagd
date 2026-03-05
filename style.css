@@ -66,7 +66,11 @@ body {
 
 .main-content {
   display: grid;
-  gap: 0.85rem;
+  gap: 1.15rem;
+}
+
+.hero + .main-content {
+  margin-top: 1.05rem;
 }
 
 .card {
@@ -82,6 +86,23 @@ body {
   background: linear-gradient(145deg, #0f4c5c 0%, #116174 70%, #0f4c5c 100%);
   color: #f8fffc;
   border: 0;
+}
+
+.hero-compact {
+  padding: 0.45rem 0.8rem;
+  border-radius: 12px;
+}
+
+.hero-compact .brand,
+.hero-compact #testModeBadge {
+  display: none !important;
+}
+
+.hero-strip {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
 }
 
 .hero .muted,
@@ -181,6 +202,10 @@ p {
   text-decoration-thickness: 2px;
 }
 
+.playlist-toggle {
+  margin-top: 0.7rem;
+}
+
 .status-pill {
   margin-top: 0.8rem;
   display: inline-block;
@@ -223,6 +248,16 @@ p {
   margin-top: 0.65rem;
   display: block;
   font-weight: 700;
+}
+
+.answer-history {
+  margin-top: 0.65rem;
+  background: #eef8f4;
+  border: 1px solid #c7e9d9;
+  border-radius: 12px;
+  padding: 0.6rem;
+  font-weight: 700;
+  white-space: pre-line;
 }
 
 .prompt {
@@ -409,6 +444,10 @@ input[type="text"]:focus {
   border-radius: 12px;
   padding: 0.68rem;
   font-size: 0.95rem;
+}
+
+#startCard .btn {
+  margin-top: 0.8rem;
 }
 
 .sticky-cta {

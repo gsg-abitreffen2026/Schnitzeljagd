@@ -12,8 +12,9 @@
     <div class="bg-shape bg-shape-b" aria-hidden="true"></div>
 
     <div class="app-shell">
-      <header class="hero card">
+      <header id="heroCard" class="hero card">
         <p class="brand">Schnitzeljagd</p>
+        <p id="heroStripText" class="hero-strip hidden">Viel Spass bei der Schnitzeljagd</p>
         <p id="testModeBadge" class="small hidden">TESTMODUS AKTIV: Zeit- und GPS-Pruefung sind aus.</p>
         <h1 id="modeTitle">Schnitzeljagd</h1>
         <p id="modeSubtitle" class="muted"></p>
@@ -30,23 +31,29 @@
           <h2>Quest Playlist</h2>
           <p class="muted">Diese Songs haben Bedeutung. Noch nichts eingeben, nur anschauen.</p>
 
-          <div class="playlist-grid">
-            <div>
-              <h3>SIDE A</h3>
-              <ul id="playlistA" class="song-list"></ul>
-            </div>
-            <div>
-              <h3>SIDE B</h3>
-              <ul id="playlistB" class="song-list"></ul>
-            </div>
-          </div>
+          <button id="playlistToggleBtn" class="btn btn-alt playlist-toggle" type="button">
+            Playlist ausblenden
+          </button>
 
-          <h3>Hinweise</h3>
-          <ul id="hintList" class="hint-list"></ul>
+          <div id="playlistBody">
+            <div class="playlist-grid">
+              <div>
+                <h3>SIDE A</h3>
+                <ul id="playlistA" class="song-list"></ul>
+              </div>
+              <div>
+                <h3>SIDE B</h3>
+                <ul id="playlistB" class="song-list"></ul>
+              </div>
+            </div>
+
+            <h3>Hinweise</h3>
+            <ul id="hintList" class="hint-list"></ul>
+          </div>
         </section>
 
         <section id="startCard" class="card">
-          <h2>Spielstatus</h2>
+          <h2 id="startCardTitle">Nächstes Ziel</h2>
           <p id="lockText"></p>
           <p id="nextTargetText" class="muted"></p>
 
@@ -55,11 +62,14 @@
           <p id="gpsFallback" class="small"></p>
 
           <div id="permissionHelp" class="alert hidden" role="status"></div>
+          <button id="startChallengeBtn" class="btn">Challenge starten</button>
+          <p id="ctaHint" class="small"></p>
         </section>
 
         <section id="challengeCard" class="card hidden">
           <h2 id="challengeTitle">Station</h2>
           <p id="challengeStory"></p>
+          <p id="answerHistory" class="answer-history hidden"></p>
           <p id="emojiHint" class="emoji-hint hidden"></p>
           <p id="challengePrompt" class="prompt"></p>
           <button id="notesBtn" class="btn btn-alt hidden" type="button">Noten anzeigen</button>
@@ -169,6 +179,14 @@
           </div>
         </div>
 
+        <div id="feedbackModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
+          <div class="modal-card">
+            <h3 id="feedbackTitle">Hinweis</h3>
+            <p id="feedbackMessage" class="prompt"></p>
+            <button id="feedbackContinueBtn" type="button" class="btn">Weiter</button>
+          </div>
+        </div>
+
         <section id="finalCard" class="card hidden">
           <h2>Finale</h2>
           <p>Ihr habt die Reihe korrekt gelesen und die Huette erreicht.</p>
@@ -177,10 +195,7 @@
         </section>
       </main>
 
-      <footer id="stickyBar" class="sticky-cta">
-        <button id="startChallengeBtn" class="btn">Challenge starten</button>
-        <p id="ctaHint" class="small"></p>
-      </footer>
+      <footer id="stickyBar" class="sticky-cta hidden"></footer>
     </div>
 
     <script src="./script.js" defer></script>
