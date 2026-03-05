@@ -1,4 +1,4 @@
-const CACHE_NAME = "schnitzeljagd-cache-v1";
+const CACHE_NAME = "schnitzeljagd-cache-v2";
 const ASSETS = ["./", "./index.html", "./style.css", "./script.js"];
 
 self.addEventListener("install", (event) => {
@@ -30,26 +30,48 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) {
-        return cached;
-      }
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) {
+    return;
+  }
 
-      return fetch(event.request)
+  const isCoreAsset =
+    event.request.mode === "navigate" ||
+    event.request.destination === "script" ||
+    event.request.destination === "style" ||
+    event.request.destination === "document";
+
+  if (isCoreAsset) {
+    // Network-first, damit HTML/CSS/JS nach Deploy sofort aktualisieren.
+    event.respondWith(
+      fetch(event.request)
         .then((response) => {
-          if (response.ok && event.request.url.startsWith(self.location.origin)) {
+          if (response.ok) {
             const copy = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
           }
           return response;
         })
-        .catch(() => {
-          if (event.request.mode === "navigate") {
-            return caches.match("./index.html");
-          }
-          return undefined;
-        });
+        .catch(() =>
+          caches.match(event.request).then((cached) => cached || caches.match("./index.html")),
+        ),
+    );
+    return;
+  }
+
+  // Cache-first fuer sonstige lokale Dateien.
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      if (cached) {
+        return cached;
+      }
+      return fetch(event.request).then((response) => {
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        }
+        return response;
+      });
     }),
   );
 });

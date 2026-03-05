@@ -3,7 +3,7 @@
 const GAME_CONFIG = Object.freeze({
   // Schnell austauschbar: einfach diese ISO-Zeit anpassen.
   startAtISO: "2026-04-25T10:00:00+02:00",
-  storageKey: "schnitzeljagd-progress-v1",
+  storageKey: "schnitzeljagd-progress-v2",
   geolocation: {
     enableHighAccuracy: true,
     timeout: 12000,
@@ -105,10 +105,10 @@ const STATIONS = Object.freeze([
   {
     id: "clara-zetkin",
     title: "Station 1 - Blockfloete",
-    locationName: "Clara-Zetkin-Haus",
-    address: "[Platzhalter-Adresse einsetzen]",
-    routeHint: "Folgt dem Hauptweg und achtet auf die Beschilderung.",
-    target: { lat: 50.0001, lng: 8.0001 },
+    locationName: "Clara Zetkin Haus",
+    address: "48 44'44.3\"N 9 12'17.7\"E",
+    routeHint: "Startpunkt um 10:00. Dort startet euer Blockfloeten-Spiel.",
+    target: { lat: 48.745639, lng: 9.204917 },
     radius: 120,
     fallback: "Wenn GPS spinnt: Geht zum Haupteingang.",
     story:
@@ -122,9 +122,9 @@ const STATIONS = Object.freeze([
     id: "kemnater-hof",
     title: "Station 2 - Emoji-Raetsel",
     locationName: "Kemnater Hof",
-    address: "[Platzhalter-Adresse einsetzen]",
+    address: "48 43'52.5\"N 9 13'34.7\"E",
     routeHint: "Bleibt auf dem Weg, bis ihr den Hofbereich seht.",
-    target: { lat: 50.0011, lng: 8.0022 },
+    target: { lat: 48.73125, lng: 9.226306 },
     radius: 120,
     fallback: "Wenn GPS spinnt: Geht zum markanten Hofschild.",
     story: "Die Aerzte sagen Hurra. Das Gefuehl kennt ihr aus alten Zeiten.",
@@ -137,27 +137,27 @@ const STATIONS = Object.freeze([
     id: "rossert",
     title: "Station 3 - Hitster & Vesper",
     locationName: "Rossert",
-    address: "[Platzhalter-Adresse einsetzen]",
+    address: "48 43'20.3\"N 9 14'25.7\"E",
     routeHint: "Richtung Waldkante halten, dort findet ihr den Punkt.",
-    target: { lat: 50.0033, lng: 8.0038 },
+    target: { lat: 48.722306, lng: 9.240472 },
     radius: 150,
     fallback: "Wenn GPS spinnt: Geht zu den Baenken am markanten Punkt.",
     story: "Hitster + Vesper: Ihr braucht X richtige und die richtige Fortsetzung.",
     prompt: "Welches Loesungswort passt zu 'X richtige'?",
     answers: ["in der"],
     tip: "Es ist eine kurze, zweigeteilte Wortgruppe.",
-    nextStageText: "Naechstes Ziel: Zentralapotheke.",
+    nextStageText: "Naechstes Ziel: Ruiter Krankenhaus.",
   },
   {
-    id: "zentralapotheke",
-    title: "Station 4 - Mashup",
-    locationName: "Zentralapotheke",
-    address: "[Platzhalter-Adresse einsetzen]",
-    routeHint: "Haltet Ausschau nach dem markanten Eingangsbereich.",
-    target: { lat: 50.0046, lng: 8.0049 },
+    id: "ruiter-krankenhaus",
+    title: "Station 4 - Wort-Raetsel",
+    locationName: "Ruiter Krankenhaus",
+    address: "48 44'23.3\"N 9 15'09.8\"E",
+    routeHint: "Geht zum Eingangsbereich des Krankenhauses.",
+    target: { lat: 48.739806, lng: 9.252722 },
     radius: 120,
     fallback: "Wenn GPS spinnt: Geht direkt zum Eingang mit Schild.",
-    story: "Stevie Wonder trifft Another Brick in the Wall. Daraus entsteht ein Klassiker.",
+    story: "Hier wartet euer Wort-Raetsel als naechste Etappe.",
     prompt: "Wie lautet das Loesungswort?",
     answers: ["wonderwall"],
     tip: "Es ist ein sehr bekannter Songtitel.",
@@ -167,24 +167,34 @@ const STATIONS = Object.freeze([
     id: "riederstrasse",
     title: "Station 5 - Meta-Raetsel",
     locationName: "Riederstrasse",
-    address: "[Platzhalter-Adresse einsetzen]",
+    address: "48 45'11.6\"N 9 14'39.3\"E",
     routeHint: "Geht zur markanten Stelle an der Strasse.",
-    target: { lat: 50.0058, lng: 8.0061 },
+    target: { lat: 48.753222, lng: 9.24425 },
     radius: 120,
     fallback: "Wenn GPS spinnt: Geht zum markantesten Punkt vor Ort.",
     story: "Koordinaten -> Gitarre -> finaler Schritt. Jetzt wird es konkret.",
     prompt: "Welches finale Loesungswort ergibt sich?",
     answers: ["hutte", "huette"],
     tip: "Denkt an einen Ort im Freien mit Dach und Holzcharakter.",
-    nextStageText: "Finale freigeschaltet.",
+    nextStageText: "Finalziel freigeschaltet: Huette.",
   },
 ]);
+
+const FINAL_DESTINATION = Object.freeze({
+  locationName: "Huette",
+  address: "48 44'47.4\"N 9 14'38.2\"E",
+  routeHint: "Nach der Aufloesung in der Riederstrasse geht es zur Huette.",
+  target: { lat: 48.7465, lng: 9.243944 },
+  radius: 150,
+  fallback: "Wenn GPS spinnt: Geht zum markantesten Punkt an der Huette.",
+});
 
 const DEFAULT_PROGRESS = Object.freeze({
   currentStationIndex: 0,
   hintsUnlocked: 0,
   attemptsByStation: {},
   stageStatus: "locked",
+  finalLegUnlocked: false,
   finished: false,
 });
 
@@ -243,9 +253,9 @@ init();
 
 function init() {
   renderPlaylist();
-  renderHints();
   bindEvents();
   normalizeProgress();
+  renderHints();
   updateCountdown();
   setInterval(updateCountdown, 1000);
   updateUI();
@@ -273,15 +283,21 @@ function onStartChallenge() {
     return;
   }
 
-  if (progress.stageStatus === "solved_needs_hint" || progress.stageStatus === "solved_ready_next") {
+  const finalLeg = isFinalLegActive();
+
+  if (
+    !finalLeg &&
+    (progress.stageStatus === "solved_needs_hint" || progress.stageStatus === "solved_ready_next")
+  ) {
     transient.permissionMessage =
       "Diese Station ist bereits geloest. Nutzt jetzt 'Hinweis freischalten' oder 'Weiter zur naechsten Etappe'.";
     updateUI();
     return;
   }
 
-  const station = getCurrentStation();
-  if (!station) {
+  const station = finalLeg ? null : getCurrentStation();
+  const targetConfig = finalLeg ? FINAL_DESTINATION : station;
+  if (!targetConfig) {
     return;
   }
 
@@ -303,22 +319,38 @@ function onStartChallenge() {
   navigator.geolocation.getCurrentPosition(
     (position) => {
       const { latitude, longitude } = position.coords;
-      const dist = haversineMeters(latitude, longitude, station.target.lat, station.target.lng);
+      const dist = haversineMeters(
+        latitude,
+        longitude,
+        targetConfig.target.lat,
+        targetConfig.target.lng,
+      );
 
       transient.distanceMeters = Math.round(dist);
-      transient.gpsStatus = classifyDistance(dist, station.radius);
+      transient.gpsStatus = classifyDistance(dist, targetConfig.radius);
 
-      if (dist <= station.radius) {
-        if (progress.stageStatus === "locked") {
-          progress.stageStatus = "active";
+      if (dist <= targetConfig.radius) {
+        if (finalLeg) {
+          progress.finished = true;
+          progress.finalLegUnlocked = false;
+          progress.stageStatus = "locked";
           saveProgress();
+          transient.permissionMessage = "Finalziel erreicht. Starker Abschluss.";
+        } else {
+          if (progress.stageStatus === "locked") {
+            progress.stageStatus = "active";
+          }
+          saveProgress();
+          transient.permissionMessage = "Im Radius. Challenge ist freigeschaltet.";
         }
-        transient.permissionMessage = "Im Radius. Challenge ist freigeschaltet.";
       } else {
-        progress.stageStatus = "locked";
+        if (!finalLeg) {
+          progress.stageStatus = "locked";
+        }
         saveProgress();
-        transient.permissionMessage =
-          "Noch zu weit weg. Geht naeher an den Zielpunkt und tippt erneut auf Challenge starten.";
+        transient.permissionMessage = finalLeg
+          ? "Noch nicht am Finalziel. Geht naeher an die Huette und prueft erneut."
+          : "Noch zu weit weg. Geht naeher an den Zielpunkt und tippt erneut auf Challenge starten.";
       }
 
       // Standortdaten werden absichtlich nicht gespeichert.
@@ -404,8 +436,9 @@ function onNextStage() {
 
   if (progress.currentStationIndex >= STATIONS.length - 1) {
     progress.currentStationIndex = STATIONS.length;
-    progress.finished = true;
     progress.stageStatus = "locked";
+    progress.finalLegUnlocked = true;
+    progress.finished = false;
     saveProgress();
     updateUI();
     return;
@@ -428,11 +461,15 @@ function onEmergency() {
 }
 
 function updateUI() {
-  const preStart = isPreStart();
-  const station = getCurrentStation();
+  maybeUnlockStartHint();
 
-  if (preStart) {
+  if (isPreStart()) {
     renderPreStartUI();
+    return;
+  }
+
+  if (isFinalLegActive()) {
+    renderFinalLegMode();
     return;
   }
 
@@ -441,6 +478,7 @@ function updateUI() {
     return;
   }
 
+  const station = getCurrentStation();
   renderStartMode(station);
   renderChallenge(station);
 }
@@ -451,7 +489,8 @@ function renderPreStartUI() {
     "Diese Songs haben Bedeutung. Noch nichts eingeben, nur anschauen.";
   el.lockText.textContent =
     "Inhalte der Stationen sind noch gesperrt. Start ist erst um 10:00 Uhr.";
-  el.nextTargetText.textContent = "Ab Start wird das erste Ziel freigeschaltet.";
+  el.nextTargetText.textContent =
+    "Ab Start wird Hinweis 1 freigeschaltet und Station 1 am Clara Zetkin Haus aktiv.";
 
   setGpsStatus("idle", "Status: gesperrt bis Start");
   el.distanceText.textContent = "Du bist -- Meter entfernt";
@@ -470,6 +509,10 @@ function renderPreStartUI() {
 }
 
 function renderStartMode(station) {
+  if (!station) {
+    return;
+  }
+
   el.modeTitle.textContent = "Jetzt gehts los.";
   el.modeSubtitle.textContent = "Songs der Playlist haben Bedeutung.";
 
@@ -481,16 +524,7 @@ function renderStartMode(station) {
     typeof transient.distanceMeters === "number" ? transient.distanceMeters : "--";
   el.distanceText.textContent = `Du bist ${distance} Meter entfernt`;
 
-  const statusText =
-    transient.gpsStatus === "ok"
-      ? "Status: ok"
-      : transient.gpsStatus === "near"
-      ? "Status: fast da"
-      : transient.gpsStatus === "far"
-      ? "Status: zu weit"
-      : "Status: noch nicht geprueft";
-
-  setGpsStatus(transient.gpsStatus, statusText);
+  setGpsStatus(transient.gpsStatus, formatGpsStatusText(transient.gpsStatus));
 
   if (transient.permissionMessage) {
     el.permissionHelp.classList.remove("hidden");
@@ -507,8 +541,39 @@ function renderStartMode(station) {
   el.finalCard.classList.add("hidden");
 }
 
+function renderFinalLegMode() {
+  el.modeTitle.textContent = "Finale Etappe";
+  el.modeSubtitle.textContent = "Aufloesung geholt? Dann ab zur Huette.";
+
+  el.lockText.textContent = `Finalziel: ${FINAL_DESTINATION.locationName} (${FINAL_DESTINATION.address})`;
+  el.nextTargetText.textContent = FINAL_DESTINATION.routeHint;
+  el.gpsFallback.textContent = `Fallback: ${FINAL_DESTINATION.fallback}`;
+
+  const distance =
+    typeof transient.distanceMeters === "number" ? transient.distanceMeters : "--";
+  el.distanceText.textContent = `Du bist ${distance} Meter entfernt`;
+
+  setGpsStatus(transient.gpsStatus, formatGpsStatusText(transient.gpsStatus));
+
+  if (transient.permissionMessage) {
+    el.permissionHelp.classList.remove("hidden");
+    el.permissionHelp.textContent = transient.permissionMessage;
+  } else {
+    el.permissionHelp.classList.add("hidden");
+    el.permissionHelp.textContent = "";
+  }
+
+  el.challengeCard.classList.add("hidden");
+  el.finalCard.classList.add("hidden");
+
+  el.startChallengeBtn.disabled = false;
+  el.startChallengeBtn.textContent = "Finalziel pruefen";
+  el.ctaHint.textContent = "GPS wird nur bei Klick abgefragt und nicht gespeichert.";
+  el.stickyBar.classList.remove("hidden");
+}
+
 function renderChallenge(station) {
-  if (progress.stageStatus === "locked") {
+  if (progress.stageStatus === "locked" || !station) {
     el.challengeCard.classList.add("hidden");
     el.feedbackText.textContent = "";
     return;
@@ -543,7 +608,7 @@ function renderChallenge(station) {
   el.nextStageBtn.classList.toggle("hidden", !isSolvedReadyNext);
   el.nextStageBtn.textContent =
     progress.currentStationIndex === STATIONS.length - 1
-      ? "Zum Finale"
+      ? "Finalziel freischalten"
       : "Weiter zur naechsten Etappe";
 
   if (isSolvedNeedsHint) {
@@ -555,7 +620,7 @@ function renderChallenge(station) {
     const nextText =
       progress.currentStationIndex < STATIONS.length - 1
         ? STATIONS[progress.currentStationIndex].nextStageText
-        : "Finale freigeschaltet.";
+        : "Finalziel freigeschaltet: Huette.";
     el.feedbackText.textContent = `Hinweis freigeschaltet. ${nextText}`;
   }
 
@@ -573,9 +638,9 @@ function renderChallenge(station) {
 
 function renderFinishedUI() {
   el.modeTitle.textContent = "Geschafft.";
-  el.modeSubtitle.textContent = "Alle Stationen geloest.";
-  el.lockText.textContent = "Letzte Etappe erreicht.";
-  el.nextTargetText.textContent = "Setzt eure Reihe als Koordinaten in Google Maps ein.";
+  el.modeSubtitle.textContent = "Finalziel Huette erreicht.";
+  el.lockText.textContent = "Alle Stationen und das Finalziel wurden erreicht.";
+  el.nextTargetText.textContent = "Koordinaten-Quiz geloest. Finale abgeschlossen.";
 
   el.challengeCard.classList.add("hidden");
   el.finalCard.classList.remove("hidden");
@@ -663,12 +728,40 @@ function setGpsStatus(kind, text) {
   el.gpsStatus.textContent = text;
 }
 
+function formatGpsStatusText(kind) {
+  if (kind === "ok") {
+    return "Status: ok";
+  }
+  if (kind === "near") {
+    return "Status: fast da";
+  }
+  if (kind === "far") {
+    return "Status: zu weit";
+  }
+  return "Status: noch nicht geprueft";
+}
+
 function getCurrentStation() {
   return STATIONS[progress.currentStationIndex] || null;
 }
 
 function isPreStart() {
   return Date.now() < new Date(GAME_CONFIG.startAtISO).getTime();
+}
+
+function isFinalLegActive() {
+  return progress.finalLegUnlocked && !progress.finished;
+}
+
+function maybeUnlockStartHint() {
+  if (isPreStart()) {
+    return;
+  }
+  if (progress.hintsUnlocked === 0) {
+    progress.hintsUnlocked = 1;
+    saveProgress();
+    renderHints();
+  }
 }
 
 function normalizeProgress() {
@@ -683,7 +776,6 @@ function normalizeProgress() {
   if (typeof progress.hintsUnlocked !== "number") {
     progress.hintsUnlocked = 0;
   }
-
   progress.hintsUnlocked = Math.min(Math.max(progress.hintsUnlocked, 0), HINTS.length);
 
   const validStates = new Set(["locked", "active", "solved_needs_hint", "solved_ready_next"]);
@@ -695,12 +787,20 @@ function normalizeProgress() {
     progress.attemptsByStation = {};
   }
 
-  if (progress.currentStationIndex === STATIONS.length) {
-    progress.finished = true;
+  if (typeof progress.finalLegUnlocked !== "boolean") {
+    progress.finalLegUnlocked = false;
   }
 
   if (typeof progress.finished !== "boolean") {
     progress.finished = false;
+  }
+
+  if (progress.finished) {
+    progress.finalLegUnlocked = false;
+  }
+
+  if (progress.currentStationIndex === STATIONS.length && !progress.finished && !progress.finalLegUnlocked) {
+    progress.finalLegUnlocked = true;
   }
 
   saveProgress();
@@ -712,6 +812,7 @@ function loadProgress() {
     hintsUnlocked: DEFAULT_PROGRESS.hintsUnlocked,
     attemptsByStation: {},
     stageStatus: DEFAULT_PROGRESS.stageStatus,
+    finalLegUnlocked: DEFAULT_PROGRESS.finalLegUnlocked,
     finished: DEFAULT_PROGRESS.finished,
   };
 
@@ -741,6 +842,7 @@ function saveProgress() {
     hintsUnlocked: progress.hintsUnlocked,
     attemptsByStation: progress.attemptsByStation,
     stageStatus: progress.stageStatus,
+    finalLegUnlocked: progress.finalLegUnlocked,
     finished: progress.finished,
   };
 
