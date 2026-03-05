@@ -109,6 +109,7 @@ body {
   font-weight: 800;
   letter-spacing: 0.02em;
   text-align: center;
+  width: 100%;
 }
 
 .hero .muted,
@@ -280,7 +281,7 @@ p {
   margin-top: 0.55rem;
   font-size: 1.5rem;
   line-height: 1.35;
-  white-space: pre-line;
+  white-space: nowrap;
 }
 
 input[type="text"] {
@@ -519,6 +520,44 @@ input[type="text"]:focus {
 
 .feedback-card {
   transition: background 140ms ease, border-color 140ms ease;
+  text-align: center;
+}
+
+#feedbackMessage {
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.feedback-word {
+  margin-top: 0.85rem;
+  margin-bottom: 0.2rem;
+  display: inline-block;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 2px solid #7fc6bb;
+  background: #e6f7f1;
+  color: #125a4d;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.solutions-list {
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.solutions-list li {
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.42rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid #bfded6;
+  background: #f0fbf7;
+  color: #0f4b3f;
+  font-weight: 800;
 }
 
 .feedback-card-hint {

@@ -14,8 +14,8 @@
     <div class="app-shell">
       <header id="heroCard" class="hero card">
         <p class="brand">Schnitzeljagd</p>
-        <p id="heroStripText" class="hero-strip hidden">Viel Spass bei der Schnitzeljagd</p>
-        <p id="testModeBadge" class="small hidden">TESTMODUS AKTIV: Zeit- und GPS-Pruefung sind aus.</p>
+        <p id="heroStripText" class="hero-strip hidden">Viel Spaß bei der Schnitzeljagd</p>
+        <p id="testModeBadge" class="small hidden">TESTMODUS AKTIV: Zeit- und GPS-Prüfung sind aus.</p>
         <h1 id="modeTitle">Schnitzeljagd</h1>
         <p id="modeSubtitle" class="muted"></p>
 
@@ -53,7 +53,7 @@
         </section>
 
         <section id="startCard" class="card">
-          <h2 id="startCardTitle">Nächstes Ziel</h2>
+          <h2 id="startCardTitle">Next</h2>
           <p id="lockText"></p>
           <p id="nextTargetText" class="muted"></p>
 
@@ -120,7 +120,6 @@
                 autocomplete="off"
                 autocapitalize="off"
                 spellcheck="false"
-                placeholder="48.746512"
               />
 
               <label for="coordLngInput" class="label">Koordinate 2</label>
@@ -131,7 +130,6 @@
                 autocomplete="off"
                 autocapitalize="off"
                 spellcheck="false"
-                placeholder="9.243954"
               />
             </div>
             <button id="checkCoordsBtn" class="btn btn-alt" type="button">Koordinaten prüfen</button>
@@ -166,16 +164,16 @@
         <div id="notesModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="notesTitle">
           <div class="modal-card">
             <div class="modal-head">
-              <h3 id="notesTitle">Blockfloeten-Noten</h3>
-              <button id="closeNotesBtn" type="button" class="btn btn-alt modal-close">Schliessen</button>
+              <h3 id="notesTitle">Blockflöten-Noten</h3>
+              <button id="closeNotesBtn" type="button" class="btn btn-alt modal-close">Schließen</button>
             </div>
             <img
               src="./assets/blockfloete-griffe.png"
-              alt="Griffuebersicht fuer Blockfloete"
+              alt="Griffübersicht für Blockflöte"
               class="notes-image"
             />
             <p><strong>Noten:</strong> E - G - A - E - G - A - B - A</p>
-            <p class="muted">Die Griffuebersicht hilft euch beim Spielen der Noten.</p>
+            <p class="muted">Die Griffübersicht hilft euch beim Spielen der Noten.</p>
           </div>
         </div>
 
@@ -183,15 +181,21 @@
           <div id="feedbackModalCard" class="modal-card feedback-card">
             <h3 id="feedbackTitle">Hinweis</h3>
             <p id="feedbackMessage" class="prompt"></p>
+            <p id="feedbackWordBubble" class="feedback-word hidden"></p>
             <button id="feedbackContinueBtn" type="button" class="btn">Weiter</button>
           </div>
         </div>
 
         <section id="finalCard" class="card hidden">
           <h2>Finale</h2>
-          <p>Ihr habt die Reihe korrekt gelesen und die Huette erreicht.</p>
+          <p>Ihr habt die Reihe korrekt gelesen und die Hütte erreicht.</p>
           <p class="small">Aha-Moment: SIDE A = 48.xxxxxx, SIDE B = 9.xxxxxx</p>
-          <p class="muted">Koordinaten dienen nur fuer den Radius-Check und werden nicht gespeichert.</p>
+          <p class="muted">Koordinaten dienen nur für den Radius-Check und werden nicht gespeichert.</p>
+        </section>
+
+        <section id="solutionsCard" class="card">
+          <h2>Lösung</h2>
+          <ul id="solutionsList" class="solutions-list"></ul>
         </section>
       </main>
 
