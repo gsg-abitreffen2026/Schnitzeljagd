@@ -363,6 +363,7 @@ const el = {
   notesModal: byId("notesModal"),
   closeNotesBtn: byId("closeNotesBtn"),
   feedbackModal: byId("feedbackModal"),
+  feedbackModalCard: byId("feedbackModalCard"),
   feedbackTitle: byId("feedbackTitle"),
   feedbackMessage: byId("feedbackMessage"),
   feedbackContinueBtn: byId("feedbackContinueBtn"),
@@ -459,19 +460,41 @@ function renderPlaylistCollapse() {
     : "Playlist ausblenden";
 }
 
-function openFeedbackPopup(title, message, onClose = null) {
+function openFeedbackPopup(title, message, arg3 = null, arg4 = null) {
   if (!el.feedbackModal || !el.feedbackTitle || !el.feedbackMessage) {
-    if (typeof onClose === "function") {
-      onClose();
+    const fallbackOnClose = typeof arg3 === "function" ? arg3 : typeof arg4 === "function" ? arg4 : null;
+    if (typeof fallbackOnClose === "function") {
+      fallbackOnClose();
     }
     return;
   }
+
+  let onClose = null;
+  let tone = "";
+  if (typeof arg3 === "function" || arg3 === null) {
+    onClose = arg3;
+    tone = typeof arg4 === "string" ? arg4 : "";
+  } else if (typeof arg3 === "string") {
+    tone = arg3;
+    onClose = typeof arg4 === "function" ? arg4 : null;
+  }
+
+  const resolvedTone = resolveFeedbackTone(tone, title);
+
   transient.popupTitle = title;
   transient.popupMessage = message;
   transient.popupOnClose = typeof onClose === "function" ? onClose : null;
   transient.popupOpen = true;
   el.feedbackTitle.textContent = title;
   el.feedbackMessage.textContent = message;
+  if (el.feedbackModalCard) {
+    el.feedbackModalCard.classList.remove(
+      "feedback-card-hint",
+      "feedback-card-success",
+      "feedback-card-error",
+    );
+    el.feedbackModalCard.classList.add(`feedback-card-${resolvedTone}`);
+  }
   el.feedbackModal.classList.remove("hidden");
 }
 
@@ -496,6 +519,24 @@ function onFeedbackModalBackdropClick(event) {
   if (event.target === el.feedbackModal) {
     closeFeedbackPopup();
   }
+}
+
+function resolveFeedbackTone(tone, title) {
+  if (tone === "hint" || tone === "success" || tone === "error") {
+    return tone;
+  }
+  const normalizedTitle = normalizeText(title || "");
+  if (normalizedTitle.includes("falsch")) {
+    return "error";
+  }
+  if (
+    normalizedTitle.includes("richtig") ||
+    normalizedTitle.includes("bingo") ||
+    normalizedTitle.includes("geschafft")
+  ) {
+    return "success";
+  }
+  return "hint";
 }
 
 function setHeroCompact(compact) {
