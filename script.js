@@ -1590,10 +1590,10 @@ function renderPreStartUI() {
   }
   el.modeTitle.textContent = waitingForManualStart
     ? "Schnitzeljagd - Startbereit"
-    : "Schnitzeljagd - Pre-Start";
+    : "Bald geht es los.";
   el.modeSubtitle.textContent = waitingForManualStart
     ? "Alles ist bereit. Tippt oben auf Starten."
-    : "Diese Songs haben Bedeutung. Noch nichts eingeben, nur anschauen.";
+    : "";
   el.lockText.textContent = `Nächstes Ziel: ${nextStation.locationName}`;
   el.nextTargetText.textContent = "";
   el.nextTargetText.classList.add("hidden");
@@ -2037,11 +2037,10 @@ function updateCountdown() {
   const startAt = new Date(GAME_CONFIG.startAtISO).getTime();
   const diff = startAt - now;
 
-  el.startAtText.textContent = `Start: ${formatDate(new Date(GAME_CONFIG.startAtISO))}`;
-
   if (diff <= 0) {
     el.countdownCard.classList.remove("hidden");
     el.countdownValue.textContent = "Startbereit";
+    el.startAtText.textContent = `Start: ${formatDate(new Date(GAME_CONFIG.startAtISO))}`;
     if (el.countdownStartBtn) {
       el.countdownStartBtn.classList.remove("hidden");
       el.countdownStartBtn.disabled = false;
@@ -2054,6 +2053,7 @@ function updateCountdown() {
   if (el.countdownStartBtn) {
     el.countdownStartBtn.classList.add("hidden");
   }
+  el.startAtText.textContent = "";
   const totalSeconds = Math.floor(diff / 1000);
   const days = Math.floor(totalSeconds / 86400);
   const hours = Math.floor((totalSeconds % 86400) / 3600);
