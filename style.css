@@ -544,6 +544,12 @@ input[type="text"]:focus {
   line-height: 1.5;
 }
 
+.feedback-card-scroll #feedbackMessage {
+  max-height: min(52vh, 420px);
+  overflow-y: scroll;
+  padding-right: 0.35rem;
+}
+
 .feedback-word {
   margin-top: 0.85rem;
   margin-bottom: 0.2rem;
@@ -607,6 +613,8 @@ input[type="text"]:focus {
   width: min(760px, 100%);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   border: 3px solid #8b6a3f;
   border-radius: 18px;
   background:
@@ -649,6 +657,14 @@ input[type="text"]:focus {
   text-transform: uppercase;
 }
 
+.story-scroll {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding-right: 0.3rem;
+}
+
 .story-message {
   margin: 0;
   white-space: pre-line;
@@ -678,6 +694,7 @@ input[type="text"]:focus {
 }
 
 .story-continue {
+  margin-top: 0.15rem;
   border-color: #5b3511;
   background: linear-gradient(145deg, #8f5e2c, #6f4319);
   box-shadow: 0 7px 16px rgba(67, 38, 12, 0.35);

@@ -19,7 +19,7 @@ const STATION_ONE_HINT_UNLOCK_TITLE = "Hinweis freigeschaltet";
 const STATION_ONE_HINT_UNLOCK_TEXT =
   "In der Quest Playlist ist jetzt auch ein Hinweis für die letzte Aufgabe erschienen.";
 const START_WELCOME_TEXT =
-  "Willkommen zur musikalischen Schnitzeljagd!\n\nIhr werdet heute 5 Stationen ablaufen und an jeder erwartet euch ein musikalisches Rätsel oder eine Aufgabe.\n\nImmer wenn ihr eine Station abschließen konntet, bekommt den Standort der nächsten Station sowie ein Lösungswort.\n\nAm Ende könnt ihr aus allen Lösungsworten einen Satz bilden, den Ihr benötigt um die Schnitzelkagd abzuschließen.\n\nNehmt euch kurz Zeit für die Quest Playlist, sie wir später noch eine wichtige Rolle spielen, und startet dann eure erste Challenge.\n\nVIEL SPASS!";
+  "Willkommen zur musikalischen Schnitzeljagd!\n\nIhr werdet heute 5 Stationen ablaufen und an jeder erwartet euch ein musikalisches Rätsel oder eine Aufgabe.\n\nImmer wenn ihr eine Station abschließt, bekommt Ihr den Standort der nächsten Station sowie ein Lösungswort.\n\nAm Ende könnt ihr aus allen Lösungsworten einen Satz bilden, den Ihr benötigt um die Schnitzeljagd abzuschließen.\n\nNehmt euch kurz Zeit für die Quest Playlist, sie wir später noch eine wichtige Rolle spielen, und startet dann eure erste Challenge.\n\nVIEL SPASS!";
 const STORY_INTRO = Object.freeze({
   title: "Die Suche nach der verlorenen Musik",
   text:
@@ -606,8 +606,12 @@ function openFeedbackPopup(title, message, arg3 = null, arg4 = null) {
       "feedback-card-hint",
       "feedback-card-success",
       "feedback-card-error",
+      "feedback-card-scroll",
     );
     el.feedbackModalCard.classList.add(`feedback-card-${resolvedTone}`);
+    if (title === START_WELCOME_TITLE) {
+      el.feedbackModalCard.classList.add("feedback-card-scroll");
+    }
   }
   el.feedbackModal.classList.remove("hidden");
 }
