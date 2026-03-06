@@ -13,8 +13,12 @@ const GAME_CONFIG = Object.freeze({
 
 const TEST_MODE = new URLSearchParams(window.location.search).get("test") === "1";
 const START_GATE_STORAGE_KEY = `${GAME_CONFIG.storageKey}-start-gate-${GAME_CONFIG.startAtISO}`;
+const START_WELCOME_TITLE = "Jetzt geht es los!";
+const STATION_ONE_HINT_UNLOCK_TITLE = "Hinweis freigeschaltet";
+const STATION_ONE_HINT_UNLOCK_TEXT =
+  "In der Quest Playlist ist jetzt auch ein Hinweis für die letzte Aufgabe erschienen.";
 const START_WELCOME_TEXT =
-  "Willkommen zur Schnitzeljagd.\n\nNehmt euch kurz Zeit für die Playlist und startet dann eure erste Challenge.";
+  "Willkommen zur musikalischen Schnitzeljagd!\n\nIhr werdet heute 5 Stationen ablaufen und an jeder erwartet euch ein musikalisches Rätsel oder eine Aufgabe.\n\nImmer wenn ihr eine Station abschließen konntet, bekommt den Standort der nächsten Station sowie ein Lösungswort.\n\nAm Ende könnt ihr aus allen Lösungsworten einen Satz bilden, den Ihr benötigt um die Schnitzelkagd abzuschließen.\n\nNehmt euch kurz Zeit für die Quest Playlist, sie wir später noch eine wichtige Rolle spielen, und startet dann eure erste Challenge.\n\nVIEL SPASS!";
 
 const PLAYLIST = Object.freeze({
   A: [
@@ -386,9 +390,11 @@ const el = {
   emergencyBtn: byId("emergencyBtn"),
   emergencyBox: byId("emergencyBox"),
   finalCard: byId("finalCard"),
+  successCard: byId("successCard"),
   stickyBar: byId("stickyBar"),
   startChallengeBtn: byId("startChallengeBtn"),
   ctaHint: byId("ctaHint"),
+  solutionsCard: byId("solutionsCard"),
   solutionsList: byId("solutionsList"),
 };
 
@@ -497,7 +503,7 @@ function onCountdownStart() {
   startGatePassed = true;
   saveStartGateState(true);
   updateUI();
-  openFeedbackPopup("Willkommen", START_WELCOME_TEXT, "hint");
+  openFeedbackPopup(START_WELCOME_TITLE, START_WELCOME_TEXT, "hint");
 }
 
 function openFeedbackPopup(title, message, arg3 = null, arg4 = null) {
@@ -923,7 +929,14 @@ function onCheckAnswerStationOne(rawInput) {
   transient.tipVisible = false;
   saveProgress();
   renderHints();
-  openFeedbackPopup("Richtig!", stepConfig.successMessage, completeCurrentStationAndAdvance);
+  openFeedbackPopup("Richtig!", stepConfig.successMessage, () => {
+    openFeedbackPopup(
+      STATION_ONE_HINT_UNLOCK_TITLE,
+      STATION_ONE_HINT_UNLOCK_TEXT,
+      completeCurrentStationAndAdvance,
+      "hint",
+    );
+  });
 }
 
 function onCheckAnswerStationTwo(rawInput) {
@@ -1062,10 +1075,9 @@ function onCheckStationFiveCoordinates() {
 
   const step = getStationFiveStep();
   progress.stepByStation[STATION_FIVE_ID] = Math.max(step, 1);
-  transient.stationFiveCoordsFeedback =
-    "Koordinaten korrekt. Geht zu diesen Koordinaten und beantwortet die Frage.";
+  transient.stationFiveCoordsFeedback = "";
   saveProgress();
-  updateUI();
+  openFeedbackPopup("Korrekt", "Koordinaten korrekt.");
 }
 
 function onCheckAnswerStationFive(rawInput) {
@@ -1445,6 +1457,9 @@ function updateUI() {
   maybeUnlockStartHint();
   renderSolutionsList();
   renderSolutionSentenceBuilder();
+  if (el.successCard) {
+    el.successCard.classList.add("hidden");
+  }
 
   if (isPreStart()) {
     renderPreStartUI();
@@ -1467,10 +1482,22 @@ function updateUI() {
 }
 
 function renderSolutionsList() {
+  const solvedWords = collectSolvedSolutionWords();
+  const hasSolutions = solvedWords.length > 0;
+
+  if (el.solutionsCard) {
+    el.solutionsCard.classList.toggle("hidden", !hasSolutions);
+  }
   if (!el.solutionsList) {
     return;
   }
-  const solvedWords = collectSolvedSolutionWords();
+  if (!hasSolutions) {
+    transient.solutionsDisplayOrder = [];
+    transient.solutionsSignature = "";
+    el.solutionsList.innerHTML = "";
+    return;
+  }
+
   const signature = buildWordSetSignature(solvedWords);
 
   if (signature !== transient.solutionsSignature) {
@@ -1987,23 +2014,19 @@ function createStationFiveChip(word, origin, isLocked) {
 function renderFinishedUI() {
   setHeroCompact(true);
   if (el.startCard) {
-    el.startCard.classList.remove("hidden");
+    el.startCard.classList.add("hidden");
   }
-  if (el.startCardTitle) {
-    el.startCardTitle.textContent = "Abschluss";
-  }
-  el.modeTitle.textContent = "Geschafft.";
-  el.modeSubtitle.textContent = "Finalziel Hütte erreicht.";
-  el.lockText.textContent = "Alle Stationen und das Finalziel wurden erreicht.";
-  el.nextTargetText.textContent = "Koordinaten-Quiz gelöst. Finale abgeschlossen.";
-  el.nextTargetText.classList.remove("hidden");
 
   el.challengeCard.classList.add("hidden");
-  el.finalCard.classList.remove("hidden");
-
-  setGpsStatus("ok", "Status: abgeschlossen");
-  el.distanceText.textContent = "Du bist am Ende der Schnitzeljagd angekommen.";
-  el.gpsFallback.textContent = "";
+  if (el.finalCard) {
+    el.finalCard.classList.add("hidden");
+  }
+  if (el.solutionsCard) {
+    el.solutionsCard.classList.add("hidden");
+  }
+  if (el.successCard) {
+    el.successCard.classList.remove("hidden");
+  }
 
   el.permissionHelp.classList.add("hidden");
   el.permissionHelp.textContent = "";

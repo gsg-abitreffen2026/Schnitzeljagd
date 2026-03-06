@@ -395,6 +395,10 @@ input[type="text"]:focus {
   font-weight: 800;
 }
 
+.hitster-rules {
+  margin-top: 0;
+}
+
 .station-five-panel {
   margin-top: 0.72rem;
   border: 1px solid #cfe3e5;

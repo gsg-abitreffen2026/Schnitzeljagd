@@ -98,17 +98,15 @@
 
           <p id="tipText" class="tip hidden"></p>
           <div id="hitsterPanel" class="hitster-panel hidden">
-            <p class="prompt">
-              Regeln:
+            <p class="prompt hitster-rules">Regeln:
 
-              Spielt Hitster.
+Spielt Hitster.
 
-              Ihr müsst 10 Songs korrekt
-              auf der Timeline einordnen.
+Ihr müsst 10 Songs korrekt
+auf der Timeline einordnen.
 
-              Sobald ihr 10 richtige habt,
-              bekommt ihr das nächste Lösungswort.
-            </p>
+Sobald ihr 10 richtige habt,
+bekommt ihr das nächste Lösungswort.</p>
             <p id="hitsterProgress" class="hitster-progress">Richtige Songs: 0 / 10</p>
             <div class="btn-row">
               <button id="hitsterCorrectBtn" class="btn" type="button">Song richtig</button>
@@ -203,7 +201,15 @@
           <p class="muted">Koordinaten dienen nur für den Radius-Check und werden nicht gespeichert.</p>
         </section>
 
-        <section id="solutionsCard" class="card">
+        <section id="successCard" class="card hidden">
+          <h2>Geschafft</h2>
+          <p>
+            Ihr habt alle Aufgaben erfolgreich gelöst und seid am Ziel angekommen. Viel Spass beim Hütten
+            Revival ;)
+          </p>
+        </section>
+
+        <section id="solutionsCard" class="card hidden">
           <h2>Lösung</h2>
           <ul id="solutionsList" class="solutions-list"></ul>
 
