@@ -12,85 +12,88 @@ const GAME_CONFIG = Object.freeze({
 });
 
 const TEST_MODE = new URLSearchParams(window.location.search).get("test") === "1";
+const START_GATE_STORAGE_KEY = `${GAME_CONFIG.storageKey}-start-gate-${GAME_CONFIG.startAtISO}`;
+const START_WELCOME_TEXT =
+  "Willkommen zur Schnitzeljagd.\n\nNehmt euch kurz Zeit für die Playlist und startet dann eure erste Challenge.";
 
 const PLAYLIST = Object.freeze({
   A: [
     {
-      song: "All The Small Things",
-      artist: "blink-182",
-      url: "https://open.spotify.com/search/blink-182%20All%20The%20Small%20Things",
+      song: "Moonlight Shadow",
+      artist: "Groove Coverage",
+      url: "https://open.spotify.com/intl-de/track/2bd1FeFKgVACAUhcuyf9cC?si=5ae4c5bafc934bae",
     },
     {
-      song: "Bohemian Rhapsody",
-      artist: "Queen",
-      url: "https://open.spotify.com/search/Queen%20Bohemian%20Rhapsody",
-    },
-    {
-      song: "Everybody",
-      artist: "Backstreet Boys",
-      url: "https://open.spotify.com/search/Backstreet%20Boys%20Everybody",
-    },
-    {
-      song: "Are You Gonna Be My Girl",
-      artist: "Jet",
-      url: "https://open.spotify.com/search/Jet%20Are%20You%20Gonna%20Be%20My%20Girl",
-    },
-    {
-      song: "Californication",
-      artist: "Red Hot Chili Peppers",
-      url: "https://open.spotify.com/search/Red%20Hot%20Chili%20Peppers%20Californication",
-    },
-    {
-      song: "Fallen Leaves",
+      song: "Red Flag",
       artist: "Billy Talent",
-      url: "https://open.spotify.com/search/Billy%20Talent%20Fallen%20Leaves",
+      url: "https://open.spotify.com/intl-de/track/2RZWdE8kYPlCAcRUYDeuLC?si=9cba30302e9a4ace",
     },
     {
-      song: "Basket Case",
-      artist: "Green Day",
-      url: "https://open.spotify.com/search/Green%20Day%20Basket%20Case",
+      song: "Mr. Vain - Original Radio Edit",
+      artist: "Culture Beat",
+      url: "https://open.spotify.com/intl-de/track/4ih3dyFZoeTdaeJW9mPbOI?si=97e5f3db7c774d26",
     },
     {
-      song: "Smells Like Teen Spirit",
-      artist: "Nirvana",
-      url: "https://open.spotify.com/search/Nirvana%20Smells%20Like%20Teen%20Spirit",
+      song: "Wannsee",
+      artist: "Die Toten Hosen",
+      url: "https://open.spotify.com/intl-de/track/5KSzv6Ho2Xw1k61SpM3l5n?si=3aeb3688b1024d0e",
+    },
+    {
+      song: "Augenbling",
+      artist: "Seeed",
+      url: "https://open.spotify.com/intl-de/track/4eT8TcG3KKlprFcYePA9gw?si=22faa7a2d6874a01",
+    },
+    {
+      song: "Schwule Mädchen",
+      artist: "Fettes Brot",
+      url: "https://open.spotify.com/intl-de/track/3dKPA3BeuIF5yvv2xUVh0z?si=f2c3b6ebb5d943df",
+    },
+    {
+      song: "Remmidemmi (Yippie Yippie Yeah)",
+      artist: "Deichkind",
+      url: "https://open.spotify.com/intl-de/track/31sD77U64ym70wYEMpnSrQ?si=4d1d9a7e79f64ed1",
+    },
+    {
+      song: "Boom, Boom, Boom, Boom!!",
+      artist: "Vengaboys",
+      url: "https://open.spotify.com/intl-de/track/65OXGbKBQ8gUyJvUd0jNpf?si=6d53e7bf6deb4def",
     },
   ],
   B: [
     {
       song: "Don't Stop Me Now",
       artist: "Queen",
-      url: "https://open.spotify.com/search/Queen%20Don%27t%20Stop%20Me%20Now",
+      url: "https://open.spotify.com/intl-de/track/5T8EDUDqKcs6OSOwEsfqG7?si=17d31c78dd0e404b",
     },
     {
       song: "Mr Brightside",
       artist: "The Killers",
-      url: "https://open.spotify.com/search/The%20Killers%20Mr%20Brightside",
+      url: "https://open.spotify.com/intl-de/track/3n3Ppam7vgaVa1iaRUc9Lp?si=a51e32cc4df240c8",
     },
     {
-      song: "You Give Love A Bad Name",
-      artist: "Bon Jovi",
-      url: "https://open.spotify.com/search/Bon%20Jovi%20You%20Give%20Love%20A%20Bad%20Name",
+      song: "Show Me the Meaning of Being Lonely",
+      artist: "Backstreet Boys",
+      url: "https://open.spotify.com/intl-de/track/3BsaRV5QIulYz2lV9WWa8T?si=3fbd1cc6112f4349",
     },
     {
-      song: "Teenage Dirtbag",
-      artist: "Wheatus",
-      url: "https://open.spotify.com/search/Wheatus%20Teenage%20Dirtbag",
+      song: "Billie Jean",
+      artist: "Michael Jackson",
+      url: "https://open.spotify.com/intl-de/track/5ChkMS8OtdzJeqyybCc9R5?si=2db869a918584565",
     },
     {
-      song: "Pretty Fly (For A White Guy)",
-      artist: "The Offspring",
-      url: "https://open.spotify.com/search/The%20Offspring%20Pretty%20Fly%20For%20A%20White%20Guy",
+      song: "Buddy Holly",
+      artist: "Weezer",
+      url: "https://open.spotify.com/intl-de/track/0gOyllwzM7IvfuYZ903zNv?si=dd37221a35984491",
     },
     {
-      song: "Hey Ya!",
-      artist: "Outkast",
-      url: "https://open.spotify.com/search/Outkast%20Hey%20Ya",
+      song: "Zu Spät",
+      artist: "Die Ärzte",
+      url: "https://open.spotify.com/intl-de/track/5vfOToTP6WrA6tyQMLLfof?si=d6b5f66364e34a20",
     },
     {
-      song: "Thunderstruck",
-      artist: "AC/DC",
-      url: "https://open.spotify.com/search/ACDC%20Thunderstruck",
+      song: "Don't Cry",
+      artist: "Guns N' Roses",
+      url: "https://open.spotify.com/intl-de/track/0ZEhlT9v8CdOKu55zhYGv9?si=3953dc938af94da9",
     },
   ],
 });
@@ -124,7 +127,7 @@ const STATION_ONE_STEPS = Object.freeze([
     answers: ["noch einmal", "nochmal", "noch mal", "nocheinmal"],
     wrongMessage: "Falsch.\n\nAlle trinken einen Schluck 🍺",
     successMessage:
-      "Ihr habt das erste Lösungswort gefunden.\nLösungswort:\nNoch einmal",
+      "Ihr habt das erste Lösungswort gefunden.\nLösungswort:\nnoch einmal",
   },
 ]);
 
@@ -171,13 +174,13 @@ const STATION_FIVE_HUTTE_ANSWERS = Object.freeze([
   "huette im garten",
 ]);
 const STATION_FIVE_SENTENCE_ORDER = Object.freeze([
-  "Noch einmal",
+  "noch einmal",
   "Wonderwall",
   "wie früher",
   "in der",
   "Hütte",
 ]);
-const STATION_ONE_HISTORY_LABELS = Object.freeze(["Numb", "Encore", "Noch einmal"]);
+const STATION_ONE_HISTORY_LABELS = Object.freeze(["Numb", "Encore", "noch einmal"]);
 const STATION_TWO_HISTORY_LABELS = Object.freeze(["Hurra", "wie früher"]);
 const STATION_FOUR_HISTORY_LABEL = "Wonderwall";
 const STATION_FIVE_HISTORY_LABEL = "Hütte";
@@ -291,6 +294,7 @@ const FEHLERSPRUECHE = Object.freeze([
 ]);
 
 let progress = loadProgress();
+let startGatePassed = TEST_MODE ? true : loadStartGateState();
 let transient = {
   gpsStatus: "idle",
   distanceMeters: null,
@@ -323,6 +327,7 @@ const el = {
   countdownCard: byId("countdownCard"),
   countdownValue: byId("countdownValue"),
   startAtText: byId("startAtText"),
+  countdownStartBtn: byId("countdownStartBtn"),
   playlistToggleBtn: byId("playlistToggleBtn"),
   playlistBody: byId("playlistBody"),
   playlistA: byId("playlistA"),
@@ -345,11 +350,14 @@ const el = {
   hitsterPanel: byId("hitsterPanel"),
   hitsterProgress: byId("hitsterProgress"),
   stationFivePanel: byId("stationFivePanel"),
+  stationFiveCoordsBlock: byId("stationFiveCoordsBlock"),
   coordLatInput: byId("coordLatInput"),
   coordLngInput: byId("coordLngInput"),
   checkCoordsBtn: byId("checkCoordsBtn"),
   coordsFeedback: byId("coordsFeedback"),
   stationFiveQuestion: byId("stationFiveQuestion"),
+  stationFiveAnswerInput: byId("stationFiveAnswerInput"),
+  stationFiveAnswerBtn: byId("stationFiveAnswerBtn"),
   sentenceBuilder: byId("sentenceBuilder"),
   wordBank: byId("wordBank"),
   sentenceLine: byId("sentenceLine"),
@@ -400,12 +408,18 @@ function init() {
 
 function bindEvents() {
   el.startChallengeBtn.addEventListener("click", onStartChallenge);
+  if (el.countdownStartBtn) {
+    el.countdownStartBtn.addEventListener("click", onCountdownStart);
+  }
   if (el.playlistToggleBtn) {
     el.playlistToggleBtn.addEventListener("click", onTogglePlaylist);
   }
   el.checkAnswerBtn.addEventListener("click", onCheckAnswer);
   if (el.checkCoordsBtn) {
     el.checkCoordsBtn.addEventListener("click", onCheckStationFiveCoordinates);
+  }
+  if (el.stationFiveAnswerBtn) {
+    el.stationFiveAnswerBtn.addEventListener("click", onCheckAnswer);
   }
   if (el.hitsterCorrectBtn) {
     el.hitsterCorrectBtn.addEventListener("click", onHitsterCorrect);
@@ -438,6 +452,15 @@ function bindEvents() {
   if (el.coordLngInput) {
     el.coordLngInput.addEventListener("keydown", onStationFiveCoordKeyDown);
   }
+  if (el.stationFiveAnswerInput) {
+    el.stationFiveAnswerInput.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") {
+        return;
+      }
+      event.preventDefault();
+      onCheckAnswer();
+    });
+  }
 
   el.answerInput.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
@@ -460,6 +483,19 @@ function renderPlaylistCollapse() {
   el.playlistToggleBtn.textContent = transient.playlistCollapsed
     ? "Playlist anzeigen"
     : "Playlist ausblenden";
+}
+
+function onCountdownStart() {
+  if (TEST_MODE || startGatePassed) {
+    return;
+  }
+  if (!hasCountdownReachedStart()) {
+    return;
+  }
+  startGatePassed = true;
+  saveStartGateState(true);
+  updateUI();
+  openFeedbackPopup("Willkommen", START_WELCOME_TEXT, "hint");
 }
 
 function openFeedbackPopup(title, message, arg3 = null, arg4 = null) {
@@ -639,6 +675,9 @@ function completeCurrentStationAndAdvance() {
   if (el.coordLngInput) {
     el.coordLngInput.value = "";
   }
+  if (el.stationFiveAnswerInput) {
+    el.stationFiveAnswerInput.value = "";
+  }
 
   if (progress.currentStationIndex >= STATIONS.length - 1) {
     progress.currentStationIndex = STATIONS.length;
@@ -782,7 +821,7 @@ function onCheckAnswer() {
     return;
   }
 
-  const rawInput = el.answerInput.value.trim();
+  const rawInput = getActiveAnswerInputValue(station);
   if (!rawInput) {
     el.feedbackText.textContent =
       station.id === STATION_ONE_ID ||
@@ -836,6 +875,13 @@ function onCheckAnswer() {
   updateUI();
 }
 
+function getActiveAnswerInputValue(station) {
+  if (station && station.id === STATION_FIVE_ID && getStationFiveStep() === 1 && el.stationFiveAnswerInput) {
+    return el.stationFiveAnswerInput.value.trim();
+  }
+  return el.answerInput ? el.answerInput.value.trim() : "";
+}
+
 function onCheckAnswerStationOne(rawInput) {
   const step = getStationOneStep();
   const stepConfig = STATION_ONE_STEPS[step];
@@ -859,6 +905,10 @@ function onCheckAnswerStationOne(rawInput) {
 
   if (step < STATION_ONE_STEPS.length - 1) {
     progress.stepByStation[STATION_ONE_ID] = step + 1;
+    if (step === 0 && el.notesBtn) {
+      el.notesBtn.classList.add("hidden");
+      closeNotesModal();
+    }
     saveProgress();
     openFeedbackPopup("Richtig!", stepConfig.successMessage);
     return;
@@ -1047,7 +1097,12 @@ function onCheckAnswerStationFive(rawInput) {
     dragWord: "",
     dragFrom: "",
   };
-  el.answerInput.value = "";
+  if (el.answerInput) {
+    el.answerInput.value = "";
+  }
+  if (el.stationFiveAnswerInput) {
+    el.stationFiveAnswerInput.value = "";
+  }
   saveProgress();
   openFeedbackPopup("Richtig!", "Letztes Lösungswort: Hütte");
 }
@@ -1260,7 +1315,7 @@ function checkStationFiveSentence() {
   saveProgress();
   openFeedbackPopup(
     "Bingo",
-    "Satz gelöst.\nNoch einmal Wonderwall wie früher in der Hütte\n\nNehmt die Gitarre. Es ist Zeit für Wonderwall.",
+    "Satz gelöst.\nnoch einmal Wonderwall wie früher in der Hütte\n\nNehmt die Gitarre. Es ist Zeit für Wonderwall.",
     completeCurrentStationAndAdvance,
   );
   return true;
@@ -1414,7 +1469,7 @@ function renderSolutionsList() {
   }
   const solvedWords = [];
   if (getStationOneStep() >= STATION_ONE_STEPS.length) {
-    solvedWords.push("Noch einmal");
+    solvedWords.push("noch einmal");
   }
   if (getStationTwoStep() >= STATION_TWO_STEPS.length) {
     solvedWords.push("wie früher");
@@ -1439,6 +1494,7 @@ function renderSolutionsList() {
 
 function renderPreStartUI() {
   const nextStation = getCurrentStation() || STATIONS[0];
+  const waitingForManualStart = hasCountdownReachedStart() && !startGatePassed;
   setHeroCompact(false);
   if (el.startCard) {
     el.startCard.classList.remove("hidden");
@@ -1446,9 +1502,12 @@ function renderPreStartUI() {
   if (el.startCardTitle) {
     el.startCardTitle.textContent = "Next";
   }
-  el.modeTitle.textContent = "Schnitzeljagd - Pre-Start";
-  el.modeSubtitle.textContent =
-    "Diese Songs haben Bedeutung. Noch nichts eingeben, nur anschauen.";
+  el.modeTitle.textContent = waitingForManualStart
+    ? "Schnitzeljagd - Startbereit"
+    : "Schnitzeljagd - Pre-Start";
+  el.modeSubtitle.textContent = waitingForManualStart
+    ? "Alles ist bereit. Tippt oben auf Starten."
+    : "Diese Songs haben Bedeutung. Noch nichts eingeben, nur anschauen.";
   el.lockText.textContent = `Nächstes Ziel: ${nextStation.locationName}`;
   el.nextTargetText.textContent = "";
   el.nextTargetText.classList.add("hidden");
@@ -1466,8 +1525,10 @@ function renderPreStartUI() {
 
   el.startChallengeBtn.classList.remove("hidden");
   el.startChallengeBtn.disabled = true;
-  el.startChallengeBtn.textContent = "Challenge startet um 10:00";
-  el.ctaHint.textContent = formatStartDateHint();
+  el.startChallengeBtn.textContent = waitingForManualStart
+    ? "Bitte oben auf Starten tippen"
+    : "Challenge startet um 10:00";
+  el.ctaHint.textContent = waitingForManualStart ? "" : formatStartDateHint();
   if (el.stickyBar) {
     el.stickyBar.classList.add("hidden");
   }
@@ -1589,6 +1650,7 @@ function renderChallenge(station) {
   const isStationThree = station.id === STATION_THREE_ID;
   const isStationFour = station.id === STATION_FOUR_ID;
   const isStationFive = station.id === STATION_FIVE_ID;
+  const stationOneStep = isStationOne ? getStationOneStep() : 0;
   const stationFiveStep = getStationFiveStep();
   if (!isStationOne) {
     closeNotesModal();
@@ -1618,7 +1680,7 @@ function renderChallenge(station) {
       el.emojiHint.classList.add("hidden");
     }
   }
-  const usesTextAnswer = !isStationThree && (!isStationFive || stationFiveStep === 1);
+  const usesTextAnswer = !isStationThree && !isStationFive;
   if (el.answerLabel) {
     el.answerLabel.classList.toggle("hidden", !usesTextAnswer);
     el.answerLabel.textContent =
@@ -1630,7 +1692,11 @@ function renderChallenge(station) {
       ? "Antwort eingeben"
       : "Lösungswort eingeben";
   if (el.notesBtn) {
-    el.notesBtn.classList.toggle("hidden", !isStationOne);
+    const showNotesBtn = isStationOne && stationOneStep === 0;
+    el.notesBtn.classList.toggle("hidden", !showNotesBtn);
+    if (!showNotesBtn) {
+      closeNotesModal();
+    }
   }
 
   const tries = progress.attemptsByStation[station.id] || 0;
@@ -1643,11 +1709,11 @@ function renderChallenge(station) {
   if ((isStationOne || isStationTwo || isStationFour || isStationFive) && !active) {
     el.challengePrompt.textContent = "Station abgeschlossen.";
   }
-  el.answerInput.disabled = !active || isStationThree || (isStationFive && stationFiveStep !== 1);
-  el.checkAnswerBtn.disabled = !active || (isStationFive && stationFiveStep !== 1);
+  el.answerInput.disabled = !active || isStationThree || isStationFive;
+  el.checkAnswerBtn.disabled = !active || isStationFive;
   el.checkAnswerBtn.classList.toggle(
     "hidden",
-    !active || isStationThree || (isStationFive && stationFiveStep !== 1),
+    !active || isStationThree || isStationFive,
   );
 
   if (el.hitsterPanel) {
@@ -1751,7 +1817,11 @@ function renderStationFivePanel(active, step, isSolvedReadyNext) {
   ensureStationFiveBoard();
 
   if (el.coordsFeedback) {
-    el.coordsFeedback.textContent = transient.stationFiveCoordsFeedback || "";
+    el.coordsFeedback.textContent = step < 1 ? transient.stationFiveCoordsFeedback || "" : "";
+  }
+
+  if (el.stationFiveCoordsBlock) {
+    el.stationFiveCoordsBlock.classList.toggle("hidden", step >= 1);
   }
 
   if (el.coordLatInput) {
@@ -1765,7 +1835,13 @@ function renderStationFivePanel(active, step, isSolvedReadyNext) {
   }
 
   if (el.stationFiveQuestion) {
-    el.stationFiveQuestion.classList.toggle("hidden", step < 1);
+    el.stationFiveQuestion.classList.toggle("hidden", step !== 1);
+  }
+  if (el.stationFiveAnswerInput) {
+    el.stationFiveAnswerInput.disabled = !active || step !== 1;
+  }
+  if (el.stationFiveAnswerBtn) {
+    el.stationFiveAnswerBtn.disabled = !active || step !== 1;
   }
   if (el.sentenceBuilder) {
     el.sentenceBuilder.classList.toggle("hidden", step < 2);
@@ -1879,6 +1955,9 @@ function renderFinishedUI() {
 function updateCountdown() {
   if (!isPreStart()) {
     el.countdownCard.classList.add("hidden");
+    if (el.countdownStartBtn) {
+      el.countdownStartBtn.classList.add("hidden");
+    }
     return;
   }
 
@@ -1886,6 +1965,9 @@ function updateCountdown() {
     el.countdownCard.classList.remove("hidden");
     el.countdownValue.textContent = "TESTMODUS";
     el.startAtText.textContent = "Zeitprüfung deaktiviert (?test=1).";
+    if (el.countdownStartBtn) {
+      el.countdownStartBtn.classList.add("hidden");
+    }
     return;
   }
 
@@ -1896,12 +1978,20 @@ function updateCountdown() {
   el.startAtText.textContent = `Start: ${formatDate(new Date(GAME_CONFIG.startAtISO))}`;
 
   if (diff <= 0) {
-    el.countdownValue.textContent = "00:00:00";
-    el.countdownCard.classList.add("hidden");
+    el.countdownCard.classList.remove("hidden");
+    el.countdownValue.textContent = "Startbereit";
+    if (el.countdownStartBtn) {
+      el.countdownStartBtn.classList.remove("hidden");
+      el.countdownStartBtn.disabled = false;
+      el.countdownStartBtn.textContent = "Starten";
+    }
     return;
   }
 
   el.countdownCard.classList.remove("hidden");
+  if (el.countdownStartBtn) {
+    el.countdownStartBtn.classList.add("hidden");
+  }
   const totalSeconds = Math.floor(diff / 1000);
   const days = Math.floor(totalSeconds / 86400);
   const hours = Math.floor((totalSeconds % 86400) / 3600);
@@ -2049,11 +2139,15 @@ function getStationThreeCorrectCount() {
   return raw;
 }
 
+function hasCountdownReachedStart() {
+  return Date.now() >= new Date(GAME_CONFIG.startAtISO).getTime();
+}
+
 function isPreStart() {
   if (TEST_MODE) {
     return false;
   }
-  return Date.now() < new Date(GAME_CONFIG.startAtISO).getTime();
+  return !hasCountdownReachedStart() || !startGatePassed;
 }
 
 function isFinalLegActive() {
@@ -2295,6 +2389,22 @@ function loadProgress() {
     };
   } catch (error) {
     return initial;
+  }
+}
+
+function loadStartGateState() {
+  try {
+    return localStorage.getItem(START_GATE_STORAGE_KEY) === "1";
+  } catch (error) {
+    return false;
+  }
+}
+
+function saveStartGateState(value) {
+  try {
+    localStorage.setItem(START_GATE_STORAGE_KEY, value ? "1" : "0");
+  } catch (error) {
+    // Absichtlich still: kein Blocking fuer den Spielablauf.
   }
 }
 

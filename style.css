@@ -190,6 +190,10 @@ p {
   letter-spacing: 0.03em;
 }
 
+.countdown-start-btn {
+  margin-top: 0.75rem;
+}
+
 .playlist-grid {
   display: grid;
   gap: 0.8rem;

@@ -23,13 +23,19 @@
           <p class="countdown-label">Countdown bis Start</p>
           <p id="countdownValue" class="countdown-value">--:--:--</p>
           <p id="startAtText" class="small"></p>
+          <button id="countdownStartBtn" class="btn countdown-start-btn hidden" type="button">
+            Starten
+          </button>
         </div>
       </header>
 
       <main class="main-content">
         <section class="card">
           <h2>Quest Playlist</h2>
-          <p class="muted">Diese Songs haben Bedeutung. Noch nichts eingeben, nur anschauen.</p>
+          <p class="muted">
+            Hier ist eure Quest Playlist, die Songs werden euch ab jetzt begleiten, findet Ihre geheime
+            Botschaft raus und löst damit am Ende das letzte Rätsel.
+          </p>
 
           <button id="playlistToggleBtn" class="btn btn-alt playlist-toggle" type="button">
             Playlist ausblenden
@@ -111,29 +117,31 @@
           </div>
 
           <div id="stationFivePanel" class="station-five-panel hidden">
-            <div class="coord-grid">
-              <label for="coordLatInput" class="label">Koordinate 1</label>
-              <input
-                id="coordLatInput"
-                type="text"
-                inputmode="decimal"
-                autocomplete="off"
-                autocapitalize="off"
-                spellcheck="false"
-              />
+            <div id="stationFiveCoordsBlock">
+              <div class="coord-grid">
+                <label for="coordLatInput" class="label">SIDE A</label>
+                <input
+                  id="coordLatInput"
+                  type="text"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                />
 
-              <label for="coordLngInput" class="label">Koordinate 2</label>
-              <input
-                id="coordLngInput"
-                type="text"
-                inputmode="decimal"
-                autocomplete="off"
-                autocapitalize="off"
-                spellcheck="false"
-              />
+                <label for="coordLngInput" class="label">SIDE B</label>
+                <input
+                  id="coordLngInput"
+                  type="text"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                />
+              </div>
+              <button id="checkCoordsBtn" class="btn btn-alt" type="button">Koordinaten prüfen</button>
+              <p id="coordsFeedback" class="small muted"></p>
             </div>
-            <button id="checkCoordsBtn" class="btn btn-alt" type="button">Koordinaten prüfen</button>
-            <p id="coordsFeedback" class="small muted"></p>
 
             <div id="stationFiveQuestion" class="hidden">
               <p class="prompt question-highlight">
@@ -141,15 +149,17 @@
 
                 Was steht dort?
               </p>
-            </div>
-
-            <div id="sentenceBuilder" class="sentence-builder hidden">
-              <p class="label">Wortbank</p>
-              <div id="wordBank" class="word-bank"></div>
-
-              <p class="label">Satzlinie</p>
-              <div id="sentenceLine" class="sentence-line"></div>
-              <p id="sentenceHint" class="small muted"></p>
+              <label for="stationFiveAnswerInput" class="label">Antwort</label>
+              <input
+                id="stationFiveAnswerInput"
+                type="text"
+                inputmode="text"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder="Antwort eingeben"
+              />
+              <button id="stationFiveAnswerBtn" class="btn" type="button">Prüfen</button>
             </div>
           </div>
           <p id="feedbackText" class="feedback"></p>
@@ -196,6 +206,17 @@
         <section id="solutionsCard" class="card">
           <h2>Lösung</h2>
           <ul id="solutionsList" class="solutions-list"></ul>
+
+          <div id="sentenceBuilder" class="sentence-builder hidden">
+            <p class="label">Lösungssatz</p>
+            <p class="small muted">Ordnet die gefundenen Wörter in die richtige Reihenfolge.</p>
+            <p class="label">Wortbank</p>
+            <div id="wordBank" class="word-bank"></div>
+
+            <p class="label">Satzlinie</p>
+            <div id="sentenceLine" class="sentence-line"></div>
+            <p id="sentenceHint" class="small muted"></p>
+          </div>
         </section>
       </main>
 
