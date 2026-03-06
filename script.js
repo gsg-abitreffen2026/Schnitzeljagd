@@ -12,6 +12,7 @@ const GAME_CONFIG = Object.freeze({
 });
 
 const TEST_MODE = new URLSearchParams(window.location.search).get("test") === "1";
+const SIMULATE_START = new URLSearchParams(window.location.search).get("simulateStart") === "1";
 const START_GATE_STORAGE_KEY = `${GAME_CONFIG.storageKey}-start-gate-${GAME_CONFIG.startAtISO}`;
 const START_WELCOME_TITLE = "Jetzt geht es los!";
 const STATION_ONE_HINT_UNLOCK_TITLE = "Hinweis freigeschaltet";
@@ -335,7 +336,7 @@ const FEHLERSPRUECHE = Object.freeze([
 ]);
 
 let progress = loadProgress();
-let startGatePassed = TEST_MODE ? true : loadStartGateState();
+let startGatePassed = TEST_MODE ? true : SIMULATE_START ? false : loadStartGateState();
 let transient = {
   gpsStatus: "idle",
   distanceMeters: null,
@@ -2169,11 +2170,7 @@ function updateCountdown() {
     return;
   }
 
-  const now = Date.now();
-  const startAt = new Date(GAME_CONFIG.startAtISO).getTime();
-  const diff = startAt - now;
-
-  if (diff <= 0) {
+  if (hasCountdownReachedStart()) {
     el.countdownCard.classList.remove("hidden");
     el.countdownValue.textContent = "Startbereit";
     el.startAtText.textContent = `Start: ${formatDate(new Date(GAME_CONFIG.startAtISO))}`;
@@ -2190,6 +2187,9 @@ function updateCountdown() {
     el.countdownStartBtn.classList.add("hidden");
   }
   el.startAtText.textContent = "";
+  const now = Date.now();
+  const startAt = new Date(GAME_CONFIG.startAtISO).getTime();
+  const diff = startAt - now;
   const totalSeconds = Math.floor(diff / 1000);
   const days = Math.floor(totalSeconds / 86400);
   const hours = Math.floor((totalSeconds % 86400) / 3600);
@@ -2338,6 +2338,9 @@ function getStationThreeCorrectCount() {
 }
 
 function hasCountdownReachedStart() {
+  if (SIMULATE_START) {
+    return true;
+  }
   return Date.now() >= new Date(GAME_CONFIG.startAtISO).getTime();
 }
 
