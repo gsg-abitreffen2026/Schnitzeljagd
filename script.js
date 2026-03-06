@@ -19,6 +19,11 @@ const STATION_ONE_HINT_UNLOCK_TEXT =
   "In der Quest Playlist ist jetzt auch ein Hinweis für die letzte Aufgabe erschienen.";
 const START_WELCOME_TEXT =
   "Willkommen zur musikalischen Schnitzeljagd!\n\nIhr werdet heute 5 Stationen ablaufen und an jeder erwartet euch ein musikalisches Rätsel oder eine Aufgabe.\n\nImmer wenn ihr eine Station abschließen konntet, bekommt den Standort der nächsten Station sowie ein Lösungswort.\n\nAm Ende könnt ihr aus allen Lösungsworten einen Satz bilden, den Ihr benötigt um die Schnitzelkagd abzuschließen.\n\nNehmt euch kurz Zeit für die Quest Playlist, sie wir später noch eine wichtige Rolle spielen, und startet dann eure erste Challenge.\n\nVIEL SPASS!";
+const STORY_INTRO = Object.freeze({
+  title: "Die Suche nach der verlorenen Musik",
+  text:
+    "In den Hügeln rund um Sillenbuch, Ruit und Heumaden erzählt man sich eine alte Geschichte.\nEs heißt, dass hier einst ein Ort existierte, an dem Musik lauter, fröhlicher und lebendiger war als irgendwo sonst. Ein Ort, an dem Menschen zusammenkamen, sangen, spielten und feierten, bis tief in die Nacht.\nDoch eines Tages verstummte diese Musik.\nNiemand weiß genau warum. Manche sagen, sie sei vergessen worden. Andere glauben, sie sei von den Klangwächtern verborgen worden - einer geheimen Bruderschaft aus Musikern, Spielleuten und Rätselmeistern.\nDiese Wächter glaubten, dass wahre Musik nicht einfach konsumiert werden darf.\nSie muss verdient werden.\nDarum erschufen sie eine Prüfung.\nSie versteckten Hinweise an verschiedenen Orten und verbanden sie mit Spielen, Rätseln und Herausforderungen. Nur jene, die Mut, Verstand, Humor und ein wenig musikalisches Talent besitzen, können diese Prüfungen bestehen.\nWer alle Prüfungen meistert, erhält am Ende einen Satz aus fünf Fragmenten.\nUnd dieser Satz verrät das größte Geheimnis der Wächter:\nWo die verlorene Musik wieder erklingen kann.\nHeute seid ihr die Abenteurer, die sich dieser Aufgabe stellen.\n\nDer Beginn der Reise am Silberwald\nHier fängt eure Suche an.\nDer erste Klangwächter schrieb einst in einem alten Pergament:\n\"Die Musik dieser Welt verschwindet nicht.\nSie wartet nur darauf, wiedergefunden zu werden.\"\nDoch um sie zu finden, müsst ihr die Prüfungen der Wächter bestehen.\nFünf Stationen.\nFünf Herausforderungen.\nFünf Fragmente eines Satzes.",
+});
 
 const PLAYLIST = Object.freeze({
   A: [
@@ -165,6 +170,38 @@ const STATION_FOUR_TIPS = Object.freeze([
   "Gesucht ist ein Song der Band Pink Floyd.",
 ]);
 const STATION_FIVE_ID = "riederstrasse";
+const STATION_START_STORIES = Object.freeze({
+  [STATION_ONE_ID]: Object.freeze({
+    title: "Die erste Prüfung - Der Wächter der Melodie",
+    text:
+      "Der erste Wächter war ein Meister der Klänge.\nEr glaubte, dass Musik nur von jenen verstanden wird, die bereit sind, selbst ein Instrument in die Hand zu nehmen.\nDarum hinterließ er eine Melodie - verborgen in einer Reihe einfacher Töne.\nSpielt sie. Erkennt sie.\nUnd beantwortet seine Fragen.\nWer die Melodie versteht, erhält das erste Fragment des verlorenen Geheimnisses.\nDoch Vorsicht:\nDer Wächter verlangt Mut.\nWer sich irrt, muss einen Schluck Muttrank nehmen, bevor er es erneut versucht.",
+  }),
+  [STATION_TWO_ID]: Object.freeze({
+    title: "Die zweite Prüfung - Der Wächter der Zeichen",
+    text:
+      "Der zweite Wächter liebte Rätsel, die auf den ersten Blick zu einfach wirken.\nStatt komplizierter Formeln hinterließ er nur ein paar seltsame Zeichen.\nDoch hinter diesen Zeichen verbirgt sich ein Lied, das viele kennen - wenn sie genau hinsehen.\nErkennt das Lied.\nBeantwortet seine Frage.\nDann offenbart euch der Wächter das zweite Fragment des Satzes.",
+  }),
+  [STATION_THREE_ID]: Object.freeze({
+    title: "Die dritte Prüfung - Der Wächter der Zeit",
+    text:
+      "Der dritte Wächter war ein Chronist der Musikgeschichte.\nEr sammelte Lieder aus vielen Jahrzehnten und ordnete sie wie Sterne am Himmel einer großen Zeitlinie zu.\nEr war überzeugt:\n\"Wer die Zeit der Musik versteht, versteht auch ihren Wert.\"\nSeine Herausforderung ist einfach - aber tückisch.\nOrdnet die Songs richtig in der Geschichte ein.\nJeder Fehler verlangt einen Schluck Muttrank.\nDoch wer genügend Songs korrekt platziert, erhält das dritte Fragment des Geheimnisses.",
+  }),
+  [STATION_FOUR_ID]: Object.freeze({
+    title: "Die vierte Prüfung - Der Wächter der Rätsel",
+    text:
+      "Der vierte Wächter war ein Liebhaber ungewöhnlicher Ideen.\nEr liebte es, Dinge zusammenzuführen, die scheinbar nichts miteinander zu tun haben.\nDarum stellte er ein Rätsel aus zwei Teilen:\nEin berühmter Musiker.\nUnd ein rebellischer Song.\nNur wer erkennt, welcher Titel aus dieser Kombination entsteht, erhält das vierte Fragment des Satzes.",
+  }),
+  [STATION_FIVE_ID]: Object.freeze({
+    title: "Die fünfte Prüfung - Der Wächter des Weges",
+    text:
+      "Der letzte Wächter war kein Musiker.\nEr war ein Navigator.\nDenn er wusste: Selbst wer alle Hinweise besitzt, muss noch den richtigen Weg finden.\nDarum stellte er eine letzte Aufgabe.\nNur wer seine Hinweise richtig deutet, findet den letzten Ort der Reise.\nUnd dort wartet die Antwort auf die wichtigste Frage.",
+  }),
+});
+const STORY_FINAL_REVEAL = Object.freeze({
+  title: "Das Geheimnis der verlorenen Musik",
+  text:
+    "Wenn ihr alle Prüfungen bestanden habt, haltet ihr die fünf Fragmente des Satzes in euren Händen.\nDoch einzeln bedeuten sie wenig.\nErst wenn ihr sie in die richtige Reihenfolge bringt, entsteht der Satz, den die Klangwächter verborgen haben.\nDieser Satz verrät euch den Ort, an dem die verlorene Musik wieder erklingen kann.\nUnd er sagt euch auch, was ihr dort tun müsst, um sie zurückzubringen.\nDie Wächter hinterließen nur eine letzte Anweisung:\n\"Nur jene, die das Geheimnis gemeinsam entschlüsseln,\nwerden die Musik wiederfinden.\"\nFindet die Antwort.",
+});
 const STATION_FIVE_COORD_TARGET = Object.freeze({
   lat: 48.746512,
   lng: 9.243954,
@@ -313,6 +350,8 @@ let transient = {
   popupTitle: "",
   popupMessage: "",
   popupOnClose: null,
+  storyPopupOpen: false,
+  storyPopupOnClose: null,
   solutionsDisplayOrder: [],
   solutionsSignature: "",
   stationFiveBoard: {
@@ -382,6 +421,11 @@ const el = {
   feedbackMessage: byId("feedbackMessage"),
   feedbackWordBubble: byId("feedbackWordBubble"),
   feedbackContinueBtn: byId("feedbackContinueBtn"),
+  storyModal: byId("storyModal"),
+  storyModalCard: byId("storyModalCard"),
+  storyTitle: byId("storyTitle"),
+  storyMessage: byId("storyMessage"),
+  storyContinueBtn: byId("storyContinueBtn"),
   showHintBtn: byId("showHintBtn"),
   tipText: byId("tipText"),
   feedbackText: byId("feedbackText"),
@@ -450,6 +494,12 @@ function bindEvents() {
   if (el.feedbackModal) {
     el.feedbackModal.addEventListener("click", onFeedbackModalBackdropClick);
   }
+  if (el.storyContinueBtn) {
+    el.storyContinueBtn.addEventListener("click", closeStoryPopup);
+  }
+  if (el.storyModal) {
+    el.storyModal.addEventListener("click", onStoryModalBackdropClick);
+  }
   el.showHintBtn.addEventListener("click", onToggleTip);
   el.unlockHintBtn.addEventListener("click", onUnlockHint);
   el.nextStageBtn.addEventListener("click", onNextStage);
@@ -503,7 +553,12 @@ function onCountdownStart() {
   startGatePassed = true;
   saveStartGateState(true);
   updateUI();
-  openFeedbackPopup(START_WELCOME_TITLE, START_WELCOME_TEXT, "hint");
+  openFeedbackPopup(
+    START_WELCOME_TITLE,
+    START_WELCOME_TEXT,
+    () => openStoryPopup(STORY_INTRO.title, STORY_INTRO.text),
+    "hint",
+  );
 }
 
 function openFeedbackPopup(title, message, arg3 = null, arg4 = null) {
@@ -576,6 +631,42 @@ function closeFeedbackPopup() {
 function onFeedbackModalBackdropClick(event) {
   if (event.target === el.feedbackModal) {
     closeFeedbackPopup();
+  }
+}
+
+function openStoryPopup(title, message, onClose = null) {
+  if (!el.storyModal || !el.storyTitle || !el.storyMessage) {
+    if (typeof onClose === "function") {
+      onClose();
+    }
+    return;
+  }
+
+  transient.storyPopupOpen = true;
+  transient.storyPopupOnClose = typeof onClose === "function" ? onClose : null;
+  el.storyTitle.textContent = title || "";
+  el.storyMessage.textContent = String(message || "");
+  el.storyModal.classList.remove("hidden");
+}
+
+function closeStoryPopup() {
+  if (!transient.storyPopupOpen) {
+    return;
+  }
+  transient.storyPopupOpen = false;
+  if (el.storyModal) {
+    el.storyModal.classList.add("hidden");
+  }
+  const cb = transient.storyPopupOnClose;
+  transient.storyPopupOnClose = null;
+  if (typeof cb === "function") {
+    cb();
+  }
+}
+
+function onStoryModalBackdropClick(event) {
+  if (event.target === el.storyModal) {
+    closeStoryPopup();
   }
 }
 
@@ -700,6 +791,14 @@ function completeCurrentStationAndAdvance() {
   updateUI();
 }
 
+function openStationStartStory(stationId) {
+  const story = STATION_START_STORIES[stationId];
+  if (!story) {
+    return;
+  }
+  openStoryPopup(story.title, story.text);
+}
+
 function onStartChallenge() {
   if (isPreStart() || progress.finished) {
     return;
@@ -726,6 +825,7 @@ function onStartChallenge() {
   if (TEST_MODE) {
     transient.gpsStatus = "ok";
     transient.distanceMeters = 0;
+    let shouldShowStationStory = false;
 
     if (finalLeg) {
       progress.finished = true;
@@ -734,16 +834,21 @@ function onStartChallenge() {
       transient.permissionMessage = "Testmodus: Finalziel ohne GPS-Prüfung abgeschlossen.";
       openFeedbackPopup("Hinweis", transient.permissionMessage, "hint");
     } else {
-      if (progress.stageStatus === "locked") {
+      const justActivated = progress.stageStatus === "locked";
+      if (justActivated) {
         progress.stageStatus = "active";
       }
       transient.permissionMessage = "Testmodus: GPS-Prüfung übersprungen. Challenge ist aktiv.";
       transient.playlistCollapsed = true;
       renderPlaylistCollapse();
+      shouldShowStationStory = justActivated && Boolean(station);
     }
 
     saveProgress();
     updateUI();
+    if (shouldShowStationStory && station) {
+      openStationStartStory(station.id);
+    }
     return;
   }
 
@@ -773,6 +878,7 @@ function onStartChallenge() {
 
       transient.distanceMeters = Math.round(dist);
       transient.gpsStatus = classifyDistance(dist, targetConfig.radius);
+      let shouldShowStationStory = false;
 
       if (dist <= targetConfig.radius) {
         if (finalLeg) {
@@ -782,13 +888,15 @@ function onStartChallenge() {
           saveProgress();
           transient.permissionMessage = "Finalziel erreicht. Starker Abschluss.";
         } else {
-          if (progress.stageStatus === "locked") {
+          const justActivated = progress.stageStatus === "locked";
+          if (justActivated) {
             progress.stageStatus = "active";
           }
           saveProgress();
           transient.permissionMessage = "Im Radius. Challenge ist freigeschaltet.";
           transient.playlistCollapsed = true;
           renderPlaylistCollapse();
+          shouldShowStationStory = justActivated && Boolean(station);
         }
       } else {
         if (!finalLeg) {
@@ -803,6 +911,9 @@ function onStartChallenge() {
 
       // Standortdaten werden absichtlich nicht gespeichert.
       updateUI();
+      if (shouldShowStationStory && station) {
+        openStationStartStory(station.id);
+      }
       el.startChallengeBtn.disabled = false;
       el.startChallengeBtn.textContent = originalLabel;
     },
@@ -1118,7 +1229,9 @@ function onCheckAnswerStationFive(rawInput) {
     el.stationFiveAnswerInput.value = "";
   }
   saveProgress();
-  openFeedbackPopup("Richtig!", "Letztes Lösungswort: Hütte", completeCurrentStationAndAdvance);
+  openFeedbackPopup("Richtig!", "Letztes Lösungswort: Hütte", () => {
+    openStoryPopup(STORY_FINAL_REVEAL.title, STORY_FINAL_REVEAL.text, completeCurrentStationAndAdvance);
+  });
 }
 
 function parseCoordinateValue(value) {
