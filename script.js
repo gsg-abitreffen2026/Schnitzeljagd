@@ -309,6 +309,8 @@ let transient = {
   popupTitle: "",
   popupMessage: "",
   popupOnClose: null,
+  solutionsDisplayOrder: [],
+  solutionsSignature: "",
   stationFiveBoard: {
     bankWords: [],
     lineWords: [],
@@ -1104,7 +1106,7 @@ function onCheckAnswerStationFive(rawInput) {
     el.stationFiveAnswerInput.value = "";
   }
   saveProgress();
-  openFeedbackPopup("Richtig!", "Letztes Lösungswort: Hütte");
+  openFeedbackPopup("Richtig!", "Letztes Lösungswort: Hütte", completeCurrentStationAndAdvance);
 }
 
 function parseCoordinateValue(value) {
@@ -1442,6 +1444,7 @@ function onEmergency() {
 function updateUI() {
   maybeUnlockStartHint();
   renderSolutionsList();
+  renderSolutionSentenceBuilder();
 
   if (isPreStart()) {
     renderPreStartUI();
@@ -1467,6 +1470,23 @@ function renderSolutionsList() {
   if (!el.solutionsList) {
     return;
   }
+  const solvedWords = collectSolvedSolutionWords();
+  const signature = buildWordSetSignature(solvedWords);
+
+  if (signature !== transient.solutionsSignature) {
+    transient.solutionsDisplayOrder = buildShuffledSolutionsOrder(solvedWords);
+    transient.solutionsSignature = signature;
+  }
+
+  el.solutionsList.innerHTML = "";
+  transient.solutionsDisplayOrder.forEach((word) => {
+    const item = document.createElement("li");
+    item.textContent = word;
+    el.solutionsList.appendChild(item);
+  });
+}
+
+function collectSolvedSolutionWords() {
   const solvedWords = [];
   if (getStationOneStep() >= STATION_ONE_STEPS.length) {
     solvedWords.push("noch einmal");
@@ -1483,13 +1503,79 @@ function renderSolutionsList() {
   if (getStationFiveStep() >= 2) {
     solvedWords.push("Hütte");
   }
+  return solvedWords;
+}
 
-  el.solutionsList.innerHTML = "";
-  solvedWords.forEach((word) => {
-    const item = document.createElement("li");
-    item.textContent = word;
-    el.solutionsList.appendChild(item);
-  });
+function buildWordSetSignature(words) {
+  return words
+    .map((word) => normalizeText(word))
+    .sort()
+    .join("|");
+}
+
+function buildShuffledSolutionsOrder(words) {
+  if (words.length <= 1) {
+    return [...words];
+  }
+
+  const forbiddenOrder = getForbiddenSolutionOrder(words);
+  let candidate = [...words];
+  let tries = 0;
+  while (tries < 40) {
+    candidate = shuffleWords(words);
+    if (!isSameWordOrder(candidate, forbiddenOrder)) {
+      return candidate;
+    }
+    tries += 1;
+  }
+
+  const fallback = [...candidate];
+  [fallback[0], fallback[1]] = [fallback[1], fallback[0]];
+  return fallback;
+}
+
+function getForbiddenSolutionOrder(words) {
+  const set = new Set(words.map((word) => normalizeText(word)));
+  return STATION_FIVE_SENTENCE_ORDER.filter((word) => set.has(normalizeText(word)));
+}
+
+function isSameWordOrder(a, b) {
+  if (a.length !== b.length) {
+    return false;
+  }
+  return a.every((word, index) => normalizeText(word) === normalizeText(b[index]));
+}
+
+function renderSolutionSentenceBuilder() {
+  if (!el.sentenceBuilder) {
+    return;
+  }
+  const step = getStationFiveStep();
+  if (step < 2) {
+    el.sentenceBuilder.classList.add("hidden");
+    if (el.sentenceHint) {
+      el.sentenceHint.textContent = "";
+    }
+    return;
+  }
+
+  el.sentenceBuilder.classList.remove("hidden");
+  ensureStationFiveBoard();
+  renderStationFiveBoard();
+
+  if (!el.sentenceHint) {
+    return;
+  }
+  if (step >= 3 || transient.stationFiveBoard.locked) {
+    el.sentenceHint.textContent = "Satzlinie gesperrt. Bingo.";
+    return;
+  }
+  const lineCount = transient.stationFiveBoard.lineWords.length;
+  if (lineCount === STATION_FIVE_SENTENCE_ORDER.length) {
+    el.sentenceHint.textContent = "Noch nicht... probiert weiter.";
+    return;
+  }
+  el.sentenceHint.textContent = "Zieht die Wörter in die richtige Reihenfolge.";
 }
 
 function renderPreStartUI() {
@@ -1702,7 +1788,6 @@ function renderChallenge(station) {
   const tries = progress.attemptsByStation[station.id] || 0;
   const stationThreeCount = getStationThreeCorrectCount();
   const isSolvedNeedsHint = progress.stageStatus === "solved_needs_hint";
-  const isSolvedReadyNext = progress.stageStatus === "solved_ready_next";
   const customFeedback = transient.stationFeedbackById[station.id] || "";
 
   const active = progress.stageStatus === "active";
@@ -1735,7 +1820,7 @@ function renderChallenge(station) {
     el.stationFivePanel.classList.toggle("hidden", !isStationFive);
   }
   if (isStationFive) {
-    renderStationFivePanel(active, stationFiveStep, isSolvedReadyNext);
+    renderStationFivePanel(active, stationFiveStep);
   }
 
   if (isStationTwo) {
@@ -1813,7 +1898,7 @@ function renderChallenge(station) {
   }
 }
 
-function renderStationFivePanel(active, step, isSolvedReadyNext) {
+function renderStationFivePanel(active, step) {
   ensureStationFiveBoard();
 
   if (el.coordsFeedback) {
@@ -1843,29 +1928,6 @@ function renderStationFivePanel(active, step, isSolvedReadyNext) {
   if (el.stationFiveAnswerBtn) {
     el.stationFiveAnswerBtn.disabled = !active || step !== 1;
   }
-  if (el.sentenceBuilder) {
-    el.sentenceBuilder.classList.toggle("hidden", step < 2);
-  }
-
-  renderStationFiveBoard();
-
-  if (!el.sentenceHint) {
-    return;
-  }
-  if (isSolvedReadyNext || step >= 3) {
-    el.sentenceHint.textContent = "Satzlinie gesperrt. Bingo.";
-    return;
-  }
-  const lineCount = transient.stationFiveBoard.lineWords.length;
-  if (step >= 2 && lineCount === STATION_FIVE_SENTENCE_ORDER.length) {
-    el.sentenceHint.textContent = "Noch nicht... probiert weiter.";
-    return;
-  }
-  if (step >= 2) {
-    el.sentenceHint.textContent = "Zieht die Wörter in die richtige Reihenfolge.";
-    return;
-  }
-  el.sentenceHint.textContent = "";
 }
 
 function renderStationFiveBoard() {
