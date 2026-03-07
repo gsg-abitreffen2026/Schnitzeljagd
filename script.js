@@ -228,6 +228,7 @@ const STATION_FIVE_SENTENCE_ORDER = Object.freeze([
   "in der",
   "Hütte",
 ]);
+const STATION_FIVE_FINAL_SENTENCE_TEXT = "Noch einmal Wonderwall wie früher in der Hütte";
 const STATION_ONE_HISTORY_LABELS = Object.freeze(["Numb", "Encore", "noch einmal"]);
 const STATION_TWO_HISTORY_LABELS = Object.freeze(["Hurra", "wie früher"]);
 const STATION_FOUR_HISTORY_LABEL = "Wonderwall";
@@ -373,6 +374,7 @@ let transient = {
 };
 
 const el = {
+  mainContent: byId("mainContent"),
   heroCard: byId("heroCard"),
   heroStripText: byId("heroStripText"),
   modeTitle: byId("modeTitle"),
@@ -449,6 +451,7 @@ const el = {
   startChallengeBtn: byId("startChallengeBtn"),
   ctaHint: byId("ctaHint"),
   solutionsCard: byId("solutionsCard"),
+  finalSentenceDisplay: byId("finalSentenceDisplay"),
   solutionsList: byId("solutionsList"),
 };
 
@@ -1729,9 +1732,22 @@ function updateUI() {
 function renderSolutionsList() {
   const solvedWords = collectSolvedSolutionWords();
   const hasSolutions = solvedWords.length > 0;
+  const sentenceSolved = getStationFiveStep() >= 3;
 
   if (el.solutionsCard) {
     el.solutionsCard.classList.toggle("hidden", !hasSolutions);
+  }
+  if (el.mainContent) {
+    el.mainContent.classList.toggle("solutions-priority", sentenceSolved);
+  }
+  if (el.finalSentenceDisplay) {
+    if (sentenceSolved) {
+      el.finalSentenceDisplay.textContent = STATION_FIVE_FINAL_SENTENCE_TEXT;
+      el.finalSentenceDisplay.classList.remove("hidden");
+    } else {
+      el.finalSentenceDisplay.textContent = "";
+      el.finalSentenceDisplay.classList.add("hidden");
+    }
   }
   if (!el.solutionsList) {
     return;
@@ -1750,6 +1766,13 @@ function renderSolutionsList() {
     transient.solutionsSignature = signature;
   }
 
+  if (sentenceSolved) {
+    el.solutionsList.innerHTML = "";
+    el.solutionsList.classList.add("hidden");
+    return;
+  }
+
+  el.solutionsList.classList.remove("hidden");
   el.solutionsList.innerHTML = "";
   transient.solutionsDisplayOrder.forEach((word) => {
     const item = document.createElement("li");
@@ -1823,6 +1846,13 @@ function renderSolutionSentenceBuilder() {
     return;
   }
   const step = getStationFiveStep();
+  if (step >= 3) {
+    el.sentenceBuilder.classList.add("hidden");
+    if (el.sentenceHint) {
+      el.sentenceHint.textContent = "";
+    }
+    return;
+  }
   if (step < 2) {
     el.sentenceBuilder.classList.add("hidden");
     if (el.sentenceHint) {
@@ -1836,10 +1866,6 @@ function renderSolutionSentenceBuilder() {
   renderStationFiveBoard();
 
   if (!el.sentenceHint) {
-    return;
-  }
-  if (step >= 3 || transient.stationFiveBoard.locked) {
-    el.sentenceHint.textContent = "Satzlinie gesperrt. Bingo.";
     return;
   }
   const lineCount = transient.stationFiveBoard.lineWords.length;

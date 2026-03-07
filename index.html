@@ -29,7 +29,7 @@
         </div>
       </header>
 
-      <main class="main-content">
+      <main id="mainContent" class="main-content">
         <section class="card">
           <h2>Quest Playlist</h2>
           <p class="muted">
@@ -137,7 +137,7 @@ bekommt ihr das nächste Lösungswort.</p>
                   spellcheck="false"
                 />
               </div>
-              <button id="checkCoordsBtn" class="btn btn-alt" type="button">Koordinaten prüfen</button>
+              <button id="checkCoordsBtn" class="btn btn-alt" type="button">Prüfen</button>
               <p id="coordsFeedback" class="small muted"></p>
             </div>
 
@@ -221,6 +221,7 @@ bekommt ihr das nächste Lösungswort.</p>
 
         <section id="solutionsCard" class="card hidden">
           <h2>Lösung</h2>
+          <p id="finalSentenceDisplay" class="final-sentence hidden"></p>
           <ul id="solutionsList" class="solutions-list"></ul>
 
           <div id="sentenceBuilder" class="sentence-builder hidden">

@@ -71,6 +71,18 @@ body {
   gap: 1.15rem;
 }
 
+#startCard {
+  order: 40;
+}
+
+#solutionsCard {
+  order: 70;
+}
+
+.main-content.solutions-priority #solutionsCard {
+  order: 30;
+}
+
 .hero + .main-content {
   margin-top: 1.05rem;
 }
@@ -569,6 +581,19 @@ input[type="text"]:focus {
   list-style: none;
   display: grid;
   gap: 0.45rem;
+}
+
+.final-sentence {
+  margin-top: 0.8rem;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 2px solid #77bcae;
+  background: linear-gradient(160deg, #ecfbf5 0%, #dff5ee 100%);
+  color: #0f5c50;
+  font-size: 1.14rem;
+  font-weight: 900;
+  line-height: 1.45;
+  text-align: center;
 }
 
 .solutions-list li {
