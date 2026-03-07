@@ -19,7 +19,7 @@ const STATION_ONE_HINT_UNLOCK_TITLE = "Hinweis freigeschaltet";
 const STATION_ONE_HINT_UNLOCK_TEXT =
   "In der Quest Playlist ist jetzt auch ein Hinweis für die letzte Aufgabe erschienen.";
 const START_WELCOME_TEXT =
-  "Willkommen zur musikalischen Schnitzeljagd!\n\nIhr werdet heute 5 Stationen ablaufen und an jeder erwartet euch ein musikalisches Rätsel oder eine Aufgabe.\n\nImmer wenn ihr eine Station abschließt, bekommt Ihr den Standort der nächsten Station sowie ein Lösungswort.\n\nAm Ende könnt ihr aus allen Lösungsworten einen Satz bilden, den Ihr benötigt um die Schnitzeljagd abzuschließen.\n\nNehmt euch kurz Zeit für die Quest Playlist, sie wir später noch eine wichtige Rolle spielen, und startet dann eure erste Challenge.\n\nVIEL SPASS!";
+  "Willkommen zur musikalischen Schnitzeljagd!\n\nIhr werdet heute 5 Stationen ablaufen und an jeder erwartet euch ein musikalisches Rätsel oder eine Aufgabe.\n\nImmer wenn ihr eine Station abschließt, bekommt Ihr den Standort der nächsten Station sowie ein Lösungswort.\n\nAm Ende könnt ihr aus allen Lösungsworten einen Satz bilden, den Ihr benötigt um die Schnitzeljagd abzuschließen.\n\nNehmt euch kurz Zeit für die Quest Playlist, sie wird später noch eine wichtige Rolle spielen, und startet dann eure erste Challenge.\n\nVIEL SPASS!";
 const STORY_INTRO = Object.freeze({
   title: "Die Suche nach der verlorenen Musik",
   text:
@@ -160,6 +160,7 @@ const STATION_TWO_STEPS = Object.freeze([
 const STATION_TWO_TIPS = Object.freeze([
   "Es geht um einen deutschen Punk-Song.",
   "Der Song ist von der Band \"Die Ärzte\".",
+  "Hip, Hip,....!",
 ]);
 
 const STATION_THREE_ID = "rossert";
@@ -351,8 +352,10 @@ let transient = {
   popupTitle: "",
   popupMessage: "",
   popupOnClose: null,
+  feedbackContinueLocked: false,
   storyPopupOpen: false,
   storyPopupOnClose: null,
+  storyContinueLocked: false,
   solutionsDisplayOrder: [],
   solutionsSignature: "",
   stationFiveBoard: {
@@ -425,6 +428,7 @@ const el = {
   storyModal: byId("storyModal"),
   storyModalCard: byId("storyModalCard"),
   storyTitle: byId("storyTitle"),
+  storyScroll: byId("storyScroll"),
   storyMessage: byId("storyMessage"),
   storyContinueBtn: byId("storyContinueBtn"),
   showHintBtn: byId("showHintBtn"),
@@ -495,11 +499,17 @@ function bindEvents() {
   if (el.feedbackModal) {
     el.feedbackModal.addEventListener("click", onFeedbackModalBackdropClick);
   }
+  if (el.feedbackMessage) {
+    el.feedbackMessage.addEventListener("scroll", onFeedbackMessageScroll);
+  }
   if (el.storyContinueBtn) {
     el.storyContinueBtn.addEventListener("click", closeStoryPopup);
   }
   if (el.storyModal) {
     el.storyModal.addEventListener("click", onStoryModalBackdropClick);
+  }
+  if (el.storyScroll) {
+    el.storyScroll.addEventListener("scroll", onStoryScroll);
   }
   el.showHintBtn.addEventListener("click", onToggleTip);
   el.unlockHintBtn.addEventListener("click", onUnlockHint);
@@ -613,7 +623,15 @@ function openFeedbackPopup(title, message, arg3 = null, arg4 = null) {
       el.feedbackModalCard.classList.add("feedback-card-scroll");
     }
   }
+  transient.feedbackContinueLocked = title === START_WELCOME_TITLE;
+  if (el.feedbackContinueBtn) {
+    el.feedbackContinueBtn.disabled = transient.feedbackContinueLocked;
+  }
+  if (el.feedbackMessage) {
+    el.feedbackMessage.scrollTop = 0;
+  }
   el.feedbackModal.classList.remove("hidden");
+  requestAnimationFrame(updateFeedbackContinueLockState);
 }
 
 function closeFeedbackPopup() {
@@ -621,8 +639,12 @@ function closeFeedbackPopup() {
     return;
   }
   transient.popupOpen = false;
+  transient.feedbackContinueLocked = false;
   if (el.feedbackModal) {
     el.feedbackModal.classList.add("hidden");
+  }
+  if (el.feedbackContinueBtn) {
+    el.feedbackContinueBtn.disabled = false;
   }
   const cb = transient.popupOnClose;
   transient.popupOnClose = null;
@@ -634,7 +656,7 @@ function closeFeedbackPopup() {
 }
 
 function onFeedbackModalBackdropClick(event) {
-  if (event.target === el.feedbackModal) {
+  if (event.target === el.feedbackModal && !transient.feedbackContinueLocked) {
     closeFeedbackPopup();
   }
 }
@@ -649,9 +671,17 @@ function openStoryPopup(title, message, onClose = null) {
 
   transient.storyPopupOpen = true;
   transient.storyPopupOnClose = typeof onClose === "function" ? onClose : null;
+  transient.storyContinueLocked = true;
   el.storyTitle.textContent = title || "";
   el.storyMessage.textContent = String(message || "");
+  if (el.storyScroll) {
+    el.storyScroll.scrollTop = 0;
+  }
+  if (el.storyContinueBtn) {
+    el.storyContinueBtn.disabled = true;
+  }
   el.storyModal.classList.remove("hidden");
+  requestAnimationFrame(updateStoryContinueLockState);
 }
 
 function closeStoryPopup() {
@@ -659,8 +689,12 @@ function closeStoryPopup() {
     return;
   }
   transient.storyPopupOpen = false;
+  transient.storyContinueLocked = false;
   if (el.storyModal) {
     el.storyModal.classList.add("hidden");
+  }
+  if (el.storyContinueBtn) {
+    el.storyContinueBtn.disabled = false;
   }
   const cb = transient.storyPopupOnClose;
   transient.storyPopupOnClose = null;
@@ -670,9 +704,68 @@ function closeStoryPopup() {
 }
 
 function onStoryModalBackdropClick(event) {
-  if (event.target === el.storyModal) {
+  if (event.target === el.storyModal && !transient.storyContinueLocked) {
     closeStoryPopup();
   }
+}
+
+function hasScrolledToBottom(container) {
+  if (!container) {
+    return true;
+  }
+  const maxScrollTop = container.scrollHeight - container.clientHeight;
+  if (maxScrollTop <= 1) {
+    return true;
+  }
+  return container.scrollTop >= maxScrollTop - 2;
+}
+
+function updateFeedbackContinueLockState() {
+  if (!el.feedbackContinueBtn) {
+    return;
+  }
+  if (!transient.popupOpen || transient.popupTitle !== START_WELCOME_TITLE) {
+    transient.feedbackContinueLocked = false;
+    el.feedbackContinueBtn.disabled = false;
+    return;
+  }
+  if (!transient.feedbackContinueLocked) {
+    return;
+  }
+  if (hasScrolledToBottom(el.feedbackMessage)) {
+    transient.feedbackContinueLocked = false;
+    el.feedbackContinueBtn.disabled = false;
+  } else {
+    el.feedbackContinueBtn.disabled = true;
+  }
+}
+
+function updateStoryContinueLockState() {
+  if (!el.storyContinueBtn) {
+    return;
+  }
+  if (!transient.storyPopupOpen) {
+    transient.storyContinueLocked = false;
+    el.storyContinueBtn.disabled = false;
+    return;
+  }
+  if (!transient.storyContinueLocked) {
+    return;
+  }
+  if (hasScrolledToBottom(el.storyScroll)) {
+    transient.storyContinueLocked = false;
+    el.storyContinueBtn.disabled = false;
+  } else {
+    el.storyContinueBtn.disabled = true;
+  }
+}
+
+function onFeedbackMessageScroll() {
+  updateFeedbackContinueLockState();
+}
+
+function onStoryScroll() {
+  updateStoryContinueLockState();
 }
 
 function resolveFeedbackTone(tone, title) {
@@ -1107,6 +1200,9 @@ function onToggleTip() {
 }
 
 function onShowStationTwoTip() {
+  if (progress.stageStatus !== "active" || getStationTwoStep() > 0) {
+    return;
+  }
   const current = getStationTwoTipCount();
   if (current >= STATION_TWO_TIPS.length) {
     return;
@@ -1882,6 +1978,7 @@ function renderChallenge(station) {
   const isStationFour = station.id === STATION_FOUR_ID;
   const isStationFive = station.id === STATION_FIVE_ID;
   const stationOneStep = isStationOne ? getStationOneStep() : 0;
+  const stationTwoStep = isStationTwo ? getStationTwoStep() : 0;
   const stationFiveStep = getStationFiveStep();
   if (!isStationOne) {
     closeNotesModal();
@@ -1970,16 +2067,18 @@ function renderChallenge(station) {
 
   if (isStationTwo) {
     const shownTips = getStationTwoTipCount();
-    const canShowMoreTips = active && shownTips < STATION_TWO_TIPS.length;
+    const tipsAllowedInCurrentStep = stationTwoStep === 0;
+    const canShowMoreTips = active && tipsAllowedInCurrentStep && shownTips < STATION_TWO_TIPS.length;
     el.showHintBtn.classList.toggle("hidden", !canShowMoreTips);
     el.showHintBtn.textContent = shownTips === 0 ? "Tipp anzeigen" : "Nächsten Tipp anzeigen";
 
-    if (shownTips > 0) {
+    if (tipsAllowedInCurrentStep && shownTips > 0) {
       el.tipText.textContent = STATION_TWO_TIPS.slice(0, shownTips)
         .map((tip, index) => `Tipp ${index + 1}: ${tip}`)
         .join("\n");
       el.tipText.classList.remove("hidden");
     } else {
+      el.tipText.textContent = "";
       el.tipText.classList.add("hidden");
     }
   } else if (isStationFour) {

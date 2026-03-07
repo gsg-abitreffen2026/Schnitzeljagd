@@ -628,26 +628,6 @@ input[type="text"]:focus {
   font-family: "Palatino Linotype", "Book Antiqua", Palatino, "Times New Roman", serif;
 }
 
-.story-card::before,
-.story-card::after {
-  content: "";
-  position: absolute;
-  width: 32px;
-  height: 32px;
-  border: 2px solid rgba(102, 62, 20, 0.6);
-  transform: rotate(45deg);
-}
-
-.story-card::before {
-  top: 14px;
-  left: 14px;
-}
-
-.story-card::after {
-  right: 14px;
-  bottom: 14px;
-}
-
 .story-title {
   margin: 0.15rem 0 0.8rem;
   text-align: center;
@@ -670,27 +650,6 @@ input[type="text"]:focus {
   white-space: pre-line;
   line-height: 1.58;
   font-size: 1.02rem;
-}
-
-.story-ornament {
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(91, 53, 17, 0.8) 20%,
-    rgba(91, 53, 17, 0.3) 50%,
-    rgba(91, 53, 17, 0.8) 80%,
-    transparent 100%
-  );
-}
-
-.story-ornament-top {
-  margin-bottom: 0.75rem;
-}
-
-.story-ornament-bottom {
-  margin-top: 0.8rem;
-  margin-bottom: 0.9rem;
 }
 
 .story-continue {
