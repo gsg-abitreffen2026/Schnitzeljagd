@@ -17,7 +17,7 @@ const START_GATE_STORAGE_KEY = `${GAME_CONFIG.storageKey}-start-gate-${GAME_CONF
 const START_WELCOME_TITLE = "Jetzt geht es los!";
 const STATION_ONE_HINT_UNLOCK_TITLE = "Hinweis freigeschaltet";
 const STATION_ONE_HINT_UNLOCK_TEXT =
-  "In der Quest Playlist ist jetzt auch ein Hinweis für die letzte Aufgabe erschienen.";
+  "In der Quest Playlist ist jetzt Hinweis 1 erschienen.";
 const START_WELCOME_TEXT =
   "Willkommen zur musikalischen Schnitzeljagd!\n\nIhr werdet heute 5 Stationen ablaufen und an jeder erwartet euch ein musikalisches Rätsel oder eine Aufgabe.\n\nImmer wenn ihr eine Station abschließt, bekommt Ihr den Standort der nächsten Station sowie ein Lösungswort.\n\nAm Ende könnt ihr aus allen Lösungsworten einen Satz bilden, den Ihr benötigt um die Schnitzeljagd abzuschließen.\n\nNehmt euch kurz Zeit für die Quest Playlist, sie wird später noch eine wichtige Rolle spielen, und startet dann eure erste Challenge.\n\nVIEL SPASS!";
 const STORY_INTRO = Object.freeze({
@@ -109,11 +109,12 @@ const PLAYLIST = Object.freeze({
 });
 
 const HINTS = Object.freeze([
-  "Habt immer die Zeit im Blick",
-  "Achtet auf die letzte Ziffer",
-  "Bildet eine Reihe",
-  "Da fehlt noch ein Punkt",
-  "Und? Wohin geht's?",
+  "Habt immer die Zeit im Blick.",
+  "Manchmal ist nicht die ganze Zahl wichtig.",
+  "Achtet auf das Ende.",
+  "Reiht die Zeichen aneinander.",
+  "Da fehlt noch ein Punkt.",
+  "Und? WOHIN führt euch der Weg?",
 ]);
 
 const STATION_ONE_ID = "clara-zetkin";
@@ -139,6 +140,10 @@ const STATION_ONE_STEPS = Object.freeze([
     successMessage:
       "Ihr habt das erste Lösungswort gefunden.\nLösungswort:\nnoch einmal",
   },
+]);
+const STATION_ONE_TIPS = Object.freeze([
+  "Das gesuchte Lied ist von Linkin Park.",
+  "Der Titel hat 4 Buchstaben.",
 ]);
 
 const STATION_TWO_ID = "kemnater-hof";
@@ -1000,6 +1005,10 @@ function onStartChallenge() {
         if (!finalLeg) {
           progress.stageStatus = "locked";
         }
+        if (finalLeg && progress.hintsUnlocked < HINTS.length) {
+          progress.hintsUnlocked = HINTS.length;
+          renderHints();
+        }
         saveProgress();
         transient.permissionMessage = finalLeg
           ? "Noch nicht am Finalziel. Geht näher an die Hütte und prüft erneut."
@@ -1132,8 +1141,8 @@ function onCheckAnswerStationOne(rawInput) {
   }
 
   progress.stepByStation[STATION_ONE_ID] = STATION_ONE_STEPS.length;
-  if (progress.hintsUnlocked < 2) {
-    progress.hintsUnlocked = 2;
+  if (progress.hintsUnlocked < 1) {
+    progress.hintsUnlocked = 1;
   }
   transient.tipVisible = false;
   saveProgress();
@@ -1176,8 +1185,8 @@ function onCheckAnswerStationTwo(rawInput) {
   }
 
   progress.stepByStation[STATION_TWO_ID] = STATION_TWO_STEPS.length;
-  if (progress.hintsUnlocked < 3) {
-    progress.hintsUnlocked = 3;
+  if (progress.hintsUnlocked < 2) {
+    progress.hintsUnlocked = 2;
   }
   transient.tipVisible = false;
   saveProgress();
@@ -1187,6 +1196,10 @@ function onCheckAnswerStationTwo(rawInput) {
 
 function onToggleTip() {
   const station = getCurrentStation();
+  if (station && station.id === STATION_ONE_ID && progress.stageStatus === "active") {
+    onShowStationOneTip();
+    return;
+  }
   if (station && station.id === STATION_TWO_ID && progress.stageStatus === "active") {
     onShowStationTwoTip();
     return;
@@ -1197,6 +1210,20 @@ function onToggleTip() {
   }
   transient.tipVisible = !transient.tipVisible;
   updateUI();
+}
+
+function onShowStationOneTip() {
+  if (progress.stageStatus !== "active" || getStationOneStep() > 0) {
+    return;
+  }
+  const current = getStationOneTipCount();
+  if (current >= STATION_ONE_TIPS.length) {
+    return;
+  }
+  progress.tipCountByStation[STATION_ONE_ID] = current + 1;
+  saveProgress();
+  const tipText = STATION_ONE_TIPS[current];
+  openFeedbackPopup("Alle trinken einen Schluck", `Tipp ${current + 1}: ${tipText}`);
 }
 
 function onShowStationTwoTip() {
@@ -1226,8 +1253,8 @@ function onCheckAnswerStationFour(rawInput) {
 
   addAnswerHistory(STATION_FOUR_ID, STATION_FOUR_HISTORY_LABEL);
   progress.stepByStation[STATION_FOUR_ID] = 1;
-  if (progress.hintsUnlocked < 5) {
-    progress.hintsUnlocked = 5;
+  if (progress.hintsUnlocked < 4) {
+    progress.hintsUnlocked = 4;
   }
   transient.tipVisible = false;
   el.answerInput.value = "";
@@ -1329,7 +1356,11 @@ function onCheckAnswerStationFive(rawInput) {
   if (el.stationFiveAnswerInput) {
     el.stationFiveAnswerInput.value = "";
   }
+  if (progress.hintsUnlocked < 5) {
+    progress.hintsUnlocked = 5;
+  }
   saveProgress();
+  renderHints();
   openFeedbackPopup("Richtig!", "Letztes Lösungswort: Hütte", () => {
     openStoryPopup(STORY_FINAL_REVEAL.title, STORY_FINAL_REVEAL.text, completeCurrentStationAndAdvance);
   });
@@ -1564,8 +1595,8 @@ function onHitsterCorrect() {
   progress.stepByStation[STATION_THREE_ID] = next;
 
   if (next >= STATION_THREE_TARGET_COUNT) {
-    if (progress.hintsUnlocked < 4) {
-      progress.hintsUnlocked = 4;
+    if (progress.hintsUnlocked < 3) {
+      progress.hintsUnlocked = 3;
     }
     addAnswerHistory(STATION_THREE_ID, "in der");
     renderHints();
@@ -2065,7 +2096,23 @@ function renderChallenge(station) {
     renderStationFivePanel(active, stationFiveStep);
   }
 
-  if (isStationTwo) {
+  if (isStationOne) {
+    const shownTips = getStationOneTipCount();
+    const tipsAllowedInCurrentStep = stationOneStep === 0;
+    const canShowMoreTips = active && tipsAllowedInCurrentStep && shownTips < STATION_ONE_TIPS.length;
+    el.showHintBtn.classList.toggle("hidden", !canShowMoreTips);
+    el.showHintBtn.textContent = shownTips === 0 ? "Tipp anzeigen" : "Nächsten Tipp anzeigen";
+
+    if (tipsAllowedInCurrentStep && shownTips > 0) {
+      el.tipText.textContent = STATION_ONE_TIPS.slice(0, shownTips)
+        .map((tip, index) => `Tipp ${index + 1}: ${tip}`)
+        .join("\n");
+      el.tipText.classList.remove("hidden");
+    } else {
+      el.tipText.textContent = "";
+      el.tipText.classList.add("hidden");
+    }
+  } else if (isStationTwo) {
     const shownTips = getStationTwoTipCount();
     const tipsAllowedInCurrentStep = stationTwoStep === 0;
     const canShowMoreTips = active && tipsAllowedInCurrentStep && shownTips < STATION_TWO_TIPS.length;
@@ -2396,6 +2443,17 @@ function getStationTwoStep() {
   return raw;
 }
 
+function getStationOneTipCount() {
+  const raw = progress.tipCountByStation[STATION_ONE_ID];
+  if (!Number.isInteger(raw) || raw < 0) {
+    return 0;
+  }
+  if (raw > STATION_ONE_TIPS.length) {
+    return STATION_ONE_TIPS.length;
+  }
+  return raw;
+}
+
 function getStationTwoTipCount() {
   const raw = progress.tipCountByStation[STATION_TWO_ID];
   if (!Number.isInteger(raw) || raw < 0) {
@@ -2459,14 +2517,7 @@ function isFinalLegActive() {
 }
 
 function maybeUnlockStartHint() {
-  if (isPreStart()) {
-    return;
-  }
-  if (progress.hintsUnlocked === 0) {
-    progress.hintsUnlocked = 1;
-    saveProgress();
-    renderHints();
-  }
+  // Hinweis-Freischaltung erfolgt stationsbasiert.
 }
 
 function normalizeProgress() {
@@ -2515,9 +2566,16 @@ function normalizeProgress() {
   }
   if (progress.currentStationIndex === 0 && progress.stageStatus === "solved_needs_hint") {
     progress.stageStatus = "solved_ready_next";
-    if (progress.hintsUnlocked < 2) {
-      progress.hintsUnlocked = 2;
+    if (progress.hintsUnlocked < 1) {
+      progress.hintsUnlocked = 1;
     }
+  }
+
+  const stationOneTips = progress.tipCountByStation[STATION_ONE_ID];
+  if (!Number.isInteger(stationOneTips) || stationOneTips < 0) {
+    progress.tipCountByStation[STATION_ONE_ID] = 0;
+  } else if (stationOneTips > STATION_ONE_TIPS.length) {
+    progress.tipCountByStation[STATION_ONE_ID] = STATION_ONE_TIPS.length;
   }
 
   const stationTwoStep = progress.stepByStation[STATION_TWO_ID];
@@ -2536,8 +2594,8 @@ function normalizeProgress() {
 
   if (progress.currentStationIndex === 1 && progress.stageStatus === "solved_needs_hint") {
     progress.stageStatus = "solved_ready_next";
-    if (progress.hintsUnlocked < 3) {
-      progress.hintsUnlocked = 3;
+    if (progress.hintsUnlocked < 2) {
+      progress.hintsUnlocked = 2;
     }
   }
 
@@ -2563,8 +2621,8 @@ function normalizeProgress() {
   }
   if (progress.currentStationIndex === 2 && progress.stageStatus === "solved_needs_hint") {
     progress.stageStatus = "solved_ready_next";
-    if (progress.hintsUnlocked < 4) {
-      progress.hintsUnlocked = 4;
+    if (progress.hintsUnlocked < 3) {
+      progress.hintsUnlocked = 3;
     }
   }
   if (
@@ -2590,8 +2648,8 @@ function normalizeProgress() {
   }
   if (progress.currentStationIndex === 3 && progress.stageStatus === "solved_needs_hint") {
     progress.stageStatus = "solved_ready_next";
-    if (progress.hintsUnlocked < 5) {
-      progress.hintsUnlocked = 5;
+    if (progress.hintsUnlocked < 4) {
+      progress.hintsUnlocked = 4;
     }
   }
   if (
@@ -2618,6 +2676,9 @@ function normalizeProgress() {
   if (progress.currentStationIndex === 4 && progress.stageStatus === "solved_needs_hint") {
     progress.stageStatus = "solved_ready_next";
     progress.stepByStation[STATION_FIVE_ID] = 3;
+    if (progress.hintsUnlocked < 5) {
+      progress.hintsUnlocked = 5;
+    }
   }
   if (
     progress.currentStationIndex === 4 &&
