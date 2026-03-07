@@ -380,6 +380,18 @@ input[type="text"]:focus {
   box-shadow: 0 6px 14px rgba(121, 24, 32, 0.2);
 }
 
+#notesBtn {
+  width: auto;
+  min-height: 42px;
+  margin-top: 0.55rem;
+  padding: 0.45rem 0.78rem;
+  border: 2px solid #c8892a;
+  border-radius: 12px;
+  background: linear-gradient(155deg, #f2cf93 0%, #e4b562 55%, #d79c42 100%);
+  color: #3f2a00;
+  box-shadow: 0 5px 12px rgba(106, 70, 24, 0.22);
+}
+
 .feedback {
   margin-top: 0.65rem;
   font-weight: 700;
@@ -685,6 +697,11 @@ input[type="text"]:focus {
   border-color: #5b3511;
   background: linear-gradient(145deg, #8f5e2c, #6f4319);
   box-shadow: 0 7px 16px rgba(67, 38, 12, 0.35);
+}
+
+#feedbackModalCard > #feedbackContinueBtn,
+#storyModalCard > #storyContinueBtn {
+  margin-top: 0.6rem;
 }
 
 .modal-head {
