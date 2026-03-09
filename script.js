@@ -155,7 +155,7 @@ const STATION_TWO_STEPS = Object.freeze([
     successMessage: "Der Song ist \"Hurra\" von Die Ärzte.",
   },
   {
-    question: "Wann war laut dem Song alles besser?",
+    question: "Wann war laut dem Song alles schlecht?",
     answers: ["früher", "fruher", "frueher", "wie früher", "wie fruher", "wie frueher"],
     wrongMessage: "Falsch.\n\nAlle trinken einen Schluck 🍺",
     successMessage: "Lösungswort:\nwie früher",
@@ -386,6 +386,8 @@ const el = {
   countdownStartBtn: byId("countdownStartBtn"),
   playlistToggleBtn: byId("playlistToggleBtn"),
   playlistBody: byId("playlistBody"),
+  sideAFullPlaylistLink: byId("sideAFullPlaylistLink"),
+  sideBFullPlaylistLink: byId("sideBFullPlaylistLink"),
   playlistA: byId("playlistA"),
   playlistB: byId("playlistB"),
   hintList: byId("hintList"),
@@ -2416,6 +2418,14 @@ function renderHints() {
     }
     el.hintList.appendChild(li);
   });
+
+  const showPlaylistLinks = progress.hintsUnlocked >= 1;
+  if (el.sideAFullPlaylistLink) {
+    el.sideAFullPlaylistLink.classList.toggle("hidden", !showPlaylistLinks);
+  }
+  if (el.sideBFullPlaylistLink) {
+    el.sideBFullPlaylistLink.classList.toggle("hidden", !showPlaylistLinks);
+  }
 }
 
 function setGpsStatus(kind, text) {

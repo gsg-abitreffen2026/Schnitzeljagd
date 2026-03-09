@@ -225,6 +225,15 @@ p {
   text-decoration-thickness: 2px;
 }
 
+.playlist-full-link {
+  margin-left: 0.45rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #8a5a20;
+  text-decoration-thickness: 2px;
+  white-space: nowrap;
+}
+
 .playlist-toggle {
   margin-top: 0.7rem;
 }
