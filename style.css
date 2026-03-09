@@ -227,10 +227,10 @@ p {
 
 .playlist-full-link {
   margin-left: 0.45rem;
-  font-size: 0.86rem;
-  font-weight: 700;
-  color: #8a5a20;
-  text-decoration-thickness: 2px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
   white-space: nowrap;
 }
 
