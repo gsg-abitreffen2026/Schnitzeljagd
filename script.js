@@ -431,6 +431,7 @@ const el = {
   feedbackModal: byId("feedbackModal"),
   feedbackModalCard: byId("feedbackModalCard"),
   feedbackTitle: byId("feedbackTitle"),
+  feedbackSubheading: byId("feedbackSubheading"),
   feedbackMessage: byId("feedbackMessage"),
   feedbackWordBubble: byId("feedbackWordBubble"),
   feedbackContinueBtn: byId("feedbackContinueBtn"),
@@ -610,6 +611,15 @@ function openFeedbackPopup(title, message, arg3 = null, arg4 = null) {
   transient.popupOnClose = typeof onClose === "function" ? onClose : null;
   transient.popupOpen = true;
   el.feedbackTitle.textContent = title;
+  if (el.feedbackSubheading) {
+    if (title === START_WELCOME_TITLE) {
+      el.feedbackSubheading.textContent = "Der Beginn der Reise am Silberwald";
+      el.feedbackSubheading.classList.remove("hidden");
+    } else {
+      el.feedbackSubheading.textContent = "";
+      el.feedbackSubheading.classList.add("hidden");
+    }
+  }
   el.feedbackMessage.textContent = parsedMessage.message;
   el.feedbackMessage.classList.toggle("hidden", !parsedMessage.message);
   if (el.feedbackWordBubble) {
