@@ -20,6 +20,7 @@ const STATION_ONE_HINT_UNLOCK_TEXT =
   "In der Quest Playlist ist jetzt Hinweis 1 erschienen.";
 const START_WELCOME_TEXT =
   "Willkommen zur musikalischen Schnitzeljagd!\n\nIhr werdet heute 5 Stationen ablaufen und an jeder erwartet euch ein musikalisches Rätsel oder eine Aufgabe.\n\nImmer wenn ihr eine Station abschließt, bekommt Ihr den Standort der nächsten Station sowie ein Lösungswort.\n\nAm Ende könnt ihr aus allen Lösungsworten einen Satz bilden, den Ihr benötigt um die Schnitzeljagd abzuschließen.\n\nNehmt euch kurz Zeit für die Quest Playlist, sie wird später noch eine wichtige Rolle spielen, und startet dann eure erste Challenge.\n\nVIEL SPASS!";
+const STORY_INTRO_SECTION_HEADING = "Der Beginn der Reise am Silberwald";
 const STORY_INTRO = Object.freeze({
   title: "Die Suche nach der verlorenen Musik",
   text:
@@ -431,7 +432,6 @@ const el = {
   feedbackModal: byId("feedbackModal"),
   feedbackModalCard: byId("feedbackModalCard"),
   feedbackTitle: byId("feedbackTitle"),
-  feedbackSubheading: byId("feedbackSubheading"),
   feedbackMessage: byId("feedbackMessage"),
   feedbackWordBubble: byId("feedbackWordBubble"),
   feedbackContinueBtn: byId("feedbackContinueBtn"),
@@ -611,15 +611,6 @@ function openFeedbackPopup(title, message, arg3 = null, arg4 = null) {
   transient.popupOnClose = typeof onClose === "function" ? onClose : null;
   transient.popupOpen = true;
   el.feedbackTitle.textContent = title;
-  if (el.feedbackSubheading) {
-    if (title === START_WELCOME_TITLE) {
-      el.feedbackSubheading.textContent = "Der Beginn der Reise am Silberwald";
-      el.feedbackSubheading.classList.remove("hidden");
-    } else {
-      el.feedbackSubheading.textContent = "";
-      el.feedbackSubheading.classList.add("hidden");
-    }
-  }
   el.feedbackMessage.textContent = parsedMessage.message;
   el.feedbackMessage.classList.toggle("hidden", !parsedMessage.message);
   if (el.feedbackWordBubble) {
@@ -693,7 +684,7 @@ function openStoryPopup(title, message, onClose = null) {
   transient.storyPopupOnClose = typeof onClose === "function" ? onClose : null;
   transient.storyContinueLocked = true;
   el.storyTitle.textContent = title || "";
-  el.storyMessage.textContent = String(message || "");
+  renderStoryMessage(title, message);
   if (el.storyScroll) {
     el.storyScroll.scrollTop = 0;
   }
@@ -727,6 +718,34 @@ function onStoryModalBackdropClick(event) {
   if (event.target === el.storyModal && !transient.storyContinueLocked) {
     closeStoryPopup();
   }
+}
+
+function renderStoryMessage(title, message) {
+  if (!el.storyMessage) {
+    return;
+  }
+  const rawMessage = String(message || "");
+  const isIntroStory = normalizeText(title || "") === normalizeText(STORY_INTRO.title);
+  if (!isIntroStory || !rawMessage.includes(STORY_INTRO_SECTION_HEADING)) {
+    el.storyMessage.textContent = rawMessage;
+    return;
+  }
+
+  el.storyMessage.innerHTML = "";
+  const lines = rawMessage.split("\n");
+  lines.forEach((line, index) => {
+    if (line === STORY_INTRO_SECTION_HEADING) {
+      const heading = document.createElement("span");
+      heading.className = "story-inline-heading";
+      heading.textContent = line;
+      el.storyMessage.appendChild(heading);
+    } else {
+      el.storyMessage.appendChild(document.createTextNode(line));
+    }
+    if (index < lines.length - 1) {
+      el.storyMessage.appendChild(document.createElement("br"));
+    }
+  });
 }
 
 function hasScrolledToBottom(container) {
