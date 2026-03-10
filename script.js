@@ -387,6 +387,7 @@ const el = {
   countdownStartBtn: byId("countdownStartBtn"),
   playlistToggleBtn: byId("playlistToggleBtn"),
   playlistBody: byId("playlistBody"),
+  playlistHintsSection: byId("playlistHintsSection"),
   sideAFullPlaylistLink: byId("sideAFullPlaylistLink"),
   sideBFullPlaylistLink: byId("sideBFullPlaylistLink"),
   playlistA: byId("playlistA"),
@@ -1734,6 +1735,7 @@ function onEmergency() {
 
 function updateUI() {
   maybeUnlockStartHint();
+  renderHints();
   renderSolutionsList();
   renderSolutionSentenceBuilder();
   if (el.successCard) {
@@ -1908,14 +1910,10 @@ function renderSolutionSentenceBuilder() {
 }
 
 function renderPreStartUI() {
-  const nextStation = getCurrentStation() || STATIONS[0];
   const waitingForManualStart = hasCountdownReachedStart() && !startGatePassed;
   setHeroCompact(false);
   if (el.startCard) {
-    el.startCard.classList.remove("hidden");
-  }
-  if (el.startCardTitle) {
-    el.startCardTitle.textContent = "Next";
+    el.startCard.classList.add("hidden");
   }
   el.modeTitle.textContent = waitingForManualStart
     ? "Schnitzeljagd - Startbereit"
@@ -1923,7 +1921,7 @@ function renderPreStartUI() {
   el.modeSubtitle.textContent = waitingForManualStart
     ? "Alles ist bereit. Tippt oben auf Starten."
     : "";
-  el.lockText.textContent = `Nächstes Ziel: ${nextStation.locationName}`;
+  el.lockText.textContent = "";
   el.nextTargetText.textContent = "";
   el.nextTargetText.classList.add("hidden");
 
@@ -1937,6 +1935,9 @@ function renderPreStartUI() {
 
   el.challengeCard.classList.add("hidden");
   el.finalCard.classList.add("hidden");
+  if (el.solutionsCard) {
+    el.solutionsCard.classList.add("hidden");
+  }
 
   el.startChallengeBtn.classList.remove("hidden");
   el.startChallengeBtn.disabled = true;
@@ -2437,6 +2438,21 @@ function renderSongList(container, songs) {
 }
 
 function renderHints() {
+  const hideHintsUntilStart = isPreStart();
+  if (el.playlistHintsSection) {
+    el.playlistHintsSection.classList.toggle("hidden", hideHintsUntilStart);
+  }
+  if (hideHintsUntilStart) {
+    el.hintList.innerHTML = "";
+    if (el.sideAFullPlaylistLink) {
+      el.sideAFullPlaylistLink.classList.add("hidden");
+    }
+    if (el.sideBFullPlaylistLink) {
+      el.sideBFullPlaylistLink.classList.add("hidden");
+    }
+    return;
+  }
+
   el.hintList.innerHTML = "";
   HINTS.forEach((hint, index) => {
     const li = document.createElement("li");
