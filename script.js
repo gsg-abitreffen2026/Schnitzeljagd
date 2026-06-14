@@ -2,7 +2,7 @@
 
 const GAME_CONFIG = Object.freeze({
   // Schnell austauschbar: einfach diese ISO-Zeit anpassen.
-  startAtISO: "2026-04-25T10:00:00+02:00",
+  startAtISO: "2026-09-26T10:00:00+02:00",
   storageKey: "schnitzeljagd-progress-v2",
   geolocation: {
     enableHighAccuracy: true,
