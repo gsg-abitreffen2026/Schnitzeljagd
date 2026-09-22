@@ -2,7 +2,7 @@
 
 const GAME_CONFIG = Object.freeze({
   // Schnell austauschbar: einfach diese ISO-Zeit anpassen.
-  startAtISO: "2026-09-26T10:00:00+02:00",
+  startAtISO: "2027-05-15T10:00:00+02:00",
   storageKey: "schnitzeljagd-progress-v2",
   geolocation: {
     enableHighAccuracy: true,
@@ -151,22 +151,24 @@ const STATION_TWO_ID = "kemnater-hof";
 const STATION_TWO_STEPS = Object.freeze([
   {
     question: "Wie heißt der Song?",
-    answers: ["hurra", "hip hip hurra", "hip-hip-hurra", "hiphiphurra", "hiphip hurra"],
+    answers: [
+      "summer of 69",
+      "summer of 1969",
+      "summer of sixtynine",
+      "summer of sixty nine",
+      "summer 69",
+      "bryan adams summer of 69",
+    ],
     wrongMessage: "Falsch.\n\nAlle trinken einen Schluck 🍺",
-    successMessage: "Der Song ist \"Hurra\" von Die Ärzte.",
-  },
-  {
-    question: "Wann war laut dem Song alles schlecht?",
-    answers: ["früher", "fruher", "frueher", "wie früher", "wie fruher", "wie frueher"],
-    wrongMessage: "Falsch.\n\nAlle trinken einen Schluck 🍺",
-    successMessage: "Lösungswort:\nwie früher",
+    successMessage:
+      "Richtig - \"Summer of '69\" von Bryan Adams, die Hymne auf die besten Tage von damals.\nLösungswort:\nwie damals",
   },
 ]);
 
 const STATION_TWO_TIPS = Object.freeze([
-  "Es geht um einen deutschen Punk-Song.",
-  "Der Song ist von der Band \"Die Ärzte\".",
-  "Hip, Hip,....!",
+  "Ein englischsprachiger Rock-Klassiker aus den 80ern.",
+  "Er besingt die \"besten Tage\" der Jugend - und ist nach einem Sommer benannt.",
+  "Der Künstler ist Kanadier.",
 ]);
 
 const STATION_THREE_ID = "rossert";
@@ -187,7 +189,7 @@ const STATION_START_STORIES = Object.freeze({
   [STATION_TWO_ID]: Object.freeze({
     title: "Die zweite Prüfung - Der Wächter der Zeichen",
     text:
-      "Der zweite Wächter liebte Rätsel, die auf den ersten Blick zu einfach wirken.\nStatt komplizierter Formeln hinterließ er nur ein paar seltsame Zeichen.\nDoch hinter diesen Zeichen verbirgt sich ein Lied, das viele kennen - wenn sie genau hinsehen.\nErkennt das Lied.\nBeantwortet seine Frage.\nDann offenbart euch der Wächter das zweite Fragment des Satzes.",
+      "Der zweite Wächter war ein Hüter der Zeichen.\nEr liebte Botschaften, deren Sinn sich erst dem zeigt, der die Zeichen richtig zu ordnen weiß.\nDarum hinterließ er ein paar Zeichen, hinter denen sich ein Lied verbirgt, das viele kennen.\nErkennt das Lied.\nBeantwortet seine Frage.\nDann offenbart euch der Wächter das zweite Fragment des Satzes.",
   }),
   [STATION_THREE_ID]: Object.freeze({
     title: "Die dritte Prüfung - Der Wächter der Zeit",
@@ -225,13 +227,13 @@ const STATION_FIVE_HUTTE_ANSWERS = Object.freeze([
 const STATION_FIVE_SENTENCE_ORDER = Object.freeze([
   "noch einmal",
   "Wonderwall",
-  "wie früher",
+  "wie damals",
   "in der",
   "Hütte",
 ]);
-const STATION_FIVE_FINAL_SENTENCE_TEXT = "Noch einmal Wonderwall wie früher in der Hütte";
+const STATION_FIVE_FINAL_SENTENCE_TEXT = "Noch einmal Wonderwall wie damals in der Hütte";
 const STATION_ONE_HISTORY_LABELS = Object.freeze(["Numb", "Encore", "noch einmal"]);
-const STATION_TWO_HISTORY_LABELS = Object.freeze(["Hurra", "wie früher"]);
+const STATION_TWO_HISTORY_LABELS = Object.freeze(["Summer of '69"]);
 const STATION_FOUR_HISTORY_LABEL = "Wonderwall";
 const STATION_FIVE_HISTORY_LABEL = "Hütte";
 
@@ -253,7 +255,7 @@ const STATIONS = Object.freeze([
   },
   {
     id: "kemnater-hof",
-    title: "Station 2 - Emoji-Rätsel",
+    title: "Station 2 - Der Wächter der Zeichen",
     locationName: "Kemnater Hof",
     address: "48 43'52.5\"N 9 13'34.7\"E",
     routeHint: "Bleibt auf dem Weg, bis ihr den Hofbereich seht.",
@@ -261,10 +263,10 @@ const STATIONS = Object.freeze([
     radius: 100,
     fallback: "Wenn GPS spinnt: Geht zum markanten Hofschild.",
     story:
-      "Station 2\n\nErkennt ihr den Song?\n\nDie Emojis stellen den Songtitel dar.",
+      "Station 2\n\nDer Wächter hinterließ eine Botschaft, die keinen Sinn ergibt:\n\nFOXY   MINUTES   MINERS\n\nDarin verbirgt sich ein Songtitel - bringt die Zeichen in die richtige Ordnung.",
     prompt: "Wie heißt der Song?",
-    answers: ["hurra"],
-    tip: "Emoji-Rätsel mit Punkband.",
+    answers: ["summer of 69"],
+    tip: "Der Künstler ist Kanadier.",
     nextStageText: "Geht zum nächsten Ort:\n\nGrillplatz Rossert",
   },
   {
@@ -1609,7 +1611,7 @@ function checkStationFiveSentence() {
   saveProgress();
   openFeedbackPopup(
     "Bingo",
-    "Satz gelöst.\nnoch einmal Wonderwall wie früher in der Hütte\n\nNehmt die Gitarre. Es ist Zeit für Wonderwall.",
+    "Satz gelöst.\nnoch einmal Wonderwall wie damals in der Hütte\n\nNehmt die Gitarre. Es ist Zeit für Wonderwall.",
     completeCurrentStationAndAdvance,
   );
   return true;
@@ -1820,7 +1822,7 @@ function collectSolvedSolutionWords() {
     solvedWords.push("noch einmal");
   }
   if (getStationTwoStep() >= STATION_TWO_STEPS.length) {
-    solvedWords.push("wie früher");
+    solvedWords.push("wie damals");
   }
   if (getStationThreeCorrectCount() >= STATION_THREE_TARGET_COUNT) {
     solvedWords.push("in der");
@@ -2090,12 +2092,7 @@ function renderChallenge(station) {
   el.challengePrompt.classList.toggle("hidden", isStationThree || isStationFive);
   el.tipText.textContent = station.tip || "";
   if (el.emojiHint) {
-    if (isStationTwo) {
-      el.emojiHint.textContent = "🙌 🙌 🥳";
-      el.emojiHint.classList.remove("hidden");
-    } else {
-      el.emojiHint.classList.add("hidden");
-    }
+    el.emojiHint.classList.add("hidden");
   }
   const usesTextAnswer = !isStationThree && !isStationFive;
   if (el.answerLabel) {
