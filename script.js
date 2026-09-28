@@ -2,7 +2,7 @@
 
 const GAME_CONFIG = Object.freeze({
   // Schnell austauschbar: einfach diese ISO-Zeit anpassen.
-  startAtISO: "2027-05-15T10:00:00+02:00",
+  startAtISO: "2026-10-10T11:30:00+02:00",
   storageKey: "schnitzeljagd-progress-v2",
   geolocation: {
     enableHighAccuracy: true,
@@ -243,7 +243,7 @@ const STATIONS = Object.freeze([
     title: "Station 1 - Blockflöte",
     locationName: "Clara Zetkin Haus",
     address: "48 44'44.3\"N 9 12'17.7\"E",
-    routeHint: "Startpunkt um 10:00. Dort startet euer Blockflöten-Spiel.",
+    routeHint: "Startpunkt um 11:30. Dort startet euer Blockflöten-Spiel.",
     target: { lat: 48.745639, lng: 9.204917 },
     radius: 100,
     fallback: "Wenn GPS spinnt: Geht zum Haupteingang.",
@@ -1945,7 +1945,7 @@ function renderPreStartUI() {
   el.startChallengeBtn.disabled = true;
   el.startChallengeBtn.textContent = waitingForManualStart
     ? "Bitte oben auf Starten tippen"
-    : "Challenge startet um 10:00";
+    : "Challenge startet um 11:30";
   el.ctaHint.textContent = waitingForManualStart ? "" : formatStartDateHint();
   if (el.stickyBar) {
     el.stickyBar.classList.add("hidden");
