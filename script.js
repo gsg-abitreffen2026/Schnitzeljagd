@@ -174,10 +174,10 @@ const STATION_TWO_TIPS = Object.freeze([
 const STATION_THREE_ID = "rossert";
 const STATION_THREE_TARGET_COUNT = 10;
 const STATION_FOUR_ID = "ruiter-krankenhaus";
-const STATION_FOUR_ANSWERS = Object.freeze(["wonderwall", "wonder wall", "wonder-wall"]);
+const STATION_FOUR_ANSWERS = Object.freeze(["pizza"]);
 const STATION_FOUR_TIPS = Object.freeze([
-  "\"Superstition\"\n\nDies ist ein Song des gesuchten Interpreten.",
-  "Gesucht ist ein Song der Band Pink Floyd.",
+  "Der Fachbegriff fürs Zupfen der Saiten heißt PIZZICATO.",
+  "Nehmt PIZZ und hängt ein A daran.",
 ]);
 const STATION_FIVE_ID = "riederstrasse";
 const STATION_START_STORIES = Object.freeze({
@@ -199,7 +199,7 @@ const STATION_START_STORIES = Object.freeze({
   [STATION_FOUR_ID]: Object.freeze({
     title: "Die vierte Prüfung - Der Wächter der Rätsel",
     text:
-      "Der vierte Wächter war ein Liebhaber ungewöhnlicher Ideen.\nEr liebte es, Dinge zusammenzuführen, die scheinbar nichts miteinander zu tun haben.\nDarum stellte er ein Rätsel aus zwei Teilen:\nEin berühmter Musiker.\nUnd ein rebellischer Song.\nNur wer erkennt, welcher Titel aus dieser Kombination entsteht, erhält das vierte Fragment des Satzes.",
+      "Der vierte Wächter war ein Liebhaber ungewöhnlicher Ideen.\nEr liebte es, Dinge zusammenzuführen, die scheinbar nichts miteinander zu tun haben.\nDarum verband er einen Begriff aus der Musik mit einem einzelnen Buchstaben.\nNur wer beide richtig zusammensetzt, erhält das vierte Fragment des Satzes.",
   }),
   [STATION_FIVE_ID]: Object.freeze({
     title: "Die fünfte Prüfung - Der Wächter des Weges",
@@ -213,29 +213,29 @@ const STORY_FINAL_REVEAL = Object.freeze({
     "Wenn ihr alle Prüfungen bestanden habt, haltet ihr die fünf Fragmente des Satzes in euren Händen.\nDoch einzeln bedeuten sie wenig.\nErst wenn ihr sie in die richtige Reihenfolge bringt, entsteht der Satz, den die Klangwächter verborgen haben.\nDieser Satz verrät euch den Ort, an dem die verlorene Musik wieder erklingen kann.\nUnd er sagt euch auch, was ihr dort tun müsst, um sie zurückzubringen.\nDie Wächter hinterließen nur eine letzte Anweisung:\n\"Nur jene, die das Geheimnis gemeinsam entschlüsseln,\nwerden die Musik wiederfinden.\"\nFindet die Antwort.",
 });
 const STATION_FIVE_COORD_TARGET = Object.freeze({
-  lat: 48.746512,
-  lng: 9.243954,
+  lat: 48.77877,
+  lng: 9.17963,
 });
-const STATION_FIVE_HUTTE_ANSWERS = Object.freeze([
-  "hütte",
-  "huette",
-  "hutte",
-  "die hütte",
-  "die huette",
-  "huette im garten",
+const STATION_FIVE_STADT_ANSWERS = Object.freeze([
+  "stadt",
+  "die stadt",
+  "in die stadt",
+  "in der stadt",
+  "schlossplatz",
+  "stuttgart",
 ]);
 const STATION_FIVE_SENTENCE_ORDER = Object.freeze([
   "noch einmal",
-  "Wonderwall",
+  "Pizza",
   "wie damals",
   "in der",
-  "Hütte",
+  "Stadt",
 ]);
-const STATION_FIVE_FINAL_SENTENCE_TEXT = "Noch einmal Wonderwall wie damals in der Hütte";
+const STATION_FIVE_FINAL_SENTENCE_TEXT = "Noch einmal Pizza wie damals in der Stadt";
 const STATION_ONE_HISTORY_LABELS = Object.freeze(["Numb", "Encore", "noch einmal"]);
 const STATION_TWO_HISTORY_LABELS = Object.freeze(["Summer of '69"]);
-const STATION_FOUR_HISTORY_LABEL = "Wonderwall";
-const STATION_FIVE_HISTORY_LABEL = "Hütte";
+const STATION_FOUR_HISTORY_LABEL = "Pizza";
+const STATION_FIVE_HISTORY_LABEL = "Stadt";
 
 const STATIONS = Object.freeze([
   {
@@ -282,49 +282,49 @@ const STATIONS = Object.freeze([
     prompt: "Regeln:\n\nSpielt Hitster.\n\nIhr müsst 10 Songs korrekt auf der Timeline einordnen.",
     answers: ["in der"],
     tip: "",
-    nextStageText: "Geht zum nächsten Ort:\n\nKrankenhaus Ruit",
+    nextStageText: "Geht zum nächsten Ort:\n\nRuit",
   },
   {
     id: STATION_FOUR_ID,
     title: "Station 4 - Wort-Rätsel",
-    locationName: "Krankenhaus Ruit",
-    address: "48 44'23.3\"N 9 15'09.8\"E",
-    routeHint: "Geht zum Eingangsbereich des Krankenhauses.",
-    target: { lat: 48.739806, lng: 9.252722 },
+    locationName: "Ruit",
+    address: "48 45'02.7\"N 9 15'23.6\"E",
+    routeHint: "Geht zum Treffpunkt in Ruit.",
+    target: { lat: 48.75076039033811, lng: 9.256542119488357 },
     radius: 100,
-    fallback: "Wenn GPS spinnt: Geht direkt zum Eingang mit Schild.",
+    fallback: "Wenn GPS spinnt: Geht zum markanten Punkt am Treffpunkt.",
     story:
-      "Station 4\n\nGesucht wird ein Songtitel,\nder sich aus zwei Wörtern zusammensetzt:\n\nEin blinder Musiker\n+\nrebellierende Schüler",
-    prompt: "Welcher Songtitel entsteht aus den beiden Hinweisen?",
+      "Station 4\n\nGesucht ist ein Wort aus zwei Teilen.\n\nDer Fachbegriff dafür, die Saiten zu zupfen statt zu streichen -\nnehmt davon die ersten vier Buchstaben.\n\nHängt ein A daran.",
+    prompt: "Welches Wort entsteht?",
     answers: STATION_FOUR_ANSWERS,
     tip: "",
-    nextStageText: "Geht zum nächsten Ort:\n\nRiederstraße",
+    nextStageText: "Geht zum nächsten Ort:\n\nGolfkultur",
   },
   {
     id: STATION_FIVE_ID,
     title: "Station 5 - Finale",
-    locationName: "Riederstraße",
-    address: "48 45'11.6\"N 9 14'39.3\"E",
-    routeHint: "Geht zur markanten Stelle an der Straße.",
-    target: { lat: 48.753222, lng: 9.24425 },
+    locationName: "Golfkultur",
+    address: "48 45'33.7\"N 9 15'18.0\"E",
+    routeHint: "Geht zum Treffpunkt bei der Golfkultur.",
+    target: { lat: 48.75936918886612, lng: 9.254992517103354 },
     radius: 100,
     fallback: "Wenn GPS spinnt: Geht zum markantesten Punkt vor Ort.",
     story:
       "Finale\n\nSchaut euch die Playlist genau an.\n\nSonglänge -> Sekunden -> letzte Ziffer\nBildet daraus eine Reihe.\nDa fehlt noch ein Punkt.\nUnd? Wohin geht's?",
     prompt: "",
-    answers: STATION_FIVE_HUTTE_ANSWERS,
+    answers: STATION_FIVE_STADT_ANSWERS,
     tip: "",
-    nextStageText: "Finalziel freigeschaltet: Hütte.",
+    nextStageText: "Finalziel freigeschaltet: Schlossplatz.",
   },
 ]);
 
 const FINAL_DESTINATION = Object.freeze({
-  locationName: "Hütte",
-  address: "48 44'47.4\"N 9 14'38.2\"E",
-  routeHint: "Nach der Auflösung in der Riederstraße geht es zur Hütte.",
-  target: { lat: 48.746512, lng: 9.243954 },
-  radius: 150,
-  fallback: "Wenn GPS spinnt: Geht zum markantesten Punkt an der Hütte.",
+  locationName: "Schlossplatz",
+  address: "48 46'43.6\"N 9 10'46.7\"E",
+  routeHint: "Nach der Auflösung geht es in die Stadt zum Schlossplatz.",
+  target: { lat: 48.77877336246438, lng: 9.179632519827605 },
+  radius: 200,
+  fallback: "Wenn GPS spinnt: Geht zum markantesten Punkt am Schlossplatz.",
 });
 
 const DEFAULT_PROGRESS = Object.freeze({
@@ -1048,7 +1048,7 @@ function onStartChallenge() {
         }
         saveProgress();
         transient.permissionMessage = finalLeg
-          ? "Noch nicht am Finalziel. Geht näher an die Hütte und prüft erneut."
+          ? "Noch nicht am Finalziel. Geht näher an den Schlossplatz und prüft erneut."
           : "Noch zu weit weg. Geht näher an den Zielpunkt und tippt erneut auf Challenge starten.";
         openFeedbackPopup("Hinweis", transient.permissionMessage, "hint");
       }
@@ -1299,7 +1299,7 @@ function onCheckAnswerStationFour(rawInput) {
   renderHints();
   openFeedbackPopup(
     "Richtig!",
-    "Wonder + Wall = Wonderwall\n\nLösungswort:\nWonderwall",
+    "PIZZ + A = PIZZA\n\nLösungswort:\nPizza",
     completeCurrentStationAndAdvance,
   );
 }
@@ -1369,7 +1369,7 @@ function onCheckAnswerStationFive(rawInput) {
   }
 
   const candidate = normalizeText(rawInput);
-  const correct = STATION_FIVE_HUTTE_ANSWERS.map(normalizeText).includes(candidate);
+  const correct = STATION_FIVE_STADT_ANSWERS.map(normalizeText).includes(candidate);
 
   if (!correct) {
     incrementAttempts(STATION_FIVE_ID);
@@ -1398,7 +1398,7 @@ function onCheckAnswerStationFive(rawInput) {
   }
   saveProgress();
   renderHints();
-  openFeedbackPopup("Richtig!", "Letztes Lösungswort: Hütte", () => {
+  openFeedbackPopup("Richtig!", "Letztes Lösungswort: Stadt", () => {
     openStoryPopup(STORY_FINAL_REVEAL.title, STORY_FINAL_REVEAL.text, completeCurrentStationAndAdvance);
   });
 }
@@ -1611,7 +1611,7 @@ function checkStationFiveSentence() {
   saveProgress();
   openFeedbackPopup(
     "Bingo",
-    "Satz gelöst.\nnoch einmal Wonderwall wie damals in der Hütte\n\nNehmt die Gitarre. Es ist Zeit für Wonderwall.",
+    "Satz gelöst.\nNoch einmal Pizza wie damals in der Stadt.\n\nAuf in die Stadt - zum Schlossplatz! Dort wartet das Finale.",
     completeCurrentStationAndAdvance,
   );
   return true;
@@ -1828,10 +1828,10 @@ function collectSolvedSolutionWords() {
     solvedWords.push("in der");
   }
   if ((progress.stepByStation[STATION_FOUR_ID] || 0) >= 1) {
-    solvedWords.push("Wonderwall");
+    solvedWords.push("Pizza");
   }
   if (getStationFiveStep() >= 2) {
-    solvedWords.push("Hütte");
+    solvedWords.push("Stadt");
   }
   return solvedWords;
 }
