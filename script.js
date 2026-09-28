@@ -176,8 +176,9 @@ const STATION_THREE_TARGET_COUNT = 10;
 const STATION_FOUR_ID = "ruiter-krankenhaus";
 const STATION_FOUR_ANSWERS = Object.freeze(["pizza"]);
 const STATION_FOUR_TIPS = Object.freeze([
-  "Der Fachbegriff fürs Zupfen der Saiten heißt PIZZICATO.",
-  "Nehmt PIZZ und hängt ein A daran.",
+  "Nr. 2: \"…hits your eye like a big ___ pie\" - aus \"That's Amore\".",
+  "Nr. 1: Worin steckt die CD des Albums \"Jazz ist anders\"? Und schaut bei Nr. 3 auf den Albumtitel.",
+  "Nr. 4: Findet heraus, welche Band \"I'm Beginning to Eat the Slice\" singt.",
 ]);
 const STATION_FIVE_ID = "riederstrasse";
 const STATION_START_STORIES = Object.freeze({
@@ -199,7 +200,7 @@ const STATION_START_STORIES = Object.freeze({
   [STATION_FOUR_ID]: Object.freeze({
     title: "Die vierte Prüfung - Der Wächter der Rätsel",
     text:
-      "Der vierte Wächter war ein Liebhaber ungewöhnlicher Ideen.\nEr liebte es, Dinge zusammenzuführen, die scheinbar nichts miteinander zu tun haben.\nDarum verband er einen Begriff aus der Musik mit einem einzelnen Buchstaben.\nNur wer beide richtig zusammensetzt, erhält das vierte Fragment des Satzes.",
+      "Der vierte Wächter war ein Liebhaber ungewöhnlicher Ideen.\nEr liebte es, Dinge zusammenzuführen, die scheinbar nichts gemein haben.\nVier Lieder legte er nebeneinander - verschieden in Klang und Zeit.\nDoch alle verbindet dasselbe, versteckt an je anderer Stelle.\nFindet die Gemeinsamkeit, dann gehört euch das vierte Fragment.",
   }),
   [STATION_FIVE_ID]: Object.freeze({
     title: "Die fünfte Prüfung - Der Wächter des Weges",
@@ -286,7 +287,7 @@ const STATIONS = Object.freeze([
   },
   {
     id: STATION_FOUR_ID,
-    title: "Station 4 - Wort-Rätsel",
+    title: "Station 4 - Die Gemeinsamkeit",
     locationName: "Ruit",
     address: "48 45'02.7\"N 9 15'23.6\"E",
     routeHint: "Geht zum Treffpunkt in Ruit.",
@@ -294,8 +295,8 @@ const STATIONS = Object.freeze([
     radius: 100,
     fallback: "Wenn GPS spinnt: Geht zum markanten Punkt am Treffpunkt.",
     story:
-      "Station 4\n\nGesucht ist ein Wort aus zwei Teilen.\n\nDer Fachbegriff dafür, die Saiten zu zupfen statt zu streichen -\nnehmt davon die ersten vier Buchstaben.\n\nHängt ein A daran.",
-    prompt: "Welches Wort entsteht?",
+      "Station 4\n\nVier Lieder - eine Gemeinsamkeit. Doch sie versteckt sich jedes Mal woanders: mal im Album-Cover, mal im Songtext, mal im Album-Titel, mal im Bandnamen.\n\n1. \"Junge\" - Die Ärzte\n2. \"That's Amore\" - Dean Martin\n3. \"Zoloft\" - Drive-By Truckers\n4. \"I'm Beginning to Eat the Slice\"\n\nWas verbindet alle vier?",
+    prompt: "Was verbindet alle vier?",
     answers: STATION_FOUR_ANSWERS,
     tip: "",
     nextStageText: "Geht zum nächsten Ort:\n\nGolfkultur",
@@ -1299,7 +1300,7 @@ function onCheckAnswerStationFour(rawInput) {
   renderHints();
   openFeedbackPopup(
     "Richtig!",
-    "PIZZ + A = PIZZA\n\nLösungswort:\nPizza",
+    "Bei allen vier steckt PIZZA:\n- Cover: Die Ärzte \"Jazz ist anders\" (Pizzaschachtel)\n- Text: \"...big pizza pie\" (That's Amore)\n- Album: \"Pizza Deliverance\" (Drive-By Truckers)\n- Band: The Pizza Underground\n\nLösungswort:\nPizza",
     completeCurrentStationAndAdvance,
   );
 }
