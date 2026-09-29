@@ -14,6 +14,21 @@ const GAME_CONFIG = Object.freeze({
 const TEST_MODE = new URLSearchParams(window.location.search).get("test") === "1";
 const SIMULATE_START = new URLSearchParams(window.location.search).get("simulateStart") === "1";
 const START_GATE_STORAGE_KEY = `${GAME_CONFIG.storageKey}-start-gate-${GAME_CONFIG.startAtISO}`;
+
+// Reset per Link: ?reset=1 loescht den gespeicherten Fortschritt und laedt sauber neu
+if (new URLSearchParams(window.location.search).get("reset") === "1") {
+  try {
+    Object.keys(localStorage)
+      .filter((key) => key.startsWith(GAME_CONFIG.storageKey))
+      .forEach((key) => localStorage.removeItem(key));
+  } catch (error) {
+    // localStorage evtl. nicht verfuegbar - ignorieren
+  }
+  const resetParams = new URLSearchParams(window.location.search);
+  resetParams.delete("reset");
+  const resetQuery = resetParams.toString();
+  window.location.replace(window.location.pathname + (resetQuery ? `?${resetQuery}` : ""));
+}
 const START_WELCOME_TITLE = "Jetzt geht es los!";
 const STATION_ONE_HINT_UNLOCK_TITLE = "Hinweis freigeschaltet";
 const STATION_ONE_HINT_UNLOCK_TEXT =
