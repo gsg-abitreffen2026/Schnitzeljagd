@@ -355,6 +355,7 @@ const el = {
   playlistA: byId("playlistA"),
   playlistB: byId("playlistB"),
   hintList: byId("hintList"),
+  revealPlaylistHintBtn: byId("revealPlaylistHintBtn"),
   startCardTitle: byId("startCardTitle"),
   startCard: byId("startCard"),
   lockText: byId("lockText"),
@@ -487,6 +488,9 @@ function bindEvents() {
   }
   el.showHintBtn.addEventListener("click", onToggleTip);
   el.unlockHintBtn.addEventListener("click", onUnlockHint);
+  if (el.revealPlaylistHintBtn) {
+    el.revealPlaylistHintBtn.addEventListener("click", onRevealNextPlaylistHint);
+  }
   el.nextStageBtn.addEventListener("click", onNextStage);
   el.emergencyBtn.addEventListener("click", onEmergency);
   if (el.coordLatInput) {
@@ -1679,6 +1683,25 @@ function onUnlockHint() {
   updateUI();
 }
 
+function onRevealNextPlaylistHint() {
+  const station = getCurrentStation();
+  if (!station || station.id !== STATION_FIVE_ID || progress.stageStatus !== "active") {
+    return;
+  }
+  if (progress.hintsUnlocked >= HINTS.length) {
+    return;
+  }
+  progress.hintsUnlocked += 1;
+  const revealedIndex = progress.hintsUnlocked - 1;
+  saveProgress();
+  renderHints();
+  updateUI();
+  openFeedbackPopup(
+    "Alle trinken einen Schluck",
+    `Hinweis ${revealedIndex + 1}: ${HINTS[revealedIndex]}`,
+  );
+}
+
 function onNextStage() {
   if (progress.stageStatus !== "solved_ready_next") {
     return;
@@ -2430,6 +2453,9 @@ function renderHints() {
     if (el.sideBFullPlaylistLink) {
       el.sideBFullPlaylistLink.classList.add("hidden");
     }
+    if (el.revealPlaylistHintBtn) {
+      el.revealPlaylistHintBtn.classList.add("hidden");
+    }
     return;
   }
 
@@ -2450,6 +2476,16 @@ function renderHints() {
   }
   if (el.sideBFullPlaylistLink) {
     el.sideBFullPlaylistLink.classList.toggle("hidden", !showPlaylistLinks);
+  }
+
+  if (el.revealPlaylistHintBtn) {
+    const station = getCurrentStation();
+    const canReveal =
+      station &&
+      station.id === STATION_FIVE_ID &&
+      progress.stageStatus === "active" &&
+      progress.hintsUnlocked < HINTS.length;
+    el.revealPlaylistHintBtn.classList.toggle("hidden", !canReveal);
   }
 }
 
