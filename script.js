@@ -274,7 +274,7 @@ const STATIONS = Object.freeze([
     prompt: "",
     answers: STATION_FIVE_STADT_ANSWERS,
     tip: "",
-    nextStageText: "Finalziel freigeschaltet: Schlossplatz.",
+    nextStageText: "Finalziel freigeschaltet: SENZANOME Cucina Italiana.",
   },
 ]);
 
@@ -1013,7 +1013,7 @@ function onStartChallenge() {
         }
         saveProgress();
         transient.permissionMessage = finalLeg
-          ? "Noch nicht am Finalziel. Geht näher an den Schlossplatz und prüft erneut."
+          ? "Noch nicht am Finalziel. Geht näher an das SENZANOME Cucina Italiana und prüft erneut."
           : "Noch zu weit weg. Geht näher an den Zielpunkt und tippt erneut auf Challenge starten.";
         openFeedbackPopup("Hinweis", transient.permissionMessage, "hint");
       }
@@ -1599,7 +1599,7 @@ function checkStationFiveSentence() {
   saveProgress();
   openFeedbackPopup(
     "Bingo",
-    "Satz gelöst.\nNoch einmal Pizza wie damals in der Stadt.\n\nAuf in die Stadt - zum Schlossplatz! Dort wartet das Finale.",
+    "Satz gelöst.\nNoch einmal Pizza wie damals in der Stadt.\n\nAuf in die Stadt - zum SENZANOME Cucina Italiana! Dort wartet das Finale.",
     completeCurrentStationAndAdvance,
   );
   return true;
