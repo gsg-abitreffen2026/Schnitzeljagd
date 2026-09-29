@@ -270,7 +270,7 @@ const STATIONS = Object.freeze([
     radius: 100,
     fallback: "Wenn GPS spinnt: Geht zum markantesten Punkt vor Ort.",
     story:
-      "Finale\n\nSchaut euch die Playlist genau an.\n\nSonglänge -> Sekunden -> letzte Ziffer\nBildet daraus eine Reihe.\nDa fehlt noch ein Punkt.\nUnd? Wohin geht's?",
+      "Finale\n\nSchaut euch die Playlist genau an und achtet auf die Hinweise!",
     prompt: "",
     answers: STATION_FIVE_STADT_ANSWERS,
     tip: "",

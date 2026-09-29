@@ -219,6 +219,10 @@ p {
   gap: 0.48rem;
 }
 
+#revealPlaylistHintBtn {
+  margin-top: 1.1rem;
+}
+
 .song-list a {
   color: var(--brand);
   font-weight: 700;
