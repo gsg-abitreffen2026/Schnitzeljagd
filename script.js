@@ -27,85 +27,29 @@ const STORY_INTRO = Object.freeze({
     "In den Hügeln rund um Sillenbuch, Ruit und Heumaden erzählt man sich eine alte Geschichte.\nEs heißt, dass hier einst ein Ort existierte, an dem Musik lauter, fröhlicher und lebendiger war als irgendwo sonst. Ein Ort, an dem Menschen zusammenkamen, sangen, spielten und feierten, bis tief in die Nacht.\nDoch eines Tages verstummte diese Musik.\nNiemand weiß genau warum. Manche sagen, sie sei vergessen worden. Andere glauben, sie sei von den Klangwächtern verborgen worden - einer geheimen Bruderschaft aus Musikern, Spielleuten und Rätselmeistern.\nDiese Wächter glaubten, dass wahre Musik nicht einfach konsumiert werden darf.\nSie muss verdient werden.\nDarum erschufen sie eine Prüfung.\nSie versteckten Hinweise an verschiedenen Orten und verbanden sie mit Spielen, Rätseln und Herausforderungen. Nur jene, die Mut, Verstand, Humor und ein wenig musikalisches Talent besitzen, können diese Prüfungen bestehen.\nWer alle Prüfungen meistert, erhält am Ende einen Satz aus fünf Fragmenten.\nUnd dieser Satz verrät das größte Geheimnis der Wächter:\nWo die verlorene Musik wieder erklingen kann.\nHeute seid ihr die Abenteurer, die sich dieser Aufgabe stellen.\n\nDer Beginn der Reise am Silberwald\nHier fängt eure Suche an.\nDer erste Klangwächter schrieb einst in einem alten Pergament:\n\"Die Musik dieser Welt verschwindet nicht.\nSie wartet nur darauf, wiedergefunden zu werden.\"\nDoch um sie zu finden, müsst ihr die Prüfungen der Wächter bestehen.\nFünf Stationen.\nFünf Herausforderungen.\nFünf Fragmente eines Satzes.",
 });
 
+const PLAYLIST_A_URL =
+  "https://open.spotify.com/playlist/0Z7v5QSxZklhcwUAc4JCsI?si=taYvKc7mTFG8WXEmViBhWg";
+const PLAYLIST_B_URL =
+  "https://open.spotify.com/playlist/5VCb7foNeI3Cg4ExLjbOgQ?si=eNCOgiyYScaHicBTqQee-w";
 const PLAYLIST = Object.freeze({
   A: [
-    {
-      song: "Moonlight Shadow",
-      artist: "Groove Coverage",
-      url: "https://open.spotify.com/intl-de/track/2bd1FeFKgVACAUhcuyf9cC?si=5ae4c5bafc934bae",
-    },
-    {
-      song: "Red Flag",
-      artist: "Billy Talent",
-      url: "https://open.spotify.com/intl-de/track/2RZWdE8kYPlCAcRUYDeuLC?si=9cba30302e9a4ace",
-    },
-    {
-      song: "Mr. Vain - Original Radio Edit",
-      artist: "Culture Beat",
-      url: "https://open.spotify.com/intl-de/track/4ih3dyFZoeTdaeJW9mPbOI?si=97e5f3db7c774d26",
-    },
-    {
-      song: "Wannsee",
-      artist: "Die Toten Hosen",
-      url: "https://open.spotify.com/intl-de/track/5KSzv6Ho2Xw1k61SpM3l5n?si=3aeb3688b1024d0e",
-    },
-    {
-      song: "Augenbling",
-      artist: "Seeed",
-      url: "https://open.spotify.com/intl-de/track/4eT8TcG3KKlprFcYePA9gw?si=22faa7a2d6874a01",
-    },
-    {
-      song: "Schwule Mädchen",
-      artist: "Fettes Brot",
-      url: "https://open.spotify.com/intl-de/track/3dKPA3BeuIF5yvv2xUVh0z?si=f2c3b6ebb5d943df",
-    },
-    {
-      song: "Remmidemmi (Yippie Yippie Yeah)",
-      artist: "Deichkind",
-      url: "https://open.spotify.com/intl-de/track/31sD77U64ym70wYEMpnSrQ?si=4d1d9a7e79f64ed1",
-    },
-    {
-      song: "Boom, Boom, Boom, Boom!!",
-      artist: "Vengaboys",
-      url: "https://open.spotify.com/intl-de/track/65OXGbKBQ8gUyJvUd0jNpf?si=6d53e7bf6deb4def",
-    },
+    { song: "Bohemian Rhapsody", artist: "Queen", url: PLAYLIST_A_URL },
+    { song: "Wonderwall", artist: "Oasis", url: PLAYLIST_A_URL },
+    { song: "Get Lucky", artist: "Daft Punk", url: PLAYLIST_A_URL },
+    { song: "The Fresh Prince of Bel-Air", artist: "DJ Jazzy Jeff & The Fresh Prince", url: PLAYLIST_A_URL },
+    { song: "Thriller", artist: "Michael Jackson", url: PLAYLIST_A_URL },
+    { song: "U Can't Touch This", artist: "MC Hammer", url: PLAYLIST_A_URL },
+    { song: "Some Nights", artist: "fun.", url: PLAYLIST_A_URL },
+    { song: "Sweet Child O' Mine", artist: "Guns N' Roses", url: PLAYLIST_A_URL },
   ],
   B: [
-    {
-      song: "Don't Stop Me Now",
-      artist: "Queen",
-      url: "https://open.spotify.com/intl-de/track/5T8EDUDqKcs6OSOwEsfqG7?si=17d31c78dd0e404b",
-    },
-    {
-      song: "Mr Brightside",
-      artist: "The Killers",
-      url: "https://open.spotify.com/intl-de/track/3n3Ppam7vgaVa1iaRUc9Lp?si=a51e32cc4df240c8",
-    },
-    {
-      song: "Show Me the Meaning of Being Lonely",
-      artist: "Backstreet Boys",
-      url: "https://open.spotify.com/intl-de/track/3BsaRV5QIulYz2lV9WWa8T?si=3fbd1cc6112f4349",
-    },
-    {
-      song: "Billie Jean",
-      artist: "Michael Jackson",
-      url: "https://open.spotify.com/intl-de/track/5ChkMS8OtdzJeqyybCc9R5?si=2db869a918584565",
-    },
-    {
-      song: "Buddy Holly",
-      artist: "Weezer",
-      url: "https://open.spotify.com/intl-de/track/0gOyllwzM7IvfuYZ903zNv?si=dd37221a35984491",
-    },
-    {
-      song: "Zu Spät",
-      artist: "Die Ärzte",
-      url: "https://open.spotify.com/intl-de/track/5vfOToTP6WrA6tyQMLLfof?si=d6b5f66364e34a20",
-    },
-    {
-      song: "Don't Cry",
-      artist: "Guns N' Roses",
-      url: "https://open.spotify.com/intl-de/track/0ZEhlT9v8CdOKu55zhYGv9?si=3953dc938af94da9",
-    },
+    { song: "Hey Ya!", artist: "Outkast", url: PLAYLIST_B_URL },
+    { song: "Smells Like Teen Spirit", artist: "Nirvana", url: PLAYLIST_B_URL },
+    { song: "I'm a Believer", artist: "The Monkees", url: PLAYLIST_B_URL },
+    { song: "Despacito", artist: "Luis Fonsi, Daddy Yankee", url: PLAYLIST_B_URL },
+    { song: "CAN'T STOP THE FEELING!", artist: "Justin Timberlake", url: PLAYLIST_B_URL },
+    { song: "Wannabe", artist: "Spice Girls", url: PLAYLIST_B_URL },
+    { song: "Mr. Brightside", artist: "The Killers", url: PLAYLIST_B_URL },
   ],
 });
 
@@ -214,8 +158,8 @@ const STORY_FINAL_REVEAL = Object.freeze({
     "Wenn ihr alle Prüfungen bestanden habt, haltet ihr die fünf Fragmente des Satzes in euren Händen.\nDoch einzeln bedeuten sie wenig.\nErst wenn ihr sie in die richtige Reihenfolge bringt, entsteht der Satz, den die Klangwächter verborgen haben.\nDieser Satz verrät euch den Ort, an dem die verlorene Musik wieder erklingen kann.\nUnd er sagt euch auch, was ihr dort tun müsst, um sie zurückzubringen.\nDie Wächter hinterließen nur eine letzte Anweisung:\n\"Nur jene, die das Geheimnis gemeinsam entschlüsseln,\nwerden die Musik wiederfinden.\"\nFindet die Antwort.",
 });
 const STATION_FIVE_COORD_TARGET = Object.freeze({
-  lat: 48.77877,
-  lng: 9.17963,
+  lat: 48.778774,
+  lng: 9.179632,
 });
 const STATION_FIVE_STADT_ANSWERS = Object.freeze([
   "stadt",
@@ -1335,7 +1279,7 @@ function onCheckStationFiveCoordinates() {
 
   if (lat === null || lng === null) {
     transient.stationFiveCoordsFeedback =
-      "Bitte beide Koordinaten im Dezimalformat eingeben (z.B. 48.746512 und 9.243954).";
+      "Bitte beide Koordinaten im Dezimalformat eingeben (z.B. 48.123456 und 9.123456).";
     updateUI();
     return;
   }
@@ -1350,11 +1294,34 @@ function onCheckStationFiveCoordinates() {
     return;
   }
 
-  const step = getStationFiveStep();
-  progress.stepByStation[STATION_FIVE_ID] = Math.max(step, 1);
+  progress.stepByStation[STATION_FIVE_ID] = 2;
   transient.stationFiveCoordsFeedback = "";
+  addAnswerHistory(STATION_FIVE_ID, STATION_FIVE_HISTORY_LABEL);
+  transient.stationFiveBoard = {
+    bankWords: shuffleWords(STATION_FIVE_SENTENCE_ORDER),
+    lineWords: [],
+    locked: false,
+    dragWord: "",
+    dragFrom: "",
+  };
+  if (el.answerInput) {
+    el.answerInput.value = "";
+  }
+  if (el.stationFiveAnswerInput) {
+    el.stationFiveAnswerInput.value = "";
+  }
+  if (progress.hintsUnlocked < 5) {
+    progress.hintsUnlocked = 5;
+  }
   saveProgress();
-  openFeedbackPopup("Korrekt", "Koordinaten korrekt.");
+  renderHints();
+  openFeedbackPopup(
+    "Koordinaten korrekt!",
+    "Sie führen mitten in die Stadt.\nLetztes Lösungswort: Stadt",
+    () => {
+      openStoryPopup(STORY_FINAL_REVEAL.title, STORY_FINAL_REVEAL.text, completeCurrentStationAndAdvance);
+    },
+  );
 }
 
 function onCheckAnswerStationFive(rawInput) {
