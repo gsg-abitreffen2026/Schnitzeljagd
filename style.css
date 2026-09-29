@@ -223,6 +223,12 @@ p {
   margin-top: 1.1rem;
 }
 
+.epic-outro {
+  font-style: italic;
+  line-height: 1.65;
+  margin-bottom: 1rem;
+}
+
 .song-list a {
   color: var(--brand);
   font-weight: 700;
