@@ -416,6 +416,7 @@ const el = {
   successCard: byId("successCard"),
   stickyBar: byId("stickyBar"),
   startChallengeBtn: byId("startChallengeBtn"),
+  mapsLink: byId("mapsLink"),
   ctaHint: byId("ctaHint"),
   solutionsCard: byId("solutionsCard"),
   finalSentenceDisplay: byId("finalSentenceDisplay"),
@@ -1995,6 +1996,9 @@ function renderStartMode(station) {
   el.startChallengeBtn.disabled = false;
   el.startChallengeBtn.textContent = "Challenge starten";
   el.ctaHint.textContent = "";
+  if (el.mapsLink) {
+    el.mapsLink.classList.add("hidden");
+  }
   if (el.stickyBar) {
     el.stickyBar.classList.add("hidden");
   }
@@ -2034,6 +2038,11 @@ function renderFinalLegMode() {
   el.startChallengeBtn.disabled = false;
   el.startChallengeBtn.textContent = "Finalziel prüfen";
   el.ctaHint.textContent = "";
+  if (el.mapsLink) {
+    const target = FINAL_DESTINATION.target;
+    el.mapsLink.href = `https://www.google.com/maps/search/?api=1&query=${target.lat},${target.lng}`;
+    el.mapsLink.classList.remove("hidden");
+  }
   if (el.stickyBar) {
     el.stickyBar.classList.add("hidden");
   }
