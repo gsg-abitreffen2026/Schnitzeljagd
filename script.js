@@ -51,19 +51,19 @@ const PLAYLIST = Object.freeze({
     { song: "Bohemian Rhapsody", artist: "Queen", url: PLAYLIST_A_URL },
     { song: "Wonderwall", artist: "Oasis", url: PLAYLIST_A_URL },
     { song: "Get Lucky", artist: "Daft Punk", url: PLAYLIST_A_URL },
-    { song: "The Fresh Prince of Bel-Air", artist: "DJ Jazzy Jeff & The Fresh Prince", url: PLAYLIST_A_URL },
-    { song: "Thriller", artist: "Michael Jackson", url: PLAYLIST_A_URL },
-    { song: "U Can't Touch This", artist: "MC Hammer", url: PLAYLIST_A_URL },
-    { song: "Some Nights", artist: "fun.", url: PLAYLIST_A_URL },
+    { song: "Creep", artist: "Radiohead", url: PLAYLIST_A_URL },
+    { song: "Dancing Queen", artist: "ABBA", url: PLAYLIST_A_URL },
+    { song: "Hot In Herre", artist: "Nelly", url: PLAYLIST_A_URL },
+    { song: "Thunderstruck", artist: "AC/DC", url: PLAYLIST_A_URL },
     { song: "Sweet Child O' Mine", artist: "Guns N' Roses", url: PLAYLIST_A_URL },
   ],
   B: [
     { song: "Hey Ya!", artist: "Outkast", url: PLAYLIST_B_URL },
     { song: "Smells Like Teen Spirit", artist: "Nirvana", url: PLAYLIST_B_URL },
     { song: "I'm a Believer", artist: "The Monkees", url: PLAYLIST_B_URL },
-    { song: "Despacito", artist: "Luis Fonsi, Daddy Yankee", url: PLAYLIST_B_URL },
-    { song: "CAN'T STOP THE FEELING!", artist: "Justin Timberlake", url: PLAYLIST_B_URL },
-    { song: "Wannabe", artist: "Spice Girls", url: PLAYLIST_B_URL },
+    { song: "How Much Is the Fish?", artist: "Scooter", url: PLAYLIST_B_URL },
+    { song: "Pretty Fly (For A White Guy)", artist: "The Offspring", url: PLAYLIST_B_URL },
+    { song: "Skandal im Sperrbezirk", artist: "Spider Murphy Gang", url: PLAYLIST_B_URL },
     { song: "Mr. Brightside", artist: "The Killers", url: PLAYLIST_B_URL },
   ],
 });
@@ -173,8 +173,8 @@ const STORY_FINAL_REVEAL = Object.freeze({
     "Wenn ihr alle Prüfungen bestanden habt, haltet ihr die fünf Fragmente des Satzes in euren Händen.\nDoch einzeln bedeuten sie wenig.\nErst wenn ihr sie in die richtige Reihenfolge bringt, entsteht der Satz, den die Klangwächter verborgen haben.\nDieser Satz verrät euch den Ort, an dem die verlorene Musik wieder erklingen kann.\nUnd er sagt euch auch, was ihr dort tun müsst, um sie zurückzubringen.\nDie Wächter hinterließen nur eine letzte Anweisung:\n\"Nur jene, die das Geheimnis gemeinsam entschlüsseln,\nwerden die Musik wiederfinden.\"\nFindet die Antwort.",
 });
 const STATION_FIVE_COORD_TARGET = Object.freeze({
-  lat: 48.778774,
-  lng: 9.179632,
+  lat: 48.780824,
+  lng: 9.177892,
 });
 const STATION_FIVE_STADT_ANSWERS = Object.freeze([
   "stadt",
@@ -279,12 +279,12 @@ const STATIONS = Object.freeze([
 ]);
 
 const FINAL_DESTINATION = Object.freeze({
-  locationName: "Schlossplatz",
-  address: "48 46'43.6\"N 9 10'46.7\"E",
-  routeHint: "Nach der Auflösung geht es in die Stadt zum Schlossplatz.",
-  target: { lat: 48.77877336246438, lng: 9.179632519827605 },
-  radius: 200,
-  fallback: "Wenn GPS spinnt: Geht zum markantesten Punkt am Schlossplatz.",
+  locationName: "SENZANOME Cucina Italiana",
+  address: "48 46'51.0\"N 9 10'40.4\"E",
+  routeHint: "Nach der Auflösung geht es in die Stadt zum SENZANOME Cucina Italiana.",
+  target: { lat: 48.78082239791737, lng: 9.17789838333033 },
+  radius: 150,
+  fallback: "Wenn GPS spinnt: Geht zum Eingang des SENZANOME Cucina Italiana.",
 });
 
 const DEFAULT_PROGRESS = Object.freeze({
