@@ -1,5 +1,17 @@
-const CACHE_NAME = "schnitzeljagd-cache-v2";
-const ASSETS = ["./", "./index.html", "./style.css", "./script.js"];
+const CACHE_NAME = "schnitzeljagd-cache-v3";
+const ASSETS = [
+  "./",
+  "./index.html",
+  "./style.css",
+  "./script.js",
+  "./assets/audio/die-verlorene-musik.mp3",
+  "./assets/audio/einfuehrung.mp3",
+  "./assets/audio/station-1.mp3",
+  "./assets/audio/station-2.mp3",
+  "./assets/audio/station-3.mp3",
+  "./assets/audio/station-4.mp3",
+  "./assets/audio/station-5.mp3",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

@@ -229,6 +229,51 @@ p {
   margin-bottom: 1rem;
 }
 
+.audio-player {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.theme-song {
+  margin-top: 1rem;
+}
+
+.bard-box {
+  margin-top: 0.3rem;
+}
+
+.bard-lyrics {
+  margin-top: 0.9rem;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.bard-block {
+  white-space: pre-line;
+  line-height: 1.55;
+  transition: opacity 0.4s ease;
+}
+
+.bard-block.bard-refrain {
+  font-weight: 600;
+}
+
+.bard-block.bard-verse {
+  font-style: italic;
+}
+
+.bard-hidden {
+  display: none;
+}
+
+.bard-block.bard-active {
+  opacity: 1;
+}
+
+.bard-block.bard-dim {
+  opacity: 0.4;
+}
+
 .song-list a {
   color: var(--brand);
   font-weight: 700;

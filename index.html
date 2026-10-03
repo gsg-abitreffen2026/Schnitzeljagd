@@ -26,6 +26,16 @@
           <button id="countdownStartBtn" class="btn countdown-start-btn hidden" type="button">
             Starten
           </button>
+          <div id="themeSongBox" class="theme-song">
+            <p class="small">🎵 Das Lied der Klangwächter</p>
+            <audio
+              id="themeSongAudio"
+              class="audio-player"
+              controls
+              preload="none"
+              src="./assets/audio/die-verlorene-musik.mp3"
+            ></audio>
+          </div>
         </div>
       </header>
 
@@ -232,6 +242,10 @@ bekommt ihr das nächste Lösungswort.</p>
             <h3 id="storyTitle" class="story-title"></h3>
             <div id="storyScroll" class="story-scroll">
               <p id="storyMessage" class="story-message"></p>
+              <div id="bardBox" class="bard-box hidden">
+                <audio id="bardAudio" class="audio-player" controls preload="auto"></audio>
+                <div id="bardLyrics" class="bard-lyrics"></div>
+              </div>
             </div>
             <button id="storyContinueBtn" type="button" class="btn story-continue">Weiter</button>
           </div>

@@ -42,6 +42,32 @@ const STORY_INTRO = Object.freeze({
     "In den Hügeln rund um Sillenbuch, Ruit und Heumaden erzählt man sich eine alte Geschichte.\nEs heißt, dass hier einst ein Ort existierte, an dem Musik lauter, fröhlicher und lebendiger war als irgendwo sonst. Ein Ort, an dem Menschen zusammenkamen, sangen, spielten und feierten, bis tief in die Nacht.\nDoch eines Tages verstummte diese Musik.\nNiemand weiß genau warum. Manche sagen, sie sei vergessen worden. Andere glauben, sie sei von den Klangwächtern verborgen worden - einer geheimen Bruderschaft aus Musikern, Spielleuten und Rätselmeistern.\nDiese Wächter glaubten, dass wahre Musik nicht einfach konsumiert werden darf.\nSie muss verdient werden.\nDarum erschufen sie eine Prüfung.\nSie versteckten Hinweise an verschiedenen Orten und verbanden sie mit Spielen, Rätseln und Herausforderungen. Nur jene, die Mut, Verstand, Humor und ein wenig musikalisches Talent besitzen, können diese Prüfungen bestehen.\nWer alle Prüfungen meistert, erhält am Ende einen Satz aus fünf Fragmenten.\nUnd dieser Satz verrät das größte Geheimnis der Wächter:\nWo die verlorene Musik wieder erklingen kann.\nHeute seid ihr die Abenteurer, die sich dieser Aufgabe stellen.\n\nDer Beginn der Reise am Silberwald\nHier fängt eure Suche an.\nDer erste Klangwächter schrieb einst in einem alten Pergament:\n\"Die Musik dieser Welt verschwindet nicht.\nSie wartet nur darauf, wiedergefunden zu werden.\"\nDoch um sie zu finden, müsst ihr die Prüfungen der Wächter bestehen.\nFünf Stationen.\nFünf Herausforderungen.\nFünf Fragmente eines Satzes.",
 });
 
+const BARD_REFRAIN =
+  "Singt dem Wächter ein Lied, ein Lied,\ntraut ihr euch, den Weg zu gehn?\nSingt dem Wächter ein Lied, ein Lied,\nwerdet ihr die Prüfung bestehn?";
+const BARD_VERSES = Object.freeze({
+  einfuehrung:
+    "In den Hügeln, wo einst die Musik verstummt,\nschläft ein Geheimnis, das niemand mehr summt.\nDie Klangwächter bargen es tief und weit –\nfünf Prüfungen trennen euch von der Zeit.",
+  "clara-zetkin":
+    "Der Wächter der Melodie kennt keine Schrift,\nnur Töne für den, der den Mut in sich trifft.\nNehmt die Flöte zur Hand und spielt Ton um Ton –\nerkennt ihr das Lied, so gehört euch der Lohn.",
+  "kemnater-hof":
+    "Der Wächter der Zeichen verbarg seinen Sinn,\nwarf Zeichen und Buchstaben durcheinander hin.\nBringt sie zur Ordnung mit ruhiger Hand,\ndann klingt euch ein Lied, das ihr längst schon gekannt.",
+  rossert:
+    "Der Wächter der Zeit reiht die Lieder wie Sterne,\naus Jahren der Nähe und Jahren der Ferne.\nOrdnet die Klänge, wie einst sie geschehn,\ndann werdet das dritte ihr Fragment sehn.",
+  "ruiter-krankenhaus":
+    "Der Wächter der Rätsel fügt zusammen, was fremd:\nvier Lieder, die keiner als Bund noch erkennt.\nDasselbe versteckt sich in jedem – schaut hin! –\nerkennt die Gemeinsamkeit, das ist der Sinn.",
+  riederstrasse:
+    "Der Wächter des Weges, kein Sänger, ein Bote,\ner kennt jeden Pfad und die heimliche Note.\nDeutet die Hinweise, Zahl um Zahl,\ndann findet ihr selbst den verborgenen Saal.",
+});
+const BARD_CLIPS = Object.freeze({
+  einfuehrung: { file: "./assets/audio/einfuehrung.mp3", verseStart: 21.5, verseEnd: 34.6 },
+  "clara-zetkin": { file: "./assets/audio/station-1.mp3", verseStart: 15.6, verseEnd: 28.5 },
+  "kemnater-hof": { file: "./assets/audio/station-2.mp3", verseStart: 15.6, verseEnd: 28.5 },
+  rossert: { file: "./assets/audio/station-3.mp3", verseStart: 15.6, verseEnd: 31.1 },
+  "ruiter-krankenhaus": { file: "./assets/audio/station-4.mp3", verseStart: 15.6, verseEnd: 32.0 },
+  riederstrasse: { file: "./assets/audio/station-5.mp3", verseStart: 21.9, verseEnd: 34.3 },
+});
+const BARD_INTRO_TITLE = "Die Suche nach der verlorenen Musik";
+
 const PLAYLIST_A_URL =
   "https://open.spotify.com/playlist/0Z7v5QSxZklhcwUAc4JCsI?si=taYvKc7mTFG8WXEmViBhWg";
 const PLAYLIST_B_URL =
@@ -405,6 +431,9 @@ const el = {
   storyScroll: byId("storyScroll"),
   storyMessage: byId("storyMessage"),
   storyContinueBtn: byId("storyContinueBtn"),
+  bardBox: byId("bardBox"),
+  bardAudio: byId("bardAudio"),
+  bardLyrics: byId("bardLyrics"),
   showHintBtn: byId("showHintBtn"),
   tipText: byId("tipText"),
   feedbackText: byId("feedbackText"),
@@ -481,6 +510,9 @@ function bindEvents() {
   if (el.storyContinueBtn) {
     el.storyContinueBtn.addEventListener("click", closeStoryPopup);
   }
+  if (el.bardAudio) {
+    el.bardAudio.addEventListener("timeupdate", onBardTimeUpdate);
+  }
   if (el.storyModal) {
     el.storyModal.addEventListener("click", onStoryModalBackdropClick);
   }
@@ -546,7 +578,7 @@ function onCountdownStart() {
   openFeedbackPopup(
     START_WELCOME_TITLE,
     START_WELCOME_TEXT,
-    () => openStoryPopup(STORY_INTRO.title, STORY_INTRO.text),
+    () => openBardPopup(BARD_INTRO_TITLE, "einfuehrung"),
     "hint",
   );
 }
@@ -652,6 +684,11 @@ function openStoryPopup(title, message, onClose = null) {
   transient.storyPopupOnClose = typeof onClose === "function" ? onClose : null;
   transient.storyContinueLocked = true;
   el.storyTitle.textContent = title || "";
+  stopBardAudio();
+  if (el.bardBox) {
+    el.bardBox.classList.add("hidden");
+  }
+  el.storyMessage.classList.remove("hidden");
   renderStoryMessage(title, message);
   if (el.storyScroll) {
     el.storyScroll.scrollTop = 0;
@@ -669,6 +706,13 @@ function closeStoryPopup() {
   }
   transient.storyPopupOpen = false;
   transient.storyContinueLocked = false;
+  stopBardAudio();
+  if (el.bardBox) {
+    el.bardBox.classList.add("hidden");
+  }
+  if (el.storyMessage) {
+    el.storyMessage.classList.remove("hidden");
+  }
   if (el.storyModal) {
     el.storyModal.classList.add("hidden");
   }
@@ -679,6 +723,90 @@ function closeStoryPopup() {
   transient.storyPopupOnClose = null;
   if (typeof cb === "function") {
     cb();
+  }
+}
+
+function stopBardAudio() {
+  if (!el.bardAudio) {
+    return;
+  }
+  el.bardAudio.pause();
+  try {
+    el.bardAudio.currentTime = 0;
+  } catch (error) {
+    // currentTime evtl. noch nicht setzbar - ignorieren
+  }
+}
+
+function onBardTimeUpdate() {
+  if (!el.bardAudio || !el.bardLyrics) {
+    return;
+  }
+  const now = el.bardAudio.currentTime;
+  const blocks = el.bardLyrics.querySelectorAll(".bard-block");
+  let activeIndex = -1;
+  blocks.forEach((block, index) => {
+    const revealAt = parseFloat(block.getAttribute("data-reveal")) || 0;
+    if (now >= revealAt) {
+      block.classList.remove("bard-hidden");
+      activeIndex = index;
+    }
+  });
+  blocks.forEach((block, index) => {
+    const revealed = !block.classList.contains("bard-hidden");
+    block.classList.toggle("bard-active", index === activeIndex);
+    block.classList.toggle("bard-dim", revealed && index !== activeIndex);
+  });
+}
+
+function openBardPopup(title, key, onClose = null) {
+  const verse = BARD_VERSES[key];
+  const clip = BARD_CLIPS[key];
+  if (!verse || !clip || !el.storyModal || !el.bardBox || !el.bardLyrics || !el.bardAudio) {
+    const fallback = verse ? `${BARD_REFRAIN}\n\n${verse}\n\n${BARD_REFRAIN}` : "";
+    openStoryPopup(title, fallback, onClose);
+    return;
+  }
+
+  transient.storyPopupOpen = true;
+  transient.storyPopupOnClose = typeof onClose === "function" ? onClose : null;
+  transient.storyContinueLocked = false;
+  el.storyTitle.textContent = title || "";
+
+  el.storyMessage.classList.add("hidden");
+  el.bardBox.classList.remove("hidden");
+
+  el.bardLyrics.innerHTML = "";
+  const blocks = [
+    { cls: "bard-refrain", t: 0, text: BARD_REFRAIN },
+    { cls: "bard-verse", t: clip.verseStart, text: verse },
+    { cls: "bard-refrain", t: clip.verseEnd, text: BARD_REFRAIN },
+  ];
+  blocks.forEach((item, index) => {
+    const div = document.createElement("div");
+    div.className = `bard-block ${item.cls}${index === 0 ? "" : " bard-hidden"}`;
+    div.setAttribute("data-reveal", String(item.t));
+    div.textContent = item.text;
+    el.bardLyrics.appendChild(div);
+  });
+
+  stopBardAudio();
+  el.bardAudio.src = clip.file;
+  onBardTimeUpdate();
+
+  el.storyModal.classList.remove("hidden");
+  if (el.storyScroll) {
+    el.storyScroll.scrollTop = 0;
+  }
+  if (el.storyContinueBtn) {
+    el.storyContinueBtn.disabled = false;
+  }
+
+  const played = el.bardAudio.play();
+  if (played && typeof played.catch === "function") {
+    played.catch(() => {
+      // Autoplay evtl. blockiert - Nutzer kann ueber die Play-Taste starten
+    });
   }
 }
 
@@ -899,6 +1027,10 @@ function completeCurrentStationAndAdvance() {
 function openStationStartStory(stationId) {
   const story = STATION_START_STORIES[stationId];
   if (!story) {
+    return;
+  }
+  if (BARD_VERSES[stationId] && BARD_CLIPS[stationId]) {
+    openBardPopup(story.title, stationId);
     return;
   }
   openStoryPopup(story.title, story.text);
