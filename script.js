@@ -724,6 +724,7 @@ function closeStoryPopup() {
 }
 
 const BARD_FADE_SECONDS = 3.5;
+const BARD_MAX_TYPE_SECONDS = 13;
 
 function stopBardAudio() {
   if (transient.bardRafId) {
@@ -731,7 +732,8 @@ function stopBardAudio() {
     transient.bardRafId = null;
   }
   transient.bardState = null;
-  transient.bardVerseEl = null;
+  transient.bardCharSpans = null;
+  transient.bardLastChars = 0;
   if (!el.bardAudio) {
     return;
   }
@@ -746,24 +748,33 @@ function stopBardAudio() {
 
 function bardTick() {
   transient.bardRafId = null;
-  if (!transient.storyPopupOpen || !transient.bardState || !el.bardAudio || !transient.bardVerseEl) {
+  if (!transient.storyPopupOpen || !transient.bardState || !el.bardAudio || !transient.bardCharSpans) {
     return;
   }
-  const { verse, verseStart, verseEnd } = transient.bardState;
+  const { verseStart, verseEnd, len } = transient.bardState;
   const now = el.bardAudio.currentTime;
 
-  // Vers buchstabenweise, grob synchron zum gesungenen Abschnitt
+  // Vers buchstabenweise einblenden, grob synchron zum gesungenen Abschnitt.
+  // Tempo nach oben gedeckelt, damit laengere Abschnitte (St3/St4) nicht schleppen.
+  const span = Math.max(0.1, verseEnd - verseStart);
+  const typeDur = Math.min(span, BARD_MAX_TYPE_SECONDS);
   let chars;
   if (now <= verseStart) {
     chars = 0;
-  } else if (now >= verseEnd) {
-    chars = verse.length;
+  } else if (now >= verseStart + typeDur) {
+    chars = len;
   } else {
-    const span = Math.max(0.1, verseEnd - verseStart);
-    chars = Math.round((verse.length * (now - verseStart)) / span);
+    chars = Math.round((len * (now - verseStart)) / typeDur);
   }
-  if (transient.bardVerseEl.textContent.length !== chars) {
-    transient.bardVerseEl.textContent = verse.slice(0, chars);
+  if (chars !== transient.bardLastChars) {
+    const spans = transient.bardCharSpans;
+    for (let i = 0; i < spans.length; i += 1) {
+      if (!spans[i]) {
+        continue;
+      }
+      spans[i].classList.toggle("bard-shown", i < chars);
+    }
+    transient.bardLastChars = chars;
   }
 
   // Fade-out gegen Ende, damit der Clip nicht abgeschnitten klingt
@@ -798,9 +809,28 @@ function openBardPopup(title, key, onClose = null) {
   el.bardLyrics.innerHTML = "";
   const verseEl = document.createElement("div");
   verseEl.className = "bard-block bard-verse";
+  const charSpans = [];
+  for (let i = 0; i < verse.length; i += 1) {
+    const char = verse[i];
+    if (char === "\n") {
+      verseEl.appendChild(document.createElement("br"));
+      charSpans.push(null);
+    } else {
+      const span = document.createElement("span");
+      span.className = "bard-char";
+      span.textContent = char;
+      verseEl.appendChild(span);
+      charSpans.push(span);
+    }
+  }
   el.bardLyrics.appendChild(verseEl);
-  transient.bardVerseEl = verseEl;
-  transient.bardState = { verse, verseStart: clip.verseStart, verseEnd: clip.verseEnd };
+  transient.bardCharSpans = charSpans;
+  transient.bardLastChars = 0;
+  transient.bardState = {
+    verseStart: clip.verseStart,
+    verseEnd: clip.verseEnd,
+    len: verse.length,
+  };
 
   el.bardAudio.volume = 1;
   el.bardAudio.src = clip.file;

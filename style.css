@@ -260,6 +260,16 @@ p {
 
 .bard-block.bard-verse {
   font-style: italic;
+  line-height: 1.6;
+}
+
+.bard-char {
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+
+.bard-char.bard-shown {
+  opacity: 1;
 }
 
 .bard-hidden {
