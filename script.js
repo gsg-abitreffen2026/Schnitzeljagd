@@ -510,9 +510,6 @@ function bindEvents() {
   if (el.storyContinueBtn) {
     el.storyContinueBtn.addEventListener("click", closeStoryPopup);
   }
-  if (el.bardAudio) {
-    el.bardAudio.addEventListener("timeupdate", onBardTimeUpdate);
-  }
   if (el.storyModal) {
     el.storyModal.addEventListener("click", onStoryModalBackdropClick);
   }
@@ -726,11 +723,20 @@ function closeStoryPopup() {
   }
 }
 
+const BARD_FADE_SECONDS = 3.5;
+
 function stopBardAudio() {
+  if (transient.bardRafId) {
+    cancelAnimationFrame(transient.bardRafId);
+    transient.bardRafId = null;
+  }
+  transient.bardState = null;
+  transient.bardVerseEl = null;
   if (!el.bardAudio) {
     return;
   }
   el.bardAudio.pause();
+  el.bardAudio.volume = 1;
   try {
     el.bardAudio.currentTime = 0;
   } catch (error) {
@@ -738,25 +744,36 @@ function stopBardAudio() {
   }
 }
 
-function onBardTimeUpdate() {
-  if (!el.bardAudio || !el.bardLyrics) {
+function bardTick() {
+  transient.bardRafId = null;
+  if (!transient.storyPopupOpen || !transient.bardState || !el.bardAudio || !transient.bardVerseEl) {
     return;
   }
+  const { verse, verseStart, verseEnd } = transient.bardState;
   const now = el.bardAudio.currentTime;
-  const blocks = el.bardLyrics.querySelectorAll(".bard-block");
-  let activeIndex = -1;
-  blocks.forEach((block, index) => {
-    const revealAt = parseFloat(block.getAttribute("data-reveal")) || 0;
-    if (now >= revealAt) {
-      block.classList.remove("bard-hidden");
-      activeIndex = index;
-    }
-  });
-  blocks.forEach((block, index) => {
-    const revealed = !block.classList.contains("bard-hidden");
-    block.classList.toggle("bard-active", index === activeIndex);
-    block.classList.toggle("bard-dim", revealed && index !== activeIndex);
-  });
+
+  // Vers buchstabenweise, grob synchron zum gesungenen Abschnitt
+  let chars;
+  if (now <= verseStart) {
+    chars = 0;
+  } else if (now >= verseEnd) {
+    chars = verse.length;
+  } else {
+    const span = Math.max(0.1, verseEnd - verseStart);
+    chars = Math.round((verse.length * (now - verseStart)) / span);
+  }
+  if (transient.bardVerseEl.textContent.length !== chars) {
+    transient.bardVerseEl.textContent = verse.slice(0, chars);
+  }
+
+  // Fade-out gegen Ende, damit der Clip nicht abgeschnitten klingt
+  const dur = el.bardAudio.duration;
+  if (isFinite(dur) && dur > 0) {
+    el.bardAudio.volume =
+      now > dur - BARD_FADE_SECONDS ? Math.max(0, (dur - now) / BARD_FADE_SECONDS) : 1;
+  }
+
+  transient.bardRafId = requestAnimationFrame(bardTick);
 }
 
 function openBardPopup(title, key, onClose = null) {
@@ -776,23 +793,17 @@ function openBardPopup(title, key, onClose = null) {
   el.storyMessage.classList.add("hidden");
   el.bardBox.classList.remove("hidden");
 
-  el.bardLyrics.innerHTML = "";
-  const blocks = [
-    { cls: "bard-refrain", t: 0, text: BARD_REFRAIN },
-    { cls: "bard-verse", t: clip.verseStart, text: verse },
-    { cls: "bard-refrain", t: clip.verseEnd, text: BARD_REFRAIN },
-  ];
-  blocks.forEach((item, index) => {
-    const div = document.createElement("div");
-    div.className = `bard-block ${item.cls}${index === 0 ? "" : " bard-hidden"}`;
-    div.setAttribute("data-reveal", String(item.t));
-    div.textContent = item.text;
-    el.bardLyrics.appendChild(div);
-  });
-
   stopBardAudio();
+
+  el.bardLyrics.innerHTML = "";
+  const verseEl = document.createElement("div");
+  verseEl.className = "bard-block bard-verse";
+  el.bardLyrics.appendChild(verseEl);
+  transient.bardVerseEl = verseEl;
+  transient.bardState = { verse, verseStart: clip.verseStart, verseEnd: clip.verseEnd };
+
+  el.bardAudio.volume = 1;
   el.bardAudio.src = clip.file;
-  onBardTimeUpdate();
 
   el.storyModal.classList.remove("hidden");
   if (el.storyScroll) {
@@ -808,6 +819,7 @@ function openBardPopup(title, key, onClose = null) {
       // Autoplay evtl. blockiert - Nutzer kann ueber die Play-Taste starten
     });
   }
+  transient.bardRafId = requestAnimationFrame(bardTick);
 }
 
 function onStoryModalBackdropClick(event) {
