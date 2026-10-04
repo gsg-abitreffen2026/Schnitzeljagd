@@ -446,6 +446,7 @@ const el = {
   stickyBar: byId("stickyBar"),
   startChallengeBtn: byId("startChallengeBtn"),
   mapsLink: byId("mapsLink"),
+  gpsBypassBtn: byId("gpsBypassBtn"),
   ctaHint: byId("ctaHint"),
   solutionsCard: byId("solutionsCard"),
   finalSentenceDisplay: byId("finalSentenceDisplay"),
@@ -523,6 +524,9 @@ function bindEvents() {
   }
   el.nextStageBtn.addEventListener("click", onNextStage);
   el.emergencyBtn.addEventListener("click", onEmergency);
+  if (el.gpsBypassBtn) {
+    el.gpsBypassBtn.addEventListener("click", onGpsBypass);
+  }
   if (el.coordLatInput) {
     el.coordLatInput.addEventListener("keydown", onStationFiveCoordKeyDown);
   }
@@ -1039,6 +1043,7 @@ function completeCurrentStationAndAdvance() {
   transient.distanceMeters = null;
   transient.gpsStatus = "idle";
   transient.permissionMessage = "";
+  transient.gpsBypassOffered = false;
   transient.stationFiveCoordsFeedback = "";
   if (station) {
     delete transient.stationFeedbackById[station.id];
@@ -1133,6 +1138,7 @@ function onStartChallenge() {
 
   if (!navigator.geolocation) {
     transient.gpsStatus = "far";
+    transient.gpsBypassOffered = true;
     transient.distanceMeters = null;
     transient.permissionMessage =
       "Euer Browser unterstützt kein GPS. Nutzt ein Smartphone mit aktuellem Browser und HTTPS/localhost.";
@@ -1160,6 +1166,7 @@ function onStartChallenge() {
       let shouldShowStationStory = false;
 
       if (dist <= targetConfig.radius) {
+        transient.gpsBypassOffered = false;
         if (finalLeg) {
           progress.finished = true;
           progress.finalLegUnlocked = false;
@@ -1178,6 +1185,7 @@ function onStartChallenge() {
           shouldShowStationStory = justActivated && Boolean(station);
         }
       } else {
+        transient.gpsBypassOffered = true;
         if (!finalLeg) {
           progress.stageStatus = "locked";
         }
@@ -1202,6 +1210,7 @@ function onStartChallenge() {
     },
     (error) => {
       transient.gpsStatus = "far";
+      transient.gpsBypassOffered = true;
       transient.distanceMeters = null;
       transient.permissionMessage = geoErrorToMessage(error);
       openFeedbackPopup("Hinweis", transient.permissionMessage, "hint");
@@ -1886,6 +1895,7 @@ function onNextStage() {
   transient.distanceMeters = null;
   transient.gpsStatus = "idle";
   transient.permissionMessage = "";
+  transient.gpsBypassOffered = false;
   transient.stationFiveCoordsFeedback = "";
   closeNotesModal();
   el.answerInput.value = "";
@@ -1914,6 +1924,45 @@ function onEmergency() {
 
   transient.emergencyByStation[station.id] = true;
   updateUI();
+}
+
+function onGpsBypass() {
+  if (isPreStart() || progress.finished) {
+    return;
+  }
+  const finalLeg = isFinalLegActive();
+  const station = finalLeg ? null : getCurrentStation();
+  if (!finalLeg && !station) {
+    return;
+  }
+
+  transient.gpsBypassOffered = false;
+  transient.gpsStatus = "idle";
+  transient.distanceMeters = null;
+
+  if (finalLeg) {
+    progress.finished = true;
+    progress.finalLegUnlocked = false;
+    progress.stageStatus = "locked";
+    saveProgress();
+    transient.permissionMessage = "Notfall-Freigabe: Finalziel ohne GPS abgeschlossen.";
+    updateUI();
+    openFeedbackPopup("Finalziel", transient.permissionMessage, "hint");
+    return;
+  }
+
+  const justActivated = progress.stageStatus === "locked";
+  if (justActivated) {
+    progress.stageStatus = "active";
+  }
+  transient.permissionMessage = "Notfall-Freigabe: Station ohne GPS freigeschaltet.";
+  transient.playlistCollapsed = true;
+  renderPlaylistCollapse();
+  saveProgress();
+  updateUI();
+  if (justActivated && station) {
+    openStationStartStory(station.id);
+  }
 }
 
 function updateUI() {
@@ -2173,6 +2222,9 @@ function renderStartMode(station) {
   if (el.mapsLink) {
     el.mapsLink.classList.add("hidden");
   }
+  if (el.gpsBypassBtn) {
+    el.gpsBypassBtn.classList.toggle("hidden", active || !transient.gpsBypassOffered);
+  }
   if (el.stickyBar) {
     el.stickyBar.classList.add("hidden");
   }
@@ -2216,6 +2268,9 @@ function renderFinalLegMode() {
     const target = FINAL_DESTINATION.target;
     el.mapsLink.href = `https://www.google.com/maps/search/?api=1&query=${target.lat},${target.lng}`;
     el.mapsLink.classList.remove("hidden");
+  }
+  if (el.gpsBypassBtn) {
+    el.gpsBypassBtn.classList.toggle("hidden", !transient.gpsBypassOffered);
   }
   if (el.stickyBar) {
     el.stickyBar.classList.add("hidden");
