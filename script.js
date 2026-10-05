@@ -52,7 +52,7 @@ const BARD_VERSES = Object.freeze({
   "kemnater-hof":
     "Der Wächter der Zeichen verbarg seinen Sinn,\nwarf Zeichen und Buchstaben durcheinander hin.\nBringt sie zur Ordnung mit ruhiger Hand,\ndann klingt euch ein Lied, das ihr längst schon gekannt.",
   rossert:
-    "Der Wächter der Zeit reiht die Lieder wie Sterne,\naus Jahren der Nähe und Jahren der Ferne.\nOrdnet die Klänge, wie einst sie geschehn,\ndann werdet das dritte ihr Fragment sehn.",
+    "Der Wächter der Zeit reiht die Lieder wie Sterne,\naus Jahren der Nähe und Jahren der Ferne.\nOrdnet die Klänge, wie einst sie geschehn,\ndann werdet ihr das erste Fragment sehn.",
   "ruiter-krankenhaus":
     "Der Wächter der Rätsel fügt zusammen, was fremd:\nvier Lieder, die keiner als Bund noch erkennt.\nDasselbe versteckt sich in jedem – schaut hin! –\nerkennt die Gemeinsamkeit, das ist der Sinn.",
   riederstrasse:
