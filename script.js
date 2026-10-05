@@ -168,9 +168,9 @@ const STATION_FOUR_TIPS = Object.freeze([
 const STATION_FIVE_ID = "riederstrasse";
 const STATION_START_STORIES = Object.freeze({
   [STATION_ONE_ID]: Object.freeze({
-    title: "Die erste Prüfung - Der Wächter der Melodie",
+    title: "Die dritte Prüfung - Der Wächter der Melodie",
     text:
-      "Der erste Wächter war ein Meister der Klänge.\nEr glaubte, dass Musik nur von jenen verstanden wird, die bereit sind, selbst ein Instrument in die Hand zu nehmen.\nDarum hinterließ er eine Melodie - verborgen in einer Reihe einfacher Töne.\nSpielt sie. Erkennt sie.\nUnd beantwortet seine Fragen.\nWer die Melodie versteht, erhält das erste Fragment des verlorenen Geheimnisses.\nDoch Vorsicht:\nDer Wächter verlangt Mut.\nWer sich irrt, muss einen Schluck Muttrank nehmen, bevor er es erneut versucht.",
+      "Der dritte Wächter war ein Meister der Klänge.\nEr glaubte, dass Musik nur von jenen verstanden wird, die bereit sind, selbst ein Instrument in die Hand zu nehmen.\nDarum hinterließ er eine Melodie - verborgen in einer Reihe einfacher Töne.\nSpielt sie. Erkennt sie.\nUnd beantwortet seine Fragen.\nWer die Melodie versteht, erhält das dritte Fragment des verlorenen Geheimnisses.\nDoch Vorsicht:\nDer Wächter verlangt Mut.\nWer sich irrt, muss einen Schluck Muttrank nehmen, bevor er es erneut versucht.",
   }),
   [STATION_TWO_ID]: Object.freeze({
     title: "Die zweite Prüfung - Der Wächter der Zeichen",
@@ -178,9 +178,9 @@ const STATION_START_STORIES = Object.freeze({
       "Der zweite Wächter war ein Hüter der Zeichen.\nEr liebte Botschaften, deren Sinn sich erst dem zeigt, der die Zeichen richtig zu ordnen weiß.\nDarum hinterließ er ein paar Zeichen, hinter denen sich ein Lied verbirgt, das viele kennen.\nErkennt das Lied.\nBeantwortet seine Frage.\nDann offenbart euch der Wächter das zweite Fragment des Satzes.",
   }),
   [STATION_THREE_ID]: Object.freeze({
-    title: "Die dritte Prüfung - Der Wächter der Zeit",
+    title: "Die erste Prüfung - Der Wächter der Zeit",
     text:
-      "Der dritte Wächter war ein Chronist der Musikgeschichte.\nEr sammelte Lieder aus vielen Jahrzehnten und ordnete sie wie Sterne am Himmel einer großen Zeitlinie zu.\nEr war überzeugt:\n\"Wer die Zeit der Musik versteht, versteht auch ihren Wert.\"\nSeine Herausforderung ist einfach - aber tückisch.\nOrdnet die Songs richtig in der Geschichte ein.\nJeder Fehler verlangt einen Schluck Muttrank.\nDoch wer genügend Songs korrekt platziert, erhält das dritte Fragment des Geheimnisses.",
+      "Der erste Wächter war ein Chronist der Musikgeschichte.\nEr sammelte Lieder aus vielen Jahrzehnten und ordnete sie wie Sterne am Himmel einer großen Zeitlinie zu.\nEr war überzeugt:\n\"Wer die Zeit der Musik versteht, versteht auch ihren Wert.\"\nSeine Herausforderung ist einfach - aber tückisch.\nOrdnet die Songs richtig in der Geschichte ein.\nJeder Fehler verlangt einen Schluck Muttrank.\nDoch wer genügend Songs korrekt platziert, erhält das erste Fragment des Geheimnisses.",
   }),
   [STATION_FOUR_ID]: Object.freeze({
     title: "Die vierte Prüfung - Der Wächter der Rätsel",
@@ -225,58 +225,58 @@ const STATION_FIVE_HISTORY_LABEL = "Stadt";
 
 const STATIONS = Object.freeze([
   {
-    id: "clara-zetkin",
-    title: "Station 1 - Blockflöte",
+    id: "rossert",
+    title: "Station 1 - Hitster Challenge",
     locationName: "Clara Zetkin Haus",
     address: "48 44'44.3\"N 9 12'17.7\"E",
-    routeHint: "Startpunkt um 11:30. Dort startet euer Blockflöten-Spiel.",
+    routeHint: "Startpunkt um 11:30. Hier startet eure erste Challenge.",
     target: { lat: 48.745639, lng: 9.204917 },
     radius: 100,
     fallback: "Wenn GPS spinnt: Geht zum Haupteingang.",
-    story: "Ihr habt eine Blockflöte.\n\nSpielt die folgenden Noten.\nErkennt ihr den Song?",
-    prompt: "Wie heißt der Song?",
-    answers: ["numb"],
-    tip: "Noten anzeigen hilft beim Einstieg.",
-    nextStageText: "Nächstes Ziel: Kemnater Hof.",
+    story: "Station 1\n\nZeit für ein kleines Spiel.",
+    prompt: "Regeln:\n\nSpielt Hitster.\n\nIhr müsst 10 Songs korrekt auf der Timeline einordnen.",
+    answers: ["in der"],
+    tip: "",
+    nextStageText: "Geht zum nächsten Ort:\n\nPinseria Schluckspecht",
   },
   {
     id: "kemnater-hof",
     title: "Station 2 - Der Wächter der Zeichen",
-    locationName: "Kemnater Hof",
-    address: "48 43'52.5\"N 9 13'34.7\"E",
-    routeHint: "Bleibt auf dem Weg, bis ihr den Hofbereich seht.",
-    target: { lat: 48.73125, lng: 9.226306 },
+    locationName: "Pinseria Schluckspecht",
+    address: "48 44'13.6\"N 9 13'36.1\"E",
+    routeHint: "Geht zum Treffpunkt bei der Pinseria Schluckspecht.",
+    target: { lat: 48.73710688112944, lng: 9.226696554499737 },
     radius: 100,
-    fallback: "Wenn GPS spinnt: Geht zum markanten Hofschild.",
+    fallback: "Wenn GPS spinnt: Geht zum Eingang der Pinseria.",
     story:
       "Station 2\n\nDer Wächter hinterließ eine Botschaft, die keinen Sinn ergibt:\n\nFOXY   MINUTES   MINERS\n\nDarin verbirgt sich ein Songtitel - bringt die Zeichen in die richtige Ordnung.",
     prompt: "Wie heißt der Song?",
     answers: ["summer of 69"],
     tip: "Der Künstler ist Kanadier.",
-    nextStageText: "Geht zum nächsten Ort:\n\nGrillplatz Rossert",
+    nextStageText: "Geht zum nächsten Ort:\n\nRuiter Krankenhaus",
   },
   {
-    id: "rossert",
-    title: "Station 3 - Hitster Challenge",
-    locationName: "Grillplatz Rossert",
-    address: "48 43'20.3\"N 9 14'25.7\"E",
-    routeHint: "Richtung Waldkante halten, dort findet ihr den Punkt.",
-    target: { lat: 48.722306, lng: 9.240472 },
+    id: "clara-zetkin",
+    title: "Station 3 - Blockflöte",
+    locationName: "Ruiter Krankenhaus",
+    address: "48 44'31.1\"N 9 15'10.1\"E",
+    routeHint: "Geht zum Eingangsbereich des Krankenhauses.",
+    target: { lat: 48.74195941510743, lng: 9.252802318173725 },
     radius: 100,
-    fallback: "Wenn GPS spinnt: Geht zu den Bänken am markanten Punkt.",
-    story: "Station 3\n\nZeit für ein kleines Spiel.",
-    prompt: "Regeln:\n\nSpielt Hitster.\n\nIhr müsst 10 Songs korrekt auf der Timeline einordnen.",
-    answers: ["in der"],
-    tip: "",
-    nextStageText: "Geht zum nächsten Ort:\n\nRuit",
+    fallback: "Wenn GPS spinnt: Geht direkt zum Eingang mit Schild.",
+    story: "Ihr habt eine Blockflöte.\n\nSpielt die folgenden Noten.\nErkennt ihr den Song?",
+    prompt: "Wie heißt der Song?",
+    answers: ["numb"],
+    tip: "Noten anzeigen hilft beim Einstieg.",
+    nextStageText: "Geht zum nächsten Ort:\n\nGolf-Kultur",
   },
   {
     id: STATION_FOUR_ID,
     title: "Station 4 - Die Gemeinsamkeit",
-    locationName: "Ruit",
-    address: "48 45'02.7\"N 9 15'23.6\"E",
-    routeHint: "Geht zum Treffpunkt in Ruit.",
-    target: { lat: 48.75076039033811, lng: 9.256542119488357 },
+    locationName: "Golf-Kultur",
+    address: "48 45'33.7\"N 9 15'18.0\"E",
+    routeHint: "Geht zum Treffpunkt bei der Golf-Kultur.",
+    target: { lat: 48.75936918886612, lng: 9.254992517103354 },
     radius: 100,
     fallback: "Wenn GPS spinnt: Geht zum markanten Punkt am Treffpunkt.",
     story:
@@ -284,17 +284,17 @@ const STATIONS = Object.freeze([
     prompt: "Was verbindet alle vier?",
     answers: STATION_FOUR_ANSWERS,
     tip: "",
-    nextStageText: "Geht zum nächsten Ort:\n\nGolfkultur",
+    nextStageText: "Geht zum nächsten Ort:\n\nCafé Deinz",
   },
   {
     id: STATION_FIVE_ID,
     title: "Station 5 - Finale",
-    locationName: "Golfkultur",
-    address: "48 45'33.7\"N 9 15'18.0\"E",
-    routeHint: "Geht zum Treffpunkt bei der Golfkultur.",
-    target: { lat: 48.75936918886612, lng: 9.254992517103354 },
+    locationName: "Café Deinz",
+    address: "48 45'33.5\"N 9 15'18.2\"E",
+    routeHint: "Geht zum Café Deinz in Hedelfingen.",
+    target: { lat: 48.75931216385673, lng: 9.255057377891347 },
     radius: 100,
-    fallback: "Wenn GPS spinnt: Geht zum markantesten Punkt vor Ort.",
+    fallback: "Wenn GPS spinnt: Geht zum Eingang des Café Deinz.",
     story:
       "Finale\n\nSchaut euch die Playlist genau an und achtet auf die Hinweise!",
     prompt: "",
@@ -1326,20 +1326,13 @@ function onCheckAnswerStationOne(rawInput) {
   }
 
   progress.stepByStation[STATION_ONE_ID] = STATION_ONE_STEPS.length;
-  if (progress.hintsUnlocked < 1) {
-    progress.hintsUnlocked = 1;
+  if (progress.hintsUnlocked < 3) {
+    progress.hintsUnlocked = 3;
   }
   transient.tipVisible = false;
   saveProgress();
   renderHints();
-  openFeedbackPopup("Richtig!", stepConfig.successMessage, () => {
-    openFeedbackPopup(
-      STATION_ONE_HINT_UNLOCK_TITLE,
-      STATION_ONE_HINT_UNLOCK_TEXT,
-      completeCurrentStationAndAdvance,
-      "hint",
-    );
-  });
+  openFeedbackPopup("Richtig!", stepConfig.successMessage, completeCurrentStationAndAdvance);
 }
 
 function onCheckAnswerStationTwo(rawInput) {
@@ -1803,17 +1796,20 @@ function onHitsterCorrect() {
   progress.stepByStation[STATION_THREE_ID] = next;
 
   if (next >= STATION_THREE_TARGET_COUNT) {
-    if (progress.hintsUnlocked < 3) {
-      progress.hintsUnlocked = 3;
+    if (progress.hintsUnlocked < 1) {
+      progress.hintsUnlocked = 1;
     }
     addAnswerHistory(STATION_THREE_ID, "in der");
     renderHints();
     saveProgress();
-    openFeedbackPopup(
-      "Challenge geschafft!",
-      "Das nächste Lösungswort lautet:\nin der",
-      completeCurrentStationAndAdvance,
-    );
+    openFeedbackPopup("Challenge geschafft!", "Das nächste Lösungswort lautet:\nin der", () => {
+      openFeedbackPopup(
+        STATION_ONE_HINT_UNLOCK_TITLE,
+        STATION_ONE_HINT_UNLOCK_TEXT,
+        completeCurrentStationAndAdvance,
+        "hint",
+      );
+    });
     return;
   } else {
     saveProgress();
