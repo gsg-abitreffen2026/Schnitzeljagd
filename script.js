@@ -62,7 +62,7 @@ const BARD_CLIPS = Object.freeze({
   einfuehrung: { file: "./assets/audio/einfuehrung.mp3", verseStart: 21.5, verseEnd: 34.6 },
   "clara-zetkin": { file: "./assets/audio/station-1.mp3", verseStart: 15.6, verseEnd: 28.5 },
   "kemnater-hof": { file: "./assets/audio/station-2.mp3", verseStart: 15.6, verseEnd: 28.5 },
-  rossert: { file: "./assets/audio/station-3.mp3", verseStart: 15.6, verseEnd: 31.1 },
+  rossert: { file: "./assets/audio/station-3.mp3", verseStart: 15.6, verseEnd: 31.1, typeSeconds: 11 },
   "ruiter-krankenhaus": { file: "./assets/audio/station-4.mp3", verseStart: 15.6, verseEnd: 32.0 },
   riederstrasse: { file: "./assets/audio/station-5.mp3", verseStart: 21.9, verseEnd: 34.3 },
 });
@@ -761,7 +761,7 @@ function bardTick() {
   // Vers buchstabenweise einblenden, grob synchron zum gesungenen Abschnitt.
   // Tempo nach oben gedeckelt, damit laengere Abschnitte (St3/St4) nicht schleppen.
   const span = Math.max(0.1, verseEnd - verseStart);
-  const typeDur = Math.min(span, BARD_MAX_TYPE_SECONDS);
+  const typeDur = Math.min(span, transient.bardState.typeSeconds || BARD_MAX_TYPE_SECONDS);
   let chars;
   if (now <= verseStart) {
     chars = 0;
@@ -834,6 +834,7 @@ function openBardPopup(title, key, onClose = null) {
     verseStart: clip.verseStart,
     verseEnd: clip.verseEnd,
     len: verse.length,
+    typeSeconds: clip.typeSeconds || BARD_MAX_TYPE_SECONDS,
   };
 
   el.bardAudio.volume = 1;
@@ -2216,7 +2217,7 @@ function renderStartMode(station) {
   el.startChallengeBtn.textContent = "Challenge starten";
   el.ctaHint.textContent = "";
   if (el.mapsLink) {
-    el.mapsLink.href = `https://www.google.com/maps/dir/?api=1&destination=${station.target.lat},${station.target.lng}`;
+    el.mapsLink.href = `https://www.google.com/maps/dir/?api=1&destination=${station.target.lat},${station.target.lng}&travelmode=walking`;
     el.mapsLink.classList.toggle("hidden", active);
   }
   if (el.gpsBypassBtn) {
