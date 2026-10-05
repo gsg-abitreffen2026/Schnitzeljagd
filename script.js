@@ -274,9 +274,9 @@ const STATIONS = Object.freeze([
     id: STATION_FOUR_ID,
     title: "Station 4 - Die Gemeinsamkeit",
     locationName: "Golf-Kultur",
-    address: "48 45'33.7\"N 9 15'18.0\"E",
+    address: "48 45'03.1\"N 9 15'23.0\"E",
     routeHint: "Geht zum Treffpunkt bei der Golf-Kultur.",
-    target: { lat: 48.75936918886612, lng: 9.254992517103354 },
+    target: { lat: 48.75085367954259, lng: 9.256378370915916 },
     radius: 100,
     fallback: "Wenn GPS spinnt: Geht zum markanten Punkt am Treffpunkt.",
     story:
@@ -292,7 +292,7 @@ const STATIONS = Object.freeze([
     locationName: "Café Deinz",
     address: "48 45'33.5\"N 9 15'18.2\"E",
     routeHint: "Geht zum Café Deinz in Hedelfingen.",
-    target: { lat: 48.75931216385673, lng: 9.255057377891347 },
+    target: { lat: 48.759318247680255, lng: 9.25504351067291 },
     radius: 100,
     fallback: "Wenn GPS spinnt: Geht zum Eingang des Café Deinz.",
     story:
