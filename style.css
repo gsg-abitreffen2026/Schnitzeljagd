@@ -234,6 +234,15 @@ p {
   margin-top: 0.5rem;
 }
 
+.maps-link {
+  display: inline-block;
+  margin-top: 0.3rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--brand);
+  text-decoration: underline;
+}
+
 .theme-song {
   margin-top: 1rem;
 }

@@ -96,6 +96,14 @@
         <section id="startCard" class="card">
           <h2 id="startCardTitle">Next</h2>
           <p id="lockText"></p>
+          <a
+            id="mapsLink"
+            class="maps-link hidden"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            >📍 Route in Google Maps</a
+          >
           <p id="nextTargetText" class="muted"></p>
 
           <div id="gpsStatus" class="status-pill status-idle">Status: noch nicht geprüft</div>
@@ -104,14 +112,6 @@
 
           <div id="permissionHelp" class="alert hidden" role="status"></div>
           <button id="startChallengeBtn" class="btn">Challenge starten</button>
-          <a
-            id="mapsLink"
-            class="btn btn-alt hidden"
-            href="#"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Route in Google Maps</a
-          >
           <button id="gpsBypassBtn" class="btn btn-alt hidden" type="button">
             GPS spinnt? Trotzdem weiter
           </button>
