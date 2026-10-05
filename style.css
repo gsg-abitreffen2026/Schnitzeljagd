@@ -270,6 +270,7 @@ p {
 .bard-block.bard-verse {
   font-style: italic;
   line-height: 1.6;
+  font-size: 1.3rem;
 }
 
 .bard-char {
