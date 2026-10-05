@@ -2216,7 +2216,8 @@ function renderStartMode(station) {
   el.startChallengeBtn.textContent = "Challenge starten";
   el.ctaHint.textContent = "";
   if (el.mapsLink) {
-    el.mapsLink.classList.add("hidden");
+    el.mapsLink.href = `https://www.google.com/maps/dir/?api=1&destination=${station.target.lat},${station.target.lng}`;
+    el.mapsLink.classList.toggle("hidden", active);
   }
   if (el.gpsBypassBtn) {
     el.gpsBypassBtn.classList.toggle("hidden", active || !transient.gpsBypassOffered);
@@ -2262,7 +2263,7 @@ function renderFinalLegMode() {
   el.ctaHint.textContent = "";
   if (el.mapsLink) {
     const target = FINAL_DESTINATION.target;
-    el.mapsLink.href = `https://www.google.com/maps/search/?api=1&query=${target.lat},${target.lng}`;
+    el.mapsLink.href = `https://www.google.com/maps/dir/?api=1&destination=${target.lat},${target.lng}`;
     el.mapsLink.classList.remove("hidden");
   }
   if (el.gpsBypassBtn) {
